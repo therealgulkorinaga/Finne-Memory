@@ -227,6 +227,8 @@ Each decision should use this structure:
 
 ### DECISION-018: Approve SPEC-001 Corpus And Invariants
 
+> Annotation added 2026-09-02: `SPEC-001` was the working label used when this decision was recorded. The approved artifacts were subsequently finalized under the `PREREQ-002_*` filenames listed below. They are planning product/data contracts and never authorized implementation.
+
 - ID: `DECISION-018`
 - Date: `2026-09-02`
 - Type: `Product`
@@ -236,3 +238,27 @@ Each decision should use this structure:
 - Decision: Approve `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, its complete synthetic seed-data appendix, and the amended deterministic invariants. Retain six primary demo decisions and add two non-primary lifecycle fixtures for `draft` and `questioned` coverage.
 - Consequences: `PREREQ-002` is complete. Technology-specific encodings, architecture, repository layout, runtime, dependencies, and test framework remain deferred to `PREREQ-003`; no implementation task is authorized.
 - Related Prerequisites: `PREREQ-002`, `PREREQ-003`
+
+### DECISION-019: Adopt Strict Human-Directed AI Build Governance
+
+- ID: `DECISION-019`
+- Date: `2026-09-02`
+- Type: `Process`
+- Status: `Accepted`
+- Classification: CONFIRMED
+- Context: Arko directed Sybill to adopt the transferable spec-driven, human-directed, progressively auditable operating rules identified from the ETHOnline solo AI build process while excluding all ETHOnline-specific product, sponsor, bounty, deadline, prize, submission, and demo content.
+- Decision: Prohibit one-shot and near-one-shot builds; require an approved and committed bounded `SPEC-*` before implementation; use one bounded feature or coherent repair per branch and pull request; preserve material prompts under `prompts/`; maintain repository and pull-request AI attribution plus `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, and `REUSED_COMPONENTS.md`; require acceptance-criteria-mapped tests, Arko's manual verification, independent diff review, human commit approval, human-only merge to `main`, small coherent commits, known-good checkpoints, the mandatory lifecycle, absolute stop conditions, and the full commit gate in `AGENT_BUILD_INSTRUCTIONS.md` and `AI_BUILD_GOVERNANCE.md`.
+- Consequences: `TASK-001` cannot authorize implementation until it references an approved and committed bounded `SPEC-*`. Every Work and Codex task must satisfy the commit gate. Documentation-only changes may mark implementation tests and manual product verification `NOT APPLICABLE` with reasons, but documentation validation, link checking, status consistency, AI attribution, and human-decision traceability remain mandatory.
+- Related Prerequisites: `PREREQ-003`
+
+### DECISION-020: Distinguish Planning Contracts From Implementation Specifications
+
+- ID: `DECISION-020`
+- Date: `2026-09-02`
+- Type: `Process`
+- Status: `Accepted`
+- Classification: CONFIRMED
+- Context: Earlier planning used `SPEC-001` as a working label for the decision-record and corpus definition. Those approved artifacts now use `PREREQ-002_*` filenames, while the adopted build governance requires a separate bounded and committed `SPEC-*` before implementation.
+- Decision: Treat `PREREQ-001` and `PREREQ-002` exclusively as approved planning contracts. No bounded implementation `SPEC-*` exists yet. The first bounded implementation specification may be created only after `PREREQ-003` is approved, and it must then pass the approval and commit gate before any implementation task can be authorized.
+- Consequences: The completed prerequisite contracts cannot be cited as implementation authorization. `TASK-001` remains reserved, absent, and unauthorized, and no application implementation may begin.
+- Related Prerequisites: `PREREQ-001`, `PREREQ-002`, `PREREQ-003`

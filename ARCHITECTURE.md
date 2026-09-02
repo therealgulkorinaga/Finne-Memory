@@ -17,7 +17,7 @@ No application architecture has been approved. This document does not yet provid
 - UNRESOLVED: Test framework, test locations, fixture strategy, and required validation commands.
 - UNRESOLVED: Deployment assumptions and any event-specific technical constraints relevant to the first task.
 
-PREREQ-001 and PREREQ-002 are complete. The remaining choices must be proposed through PREREQ-003. Material architecture decisions must then be appended to `DECISIONS.md` before `TASK-001` is created.
+PREREQ-001 and PREREQ-002 are complete. The remaining choices must be proposed through PREREQ-003. Material architecture decisions must then be appended to `DECISIONS.md`, and the first bounded `SPEC-*` must be approved and committed, before `TASK-001` may authorize implementation.
 
 ## System Overview
 

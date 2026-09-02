@@ -11,7 +11,7 @@ This is the implementation-oriented issue list. It is intentionally short while 
 
 ## Workflow
 
-Specification -> bounded task -> branch -> implementation -> tests -> independent review -> human understanding gate -> commit -> PR -> merge -> next task.
+The mandatory lifecycle in `AGENT_BUILD_INSTRUCTIONS.md` applies. In particular, implementation requires an approved and committed bounded `SPEC-*` before a feature branch or implementation task may authorize code changes.
 
 ## Required Task Format
 
@@ -35,6 +35,7 @@ Each implementation task must include:
 - Documentation requirements
 - Handoff requirements
 - Stop conditions
+- Mandatory commit-gate requirements
 - Definition of Done
 
 ## Prerequisites Before TASK-001
@@ -75,7 +76,7 @@ Each implementation task must include:
 
 - Status: UNRESOLVED / NEXT PLANNING GATE
 - Owner role: Orchestrator / Integration Agent
-- Spec reference: Approved PRD and `PREREQ-002` outputs.
+- Spec reference: Approved PRD and `PREREQ-002` outputs; the first bounded `SPEC-*` remains to be written and approved after architecture decisions are complete.
 - Objective: Propose the minimum architecture needed for one complete V1 loop and replace unresolved code ownership placeholders in `AGENT_BUILD_INSTRUCTIONS.md`.
 - Scope: System boundaries, major components, data flow, shared schemas, interfaces, trust boundaries, deployment assumptions, test boundaries, and exact repository ownership paths.
 - Allowed files or ownership area: `ARCHITECTURE.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, and architecture notes under `docs/architecture/`.
@@ -92,12 +93,14 @@ Each implementation task must include:
 `TASK-001` must not be created until all material items below are resolved or explicitly deferred with a rationale:
 
 - CONFIRMED: The V1 domain, primary user and buyer, representative matter, and human-confirmed write-back boundary were approved in `PREREQ-001`.
-- CONFIRMED: The approved `PREREQ-002` outputs define exact record fields, version identifiers, provenance, authority semantics, transitions, citation rules, invariants, permissions, negative cases, and the synthetic corpus.
+- CONFIRMED: The approved `PREREQ-002` product/data contracts define exact record fields, version identifiers, provenance, authority semantics, transitions, citation rules, invariants, permissions, negative cases, and the synthetic corpus.
 - UNRESOLVED: Define the minimum shared interface or schema that the first implementation task would consume or expose.
 - UNRESOLVED: Define authorization and trust boundaries for record creation, authority changes, citation changes, and decision write-back to the extent relevant to the first task.
 - UNRESOLVED: Approve the minimum architecture, repository structure, component boundaries, file ownership, runtime, dependency policy, and test approach required by the first task.
 - UNRESOLVED: Record any event-specific hackathon technology restrictions that could invalidate the selected implementation approach, or explicitly confirm that none are known.
 - UNRESOLVED: Identify the first vertical slice and give it observable functional and technical acceptance criteria without relying on unstated choices.
+- UNRESOLVED: No bounded implementation `SPEC-*` exists yet; the first may be created only after `PREREQ-003` is approved.
+- UNRESOLVED: Write, approve, and commit the first bounded `SPEC-*` before creating an implementation-authorizing `TASK-001`.
 
 ## TASK-001 Creation Gate
 
@@ -110,11 +113,14 @@ The Orchestrator may draft `TASK-001` only when:
 5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md` where material.
 6. Its testing approach and required test cases are defined.
 7. It can be completed and independently reviewed without another agent making a product or architecture decision.
+8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization.
+9. Its prompt, attribution, audit-document, manual-verification, independent-review, and mandatory commit-gate obligations are explicit.
 
 ## Current Expected Codex Delivery
 
 - CONFIRMED: No application-code delivery is authorized yet.
 - CONFIRMED: Codex must not scaffold a project, select a stack, add dependencies, define schemas in code, or implement product behavior before `TASK-001` exists.
+- CONFIRMED: `TASK-001` cannot authorize application implementation unless it references an approved and committed bounded `SPEC-*`.
 - CONFIRMED: For an assigned prerequisite, Codex may deliver only the named repository documentation, decision proposals, examples, and traceability review within that prerequisite's scope.
 - CONFIRMED: The first future implementation delivery must be exactly the files, behavior, tests, and documentation specified by an approved `TASK-001`; nothing outside that task is implied.
 

@@ -1,35 +1,17 @@
-# Hackathon Rules
+# Hackathon Rules Register
 
-## Development Model
+## Status
 
-This repository is designed for persistent, incremental AI-assisted development.
+- UNRESOLVED: Official Sybill event rules have not yet been supplied to or verified in this repository.
+- UNRESOLVED: Event eligibility, sponsor requirements, submission requirements, deadlines, and technical restrictions are unknown.
+- CONFIRMED: This register does not claim that Sybill is eligible, that any sponsor or bounty requirement applies, that any submission format or deadline applies, or that any event-specific technology is required or prohibited.
+- CONFIRMED: Unresolved event restrictions block implementation authorization until each material restriction is explicitly resolved from a verified source or explicitly ruled inapplicable by Arko.
+- CONFIRMED: Voluntarily adopted development controls are governed separately by `AI_BUILD_GOVERNANCE.md`; they are not official event rules.
 
-The expected workflow is:
+## Verified Official Rules
 
-Specification -> bounded task -> branch -> implementation -> tests -> review -> commit -> PR -> merge -> next task.
+None supplied or verified.
 
-## Governance
+## Source Requirements
 
-- Product decisions must be recorded.
-- Architectural changes must be recorded.
-- Codex must not silently change product scope.
-- Codex must not silently change architecture because another implementation is easier.
-- Material assumptions must be explicit.
-- Significant AI-assisted contributions must remain attributable through Git history.
-- Development should occur through small meaningful commits.
-- Significant implementation work should use branches and pull requests.
-- Giant one-shot commits should be avoided.
-- Tests and documentation should accompany relevant implementation changes.
-
-## Product Implementation Status
-
-Product implementation has not started.
-
-## Hackathon-Specific Rules
-
-UNRESOLVED
-
-## Submission Requirements
-
-UNRESOLVED
-
+Before any official event rule is marked `CONFIRMED`, record its source, exact requirement, applicability to Sybill, and verification date. Do not infer or invent event rules from a different hackathon, product, sponsor, or prior project.
