@@ -62,3 +62,30 @@ This chronological log records bounded planning and implementation work, validat
 - Remote-check limitation: Fresh remote querying was unavailable to the reviewer, but the corrected terminology matched the previously verified `origin/master` state.
 - Review result: `READY FOR HUMAN COMMIT APPROVAL`.
 - Human acceptance: Arko accepted the independent review result.
+
+## 2026-09-02: Public Draft PR Review And FIX-DOC-002
+
+- Pull request: Public draft PR #1, `https://github.com/therealgulkorinaga/Sybill-Hackathon/pull/1`.
+- Remote PR-level review: Reviewed the remote-equivalent `origin/master...origin/docs/sybill-planning-foundation` boundary and public PR metadata. The base, head, three-commit sequence, 23-file documentation boundary, draft state, mergeability, and absence of configured checks matched the expected state.
+- Review finding: One `BLOCKER` found incomplete repository-level and PR-level AI attribution for seven materially assisted planning files.
+- Omitted files: `PRD.md`; `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`; `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`; `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`; `docs/product/PREREQ-002_REVIEW_PACKET.md`; `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`; and `docs/product/PREREQ-002_TRACEABILITY_REVIEW.md`.
+- Review result: `NOT READY`.
+- Correction created: `FIX-DOC-002: Complete planning-file AI attribution` updates `AI_USAGE.md`, records this history in `BUILD_LOG.md`, and preserves the correction prompt at `prompts/2026-09-02-complete-planning-ai-attribution.md`.
+- Prompt-history boundary: Earlier material planning prompts predated mandatory prompt capture and were not reconstructed or assigned invented paths.
+- Pull-request status: PR #1 remains draft and unmerged. No PR metadata was changed during this correction.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code or executable schema changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: No file was staged or committed, and nothing was pushed or merged during this correction.
+- Review status: This exact three-file correction requires an independent read-only review before commit approval.
+- Remaining limitations: `PREREQ-003` remains unresolved; no bounded implementation `SPEC-*` exists; and `TASK-001` remains unauthorized.
+- Rollback point: `c086772fa28a48e430e25949fdc7b5728db1f2a0`.
+
+## 2026-09-02: Independent FIX-DOC-002 Review
+
+- Review status: Independent review of the exact three-file `FIX-DOC-002` correction completed.
+- Review criteria: All ten acceptance criteria passed.
+- Findings: None at `BLOCKER`, `IMPORTANT`, or `NICE-TO-HAVE` severity.
+- Reviewer integrity: The independent reviewer changed no files and made no Git-state change.
+- Review result: `READY FOR HUMAN COMMIT APPROVAL`.
+- Human acceptance: Arko accepted the independent review result.
