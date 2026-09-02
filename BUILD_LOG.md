@@ -89,3 +89,30 @@ This chronological log records bounded planning and implementation work, validat
 - Reviewer integrity: The independent reviewer changed no files and made no Git-state change.
 - Review result: `READY FOR HUMAN COMMIT APPROVAL`.
 - Human acceptance: Arko accepted the independent review result.
+
+## 2026-09-02: DECISION-021 Naming Migration Preparation
+
+- Scope: Documentation-only product and repository naming migration.
+- Decision reference: `DECISION-021: Rename Sybill To Finné Memory`.
+- Prompt record: `prompts/2026-09-02-rename-product-finne-memory.md`.
+- Baseline occurrence inventory: 109 tracked occurrences were classified before correction: 82 `CURRENT_PRODUCT`, five `EVENT`, 19 `HISTORICAL_RECORD` including the historical pull-request URL, three `SAVED_PROMPT`, zero `REPOSITORY`, zero `TECHNICAL_SLUG`, and zero `AMBIGUOUS` occurrences.
+- Human correction: Arko clarified that Sybill is the hackathon/event name and must remain unchanged for event, organizer, rules, eligibility, submission, deadline, and event-specific restriction references.
+- Migration result: Current product references use `Finné Memory`; the README identifies `Finne-Memory` as the repository and `finne-memory` as the technical slug; event references retain `Sybill`; and historical records and existing saved prompts remain unchanged.
+- Product and implementation effect: None. Product thesis, V1 domain, representative matter, authority model, corpus, permissions, acceptance criteria, implementation gates, and separation from Finné/x402 are unchanged.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: No file was staged or committed, and nothing was pushed or merged during preparation.
+- Review status: The corrected naming migration requires review and Arko's approval before staging or commit.
+- Remaining gates: `PREREQ-003` remains unresolved; no bounded implementation `SPEC-*` exists; and `TASK-001` remains reserved and unauthorized.
+- Rollback point: `1853ff5f59c7c36609dd62678fa5a23116fe38cc`.
+
+## 2026-09-02: Independent DECISION-021 Naming Migration Review
+
+- Review status: Independent review of the Finné Memory naming migration completed.
+- Review scope: Exactly 15 modified Markdown files and one new saved prompt.
+- Review criteria: All 25 criteria passed.
+- Findings: None at `BLOCKER`, `IMPORTANT`, or `NICE-TO-HAVE` severity.
+- Reviewer integrity: The reviewer changed no file and made no Git-state change.
+- Review result: `READY FOR HUMAN COMMIT APPROVAL`.
+- Human acceptance: Arko accepted the independent review result.

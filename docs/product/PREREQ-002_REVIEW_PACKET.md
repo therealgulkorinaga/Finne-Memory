@@ -17,7 +17,7 @@
 | `DecisionMatter` | `domain` | Enum | Required | `supplier_onboarding` in V1 | PROPOSED |
 | `DecisionMatter` | `question` | String | Required | Decision question presented downstream | PROPOSED |
 | `DecisionMatter` | `submitted_by` | Actor ID | Required | Human or automated submitter provenance | PROPOSED |
-| `DecisionMatter` | `submitted_at` | Timestamp | Required | Time Sybill received the matter | PROPOSED |
+| `DecisionMatter` | `submitted_at` | Timestamp | Required | Time Finné Memory received the matter | PROPOSED |
 | `DecisionMatter` | `relevant_at` | Date | Required | Sole date used to select policy version and authority snapshot | CONFIRMED |
 | `DecisionMatter` | `fact_ids` | List of Fact IDs | Required, non-empty | Facts considered for retrieval and comparison | PROPOSED |
 | `DecisionMatter` | `evidence_ids` | List of Evidence IDs | Optional | Evidence supplied with the matter | PROPOSED |
@@ -48,7 +48,7 @@
 | `DecisionRecord` | `provenance` | `RecordProvenance` | Required | Origin and creator attribution | PROPOSED |
 | `DecisionRecord` | `is_synthetic` | Boolean | Required | Distinguishes fixtures from real records | PROPOSED |
 | `DecisionOutcome` | `outcome_type` | Enum: `approved`, `rejected`, `escalated` | Required | External supplier outcome | PROPOSED |
-| `DecisionOutcome` | `rationale_summary` | String | Required | Downstream rationale, not Sybill authority | PROPOSED |
+| `DecisionOutcome` | `rationale_summary` | String | Required | Downstream rationale, not Finné Memory authority | PROPOSED |
 | `DecisionOutcome` | `decided_by` | Actor or external-system ID | Required | Accountable downstream decision-maker | PROPOSED |
 | `HumanConfirmation` | `confirmed_by` | Human actor ID | Required | Authorized Decision Reviewer | CONFIRMED |
 | `HumanConfirmation` | `confirmed_at` | Timestamp | Required | Separate write-back confirmation event time | CONFIRMED |
@@ -139,7 +139,7 @@
 | `DR-004` | Decision; `2025-07-15` | Private; independent beneficial-ownership evidence incomplete under V2 | Escalated | `active` | `supersedes DR-001` and `DR-002`; current baseline | PROPOSED |
 | `DR-005` | Decision; `2025-08-02` | Private; medium risk; only self-attestation; independent evidence missing; attestation later found unreliable | Approved | `withdrawn` | Highly similar to MAT-001; retrievable but visibly excluded from active authority | PROPOSED corpus / CONFIRMED packet treatment |
 | `DR-006` | Decision; `2025-09-03` | Private; ownership evidence complete; separate control-chain risk unresolved | Escalated | `active` | Less similar active context | PROPOSED |
-| `MAT-001` | Current matter; `2025-10-01` | Private; medium risk; urgent onboarding; self-attestation; partial registry extract; one beneficial owner unverified | None; Sybill must not produce one | N/A | Retrieve DR-005 but exclude it from authority; present DR-004 as active baseline | PROPOSED fixture / CONFIRMED packet treatment |
+| `MAT-001` | Current matter; `2025-10-01` | Private; medium risk; urgent onboarding; self-attestation; partial registry extract; one beneficial owner unverified | None; Finné Memory must not produce one | N/A | Retrieve DR-005 but exclude it from authority; present DR-004 as active baseline | PROPOSED fixture / CONFIRMED packet treatment |
 
 ## Complete Authority-Transition Table
 

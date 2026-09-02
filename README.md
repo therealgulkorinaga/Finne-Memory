@@ -2,6 +2,14 @@
 
 This repository is for an AI-assisted hackathon project.
 
+The product is **Finné Memory**. Finné Memory gives autonomous systems institutional memory and precedent for consequential decisions.
+
+- Repository name: `Finne-Memory`
+- Canonical repository: [github.com/therealgulkorinaga/Finne-Memory](https://github.com/therealgulkorinaga/Finne-Memory)
+- Technical slug: `finne-memory`
+
+The product was renamed from Sybill to Finné Memory under `DECISION-021`. Historical references retain the former name. The Sybill event name is unchanged.
+
 Its purpose is to support persistent, incremental development through written specifications, bounded implementation tasks, branches, tests, reviews, commits, pull requests, and merges.
 
 Product implementation has not started.

@@ -2,11 +2,11 @@
 
 ## Source Status
 
-- CONFIRMED: These are voluntarily adopted Sybill build-governance controls, not verified official event rules.
+- CONFIRMED: These are voluntarily adopted Finné Memory build-governance controls, not verified official event rules.
 - CONFIRMED: This repository also follows the spec-driven AI coding playbook previously extracted from `Hackathon_AI_Coding_Rules.pdf`.
-- CONFIRMED: Arko directed the project to adopt the transferable operating rules listed in the prompt saved at `prompts/2026-09-02-transferable-ai-build-governance.md` as mandatory Sybill build governance.
+- CONFIRMED: Arko directed the project to adopt the transferable operating rules listed in the prompt saved at `prompts/2026-09-02-transferable-ai-build-governance.md` as mandatory Finné Memory build governance.
 - CONFIRMED: The named `ETHOnline_2026_Solo_AI_Build_Rules(1).pdf` was not readable from this workspace because macOS denied access to Downloads. This repository therefore attributes the newly adopted rules to Arko's explicit instruction and does not claim independent verification of that PDF.
-- CONFIRMED: No ETHOnline-specific Finne product thesis, stablecoin workflow, sponsor, bounty, deadline, prize cap, submission format, or demo requirement is imported into Sybill.
+- CONFIRMED: No ETHOnline-specific Finne product thesis, stablecoin workflow, sponsor, bounty, deadline, prize cap, submission format, or demo requirement is imported into Finné Memory.
 - CONFIRMED: Official event eligibility, restrictions, deadlines, submission requirements, and technical constraints are tracked separately in `HACKATHON_RULES.md`.
 
 ## Human-Directed Development Model
@@ -50,7 +50,7 @@ Every bounded specification must define:
 - Explicit exclusions.
 - Stop and escalation conditions.
 
-No agent may silently change the Sybill thesis, authority rules, permissions, schemas, stable interfaces, security boundaries, or product behavior. Material changes require Arko's approval, an updated specification, and a chronological entry in `DECISIONS.md` before implementation.
+No agent may silently change the Finné Memory thesis, authority rules, permissions, schemas, stable interfaces, security boundaries, or product behavior. Material changes require Arko's approval, an updated specification, and a chronological entry in `DECISIONS.md` before implementation.
 
 ## Prompt And AI Attribution
 
@@ -158,10 +158,10 @@ Stop work immediately and return to Arko and the Orchestrator when:
 
 Work also stops when required information is `UNRESOLVED`, ownership would be crossed, a dependency or integration lacks approval, independent review finds an unresolved `BLOCKER`, or completing the change would require an undocumented product or architecture decision.
 
-## Sybill Product Guardrails
+## Finné Memory Product Guardrails
 
-- No agent may redefine Sybill as a payment, escrow, x402, refund, settlement, transaction-dispute, transaction-performance-verification, or service-delivery-verification product.
-- Sybill does not make the final supplier outcome.
+- No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, transaction-performance-verification, or service-delivery-verification product.
+- Finné Memory does not make the final supplier outcome.
 - Similarity, authority, precedent treatment, and outcome remain separate.
 - Models may assist extraction, comparison, explanation, and drafting but cannot establish deterministic authority or citation facts.
 - Shared schemas, stable interfaces, authority rules, permissions, and ownership require explicit Orchestrator and Arko approval.

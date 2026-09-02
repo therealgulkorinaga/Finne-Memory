@@ -49,7 +49,7 @@ When ambiguity materially affects implementation, identify the ambiguity rather 
 
 Do not remove existing functionality unless the task explicitly requires it.
 
-No agent may redefine Sybill as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
+No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
 
 ## Incremental Development
 

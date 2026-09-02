@@ -33,7 +33,7 @@
 | --- | --- | --- |
 | `DecisionMatter` | `matter_id: ID [R]`; `matter_version_id: ID [R]`; `matter_version: positive integer [R]`; `previous_matter_version_id: ID [O]`; `domain: enum [R]`; `question: string [R]`; `submitted_by: ActorID [R]`; `submitted_at: timestamp [R]`; `relevant_at: date [R]`; `fact_ids: list<FactID> [R, non-empty]`; `policy_version_ids: list<PolicyVersionID> [R after selection, non-empty]`; `is_synthetic: boolean [R]` | One immutable version of a matter before an external outcome exists |
 | `DecisionRecord` | `decision_id: ID [R]`; `decision_version_id: globally unique ID [R]`; `record_version: positive integer [R]`; `previous_decision_version_id: DecisionVersionID [O]`; `matter_version_id: MatterVersionID [R]`; `domain: enum [R]`; `question: string [R]`; `relevant_at: date [R]`; `created_at: timestamp [R]`; `decided_at: timestamp [R]`; `fact_ids: list<FactID> [R, non-empty]`; `policy_version_ids: list<PolicyVersionID> [R, non-empty]`; `outcome: DecisionOutcome [R]`; `precedent_packet_id: PacketID [O]`; `confirmation: HumanConfirmation [R]`; `provenance: RecordProvenance [R]`; `is_synthetic: boolean [R]` | Immutable version of a completed downstream decision admitted to the corpus |
-| `DecisionOutcome` | `outcome_type: enum(approved,rejected,escalated) [R]`; `rationale_summary: string [R]`; `decided_by: ActorID or ExternalSystemID [R]` | External supplier outcome, never Sybill's decision |
+| `DecisionOutcome` | `outcome_type: enum(approved,rejected,escalated) [R]`; `rationale_summary: string [R]`; `decided_by: ActorID or ExternalSystemID [R]` | External supplier outcome, never Finné Memory's decision |
 | `HumanConfirmation` | `confirmation_id: ID [R]`; `decision_version_id: DecisionVersionID [R]`; `confirmed_by: HumanActorID [R]`; `confirmed_at: timestamp [R]`; `attestation: string [R]` | Separate human write-back confirmation event |
 | `RecordProvenance` | `created_by: ActorID [R]`; `origin: enum(human_entry,automated_client,imported,synthetic_seed) [R]`; `source_system_reference: string [O]` | Record-version origin and attribution |
 | `Fact` | `fact_id: ID [R]`; `applies_to_version_id: MatterVersionID or DecisionVersionID [R]`; `subject: string or EntityID [R]`; `predicate: controlled string [R]`; `value: typed value [R]`; `value_type: enum(text,boolean,number,date,category) [R]`; `origin: enum(human_supplied,system_supplied,model_extracted) [R]`; `verification_status: enum(unverified,supported,disputed,confirmed) [R]`; `extraction_confidence: decimal 0..1 [C for model_extracted]`; `recorded_at: timestamp [R]`; `recorded_by: ActorID [R]` | Immutable structured assertion with provenance and verification status |
@@ -111,8 +111,8 @@
 
 ## Human-Confirmation Workflow
 
-1. CONFIRMED: Sybill generates a cited packet for one immutable matter version and does not generate the final supplier outcome.
-2. CONFIRMED: A downstream actor makes the approval, rejection, or escalation decision outside Sybill.
+1. CONFIRMED: Finné Memory generates a cited packet for one immutable matter version and does not generate the final supplier outcome.
+2. CONFIRMED: A downstream actor makes the approval, rejection, or escalation decision outside Finné Memory.
 3. CONFIRMED: A Decision Reviewer records the external outcome, rationale, actor, `decided_at`, selected policy versions, facts, and packet reference.
 4. CONFIRMED: Deterministic validation checks all IDs, policy dates, sources, citations, provenance, and outcome completeness.
 5. CONFIRMED: The reviewer performs an explicit timestamped confirmation.
@@ -156,7 +156,7 @@
 - CONFIRMED: Every seed identifier and cross-reference validates against the dictionary.
 - CONFIRMED: Every decision version has an external outcome, human confirmation, initial draft event, policy selected by `relevant_at`, facts, evidence links, sources, and valid citations.
 - CONFIRMED: The six primary decisions demonstrate baseline, following, distinguishing, supersession, withdrawn-but-similar, and active-but-less-similar behavior.
-- CONFIRMED: `MAT-001` retrieves `DR-005` because of similarity but excludes it from active authority, presents `DR-004` as active baseline, and has no Sybill-generated outcome.
+- CONFIRMED: `MAT-001` retrieves `DR-005` because of similarity but excludes it from active authority, presents `DR-004` as active baseline, and has no Finné Memory-generated outcome.
 - CONFIRMED: Lifecycle fixtures and transition cases cover every authority state and permitted transition.
 - CONFIRMED: The traceability review maps this specification to the PRD and reports no dangling references or unresolved product decisions.
 

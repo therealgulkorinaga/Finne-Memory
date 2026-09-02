@@ -21,3 +21,13 @@ This ledger records material human decisions, corrections, rejected AI suggestio
 - Specification clarification: `PREREQ-001` and `PREREQ-002` are planning contracts. No bounded implementation `SPEC-*` exists, and none may be created until `PREREQ-003` is approved.
 - Audit correction: Attribute the saved prompts and all materially AI-assisted files; explicitly identify the Arko-supplied lifecycle, stop conditions, and commit checklist as reused text.
 - Approval boundary at the correction checkpoint: Staging, commit, push, merge, `PREREQ-003`, and `TASK-001` authorization remained prohibited. The clean second-pass review and later commit approval were subsequently completed; the other prohibitions remain in force unless Arko explicitly changes them.
+
+## 2026-09-02: Finné Memory Naming
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-021`.
+- Confirmed names: Product `Finné Memory`; repository `Finne-Memory`; technical slug `finne-memory`; former product name `Sybill`.
+- Event-name correction: `Sybill` remains the hackathon/event name wherever it refers to the event, organizer, rules, eligibility, submission, deadline, or event-specific restrictions.
+- Historical boundary: Historical decisions, logs, reviews, prompts, commit descriptions, pull-request records, and historical repository URLs retain their original wording. Saved prompts are not rewritten.
+- Product boundary: The naming migration changes no product thesis, V1 behavior, authority rule, corpus fixture, permission, acceptance criterion, or implementation gate.
+- Approval boundary: Arko required occurrence classification before correction and has not authorized staging or commit.
