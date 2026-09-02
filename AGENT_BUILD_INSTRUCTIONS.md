@@ -213,14 +213,14 @@ An agent must not report completion when a required test was not run or an accep
 4. The QA / Red Team Agent or another independent agent/session performs a second-pass diff review of tests, failure cases, authority and citation integrity, model hallucination risks, permissions, security boundaries, and spec compliance.
 5. Arko resolves material product choices and approves shared-schema, interface, authority-rule, architecture, or ownership changes.
 6. The human pre-commit gate in `AI_BUILD_GOVERNANCE.md` is completed.
-7. Only Arko approves commits and performs the merge to `main`.
+7. Only Arko approves commits and performs the merge to the repository’s remote default branch.
 
 Review findings must identify the violated requirement or risk and be ranked `BLOCKER`, `IMPORTANT`, or `NICE-TO-HAVE`. A `BLOCKER` prevents commit until resolved or explicitly waived by Arko with the rationale recorded.
 
 ## 8. Commit Protocol
 
 - Agents do not commit directly.
-- Only Arko may approve a commit, and only a human may merge to `main`.
+- Only Arko may approve a commit, and only a human may merge to the repository’s remote default branch.
 - One bounded feature or coherent repair belongs on one branch and pull request.
 - Small, coherent commits must preserve progressive development history; one-shot or near-one-shot application commits are forbidden.
 - The proposed commit must reference its task and spec.

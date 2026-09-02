@@ -55,7 +55,7 @@ No agent may redefine Sybill as a payment, escrow, x402, refund, settlement, tra
 
 Work incrementally. One bounded task should normally produce one understandable unit of development history.
 
-The mandatory lifecycle is defined verbatim in `AGENT_BUILD_INSTRUCTIONS.md` and `AI_BUILD_GOVERNANCE.md`. It requires an approved and committed bounded `SPEC-*`, a feature branch, contemporaneous prompt capture, bounded implementation, explanation, automated testing, Arko's manual verification, audit-document updates, diff review, human commit approval, a pull request, independent review, fixes and retesting, human-only merge to `main`, and a known-good checkpoint.
+The mandatory lifecycle is defined verbatim in `AGENT_BUILD_INSTRUCTIONS.md` and `AI_BUILD_GOVERNANCE.md`. It requires an approved and committed bounded `SPEC-*`, a feature branch, contemporaneous prompt capture, bounded implementation, explanation, automated testing, Arko's manual verification, audit-document updates, diff review, human commit approval, a pull request, independent review, fixes and retesting, human-only merge to the repository’s remote default branch, and a known-good checkpoint.
 
 Every implementation task must include acceptance criteria before implementation starts.
 
@@ -111,4 +111,4 @@ Respect `AI_BUILD_GOVERNANCE.md` as a hard project constraint. Verified official
 
 If requested work conflicts with either governance or a verified official event rule, stop and identify the conflict before proceeding.
 
-The absolute stop conditions and mandatory commit gate in `AGENT_BUILD_INSTRUCTIONS.md` apply to every Work and Codex task. Agents never approve commits or merge to `main`; those are human actions controlled by Arko.
+The absolute stop conditions and mandatory commit gate in `AGENT_BUILD_INSTRUCTIONS.md` apply to every Work and Codex task. Agents never approve commits or merge to the repository’s remote default branch; those are human actions controlled by Arko.

@@ -12,7 +12,8 @@
 ## Human-Directed Development Model
 
 - CONFIRMED: AI coding agents may write implementation code only within an approved, committed, bounded specification.
-- CONFIRMED: Arko owns product decisions, specification approval, manual verification, commit approval, and merge to `main`.
+- CONFIRMED: Arko owns product decisions, specification approval, manual verification, commit approval, and merge to the repository’s remote default branch.
+- CONFIRMED: The current remote default branch is `master`. The human-only merge rule follows the remote default branch if its name changes.
 - CONFIRMED: One-shot and near-one-shot application generation are forbidden because they obscure progressive development and persistent human contribution.
 - CONFIRMED: One bounded feature or coherent repair belongs on one feature branch and pull request.
 - CONFIRMED: Commits must be small, coherent, explainable, attributable, and preserve progressive development history.
@@ -119,7 +120,7 @@ Every Work and Codex task must provide this completed checklist before asking Ar
 - Rollback point.
 - Confirmation that Arko understands the change.
 
-Agents do not approve commits. Arko provides human commit approval, and only a human may merge to `main`.
+Agents do not approve commits. Arko provides human commit approval, and only a human may merge to the repository’s remote default branch.
 
 ## Pull Request And Review Rules
 

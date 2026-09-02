@@ -18,7 +18,7 @@ DEFERRED: The exact naming convention will be selected in `PREREQ-003`. Until th
 
 ## Commits
 
-Use small, coherent commits that preserve progressive development history. Agents may prepare changes and a proposed commit, but Arko approves commits and only a human may merge to `main`.
+Use small, coherent commits that preserve progressive development history. Agents may prepare changes and a proposed commit, but Arko approves commits and only a human may merge to the repository’s remote default branch. The current remote default branch is `master`.
 
 Commit message convention:
 
