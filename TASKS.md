@@ -1,4 +1,4 @@
-# Sybill Issue And Task Registry
+# Finné Memory Issue And Task Registry
 
 This is the implementation-oriented issue list. It is intentionally short while product prerequisites remain unresolved. Do not expand every possible workstream into a backlog before the shared product contracts and architecture are approved.
 
@@ -54,7 +54,7 @@ Each implementation task must include:
 - Acceptance criteria: SATISFIED. Arko approved the V1 domain, primary user and buyer, representative matter, and clarified human-confirmed write-back rule; the proposal, PRD, and decision log are reconciled.
 - Testing requirements: Not applicable; review the PRD for internal consistency and traceability.
 - Handoff requirements: Present only the four decisions Arko must approve or change to close `PREREQ-001`.
-- Stop conditions: Stop if a choice would redefine Sybill as a commerce or final-decision product.
+- Stop conditions: Stop if a choice would redefine Finné Memory as a commerce or final-decision product.
 
 ### PREREQ-002: Define Decision Record And Precedent Corpus
 

@@ -1,4 +1,4 @@
-# Sybill Agent Build Instructions
+# Finné Memory Agent Build Instructions
 
 ## Document Status
 
@@ -42,11 +42,11 @@ No step may be silently skipped. For documentation-only commits, implementation 
 
 ## 2. Shared Product Boundaries
 
-- CONFIRMED: Sybill is a machine precedent layer for autonomous decision-making.
-- CONFIRMED: Sybill retrieves relevant past decisions, applies deterministic authority and citation rules, compares facts, and produces a cited `PrecedentPacket` for a downstream decision-maker.
-- CONFIRMED: Sybill does not make the final decision.
-- CONFIRMED: No agent may redefine Sybill as a payment, escrow, x402, refund, settlement, or transaction-dispute product.
-- CONFIRMED: No agent may add service-delivery verification or other Finné/x402 behavior to Sybill.
+- CONFIRMED: Finné Memory is a machine precedent layer for autonomous decision-making.
+- CONFIRMED: Finné Memory retrieves relevant past decisions, applies deterministic authority and citation rules, compares facts, and produces a cited `PrecedentPacket` for a downstream decision-maker.
+- CONFIRMED: Finné Memory does not make the final decision.
+- CONFIRMED: No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, or transaction-dispute product.
+- CONFIRMED: No agent may add service-delivery verification or other Finné/x402 behavior to Finné Memory.
 - CONFIRMED: Deterministic records own authority status, identifiers, citations, supersession, policy dates, authority transitions, citation validity, and active-authority eligibility.
 - CONFIRMED: Model output may assist with extraction, comparison, explanation, and drafting, but may not invent records, alter authority, establish unvalidated citations, override deterministic rules, or make the final decision.
 
@@ -232,10 +232,10 @@ Review findings must identify the violated requirement or risk and be ranked `BL
 
 No agent may, without explicit task scope and required approval:
 
-- Redefine Sybill as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
-- Make Sybill the final decision-maker.
+- Redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
+- Make Finné Memory the final decision-maker.
 - Change shared schemas, public interfaces, authority rules, or file ownership without explicit approval from the Orchestrator and Arko.
-- Change permissions, stable interfaces, or the Sybill product thesis without explicit approval and a recorded decision.
+- Change permissions, stable interfaces, or the Finné Memory product thesis without explicit approval and a recorded decision.
 - Add, remove, or reinterpret an authority status.
 - Permit model output to alter deterministic authority or citation facts.
 - Add an external integration, framework, major dependency, protocol, security model, or data store.

@@ -57,7 +57,7 @@
 | `D-008` | `DV-008-V1` | 1 | `MV-008-V1` | `2025-09-20T11:05:00Z` / `2025-09-20T10:00:00Z` | Approved; registry evidence appeared complete when decided | `HC-008`, `ACT-REVIEWER`, `2025-09-20T11:00:00Z` | None | `PV-BO-002` |
 
 - CONFIRMED: Every record has `previous_decision_version_id=null`, copies `relevant_at` from its matter version, uses the matter's fact IDs, has `domain=supplier_onboarding`, `is_synthetic=true`, and provenance `{created_by: ACT-SEED, origin: synthetic_seed}`.
-- CONFIRMED: Every confirmation attestation is `I confirm that this record accurately represents the completed external decision and may enter Sybill's precedent corpus.`
+- CONFIRMED: Every confirmation attestation is `I confirm that this record accurately represents the completed external decision and may enter Finné Memory's precedent corpus.`
 
 ## Sources And Evidence
 
@@ -93,7 +93,7 @@
 | `SRC-MAT-ATT` | attestation | MAT-001 supplier attestation / `fixture://mat001/attestation` | `E-MAT-ATT` | Self-attestation supplied |
 | `SRC-MAT-RISK` | risk_assessment | MAT-001 risk assessment / `fixture://mat001/risk` | `E-MAT-RISK` | Medium risk and urgent-onboarding request |
 
-- CONFIRMED: All sources have `issuer=Synthetic Sybill Demo`, `is_synthetic=true`, and omitted optional content fingerprints.
+- CONFIRMED: All sources have `issuer=Synthetic Finné Memory Demo`, `is_synthetic=true`, and omitted optional content fingerprints.
 - CONFIRMED: All evidence items use their listed source, the table description, `added_by=ACT-SEED`, and a fixture locator matching the source reference.
 
 ## Facts And Canonical FactEvidenceLinks

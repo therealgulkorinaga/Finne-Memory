@@ -1,8 +1,8 @@
-# Sybill Product Requirements Document
+# Finné Memory Product Requirements Document
 
 ## Document Status
 
-- CONFIRMED: Sybill's product identity, non-commerce boundary, V1 decision-support loop, deterministic/model responsibility split, target user and buyer, representative matter, human write-back boundary, and `PREREQ-002` data contract.
+- CONFIRMED: Finné Memory's product identity, non-commerce boundary, V1 decision-support loop, deterministic/model responsibility split, target user and buyer, representative matter, human write-back boundary, and `PREREQ-002` data contract.
 - CONFIRMED: Supplier onboarding and procurement compliance is the V1 demo domain.
 - CONFIRMED: `PREREQ-002` defines matter and decision versioning, facts, evidence, sources, authority events and transitions, citations, precedent relationships, policy dates, product permissions, invariants, and the complete synthetic corpus.
 - UNRESOLVED: Retrieval ranking, packet schema beyond the exact matter-version reference, technical authorization, interfaces, implementation architecture, integrations, and quantitative success thresholds.
@@ -11,15 +11,15 @@
 
 ## Product Summary
 
-Sybill is a machine precedent layer for autonomous decision-making. It gives autonomous systems institutional memory by recording consequential decisions with their evidence, sources, reasoning, and authority status. For a new matter, it retrieves relevant past decisions, checks whether they remain authoritative, compares the facts, and produces a cited precedent brief.
+Finné Memory gives autonomous systems institutional memory and precedent for consequential decisions. It records consequential decisions with their evidence, sources, reasoning, and authority status. For a new matter, it retrieves relevant past decisions, checks whether they remain authoritative, compares the facts, and produces a cited precedent brief.
 
-Sybill does not make the final decision. Its primary output is a structured, cited `PrecedentPacket` for a human, agent, or downstream system to use when making that decision.
+Finné Memory does not make the final decision. Its primary output is a structured, cited `PrecedentPacket` for a human, agent, or downstream system to use when making that decision.
 
 ## Problem Statement
 
 AI agents and automated systems increasingly make recurring consequential decisions, but commonly treat each matter as a fresh reasoning event. Ordinary memory can show that something happened before; it does not establish which past decisions are relevant, whether they remain authoritative, or why current facts should lead a system to follow, distinguish, question, or ignore them.
 
-Human institutions address this through precedent, policy histories, citations, authority rules, and audit trails. Sybill provides an equivalent decision-memory layer for autonomous systems.
+Human institutions address this through precedent, policy histories, citations, authority rules, and audit trails. Finné Memory provides an equivalent decision-memory layer for autonomous systems.
 
 ## Product Principle
 
@@ -27,10 +27,10 @@ Memory says that something happened before. Precedent establishes that a past de
 
 ## Non-Overlap With Finné And x402
 
-- CONFIRMED: Sybill is not a payment, escrow, refund, settlement, transaction-dispute, or service-delivery verification product.
-- CONFIRMED: Sybill does not process x402 payments, hold funds, arbitrate transactions, or determine whether a purchased service was delivered.
-- CONFIRMED: Those capabilities belong to the separate Finné/x402 product direction and are outside Sybill's scope.
-- CONFIRMED: No agent may redefine Sybill to include those capabilities.
+- CONFIRMED: Finné Memory is not a payment, escrow, refund, settlement, transaction-dispute, or service-delivery verification product.
+- CONFIRMED: Finné Memory does not process x402 payments, hold funds, arbitrate transactions, or determine whether a purchased service was delivered.
+- CONFIRMED: Those capabilities belong to the separate Finné/x402 product direction and are outside Finné Memory's scope.
+- CONFIRMED: No agent may redefine Finné Memory to include those capabilities.
 
 ## Target Users
 
@@ -43,20 +43,20 @@ Memory says that something happened before. Precedent establishes that a past de
 
 - CONFIRMED: V1 demonstrates supplier onboarding and procurement compliance.
 - CONFIRMED: The representative matter is whether a supplier with incomplete beneficial-ownership evidence should be approved, rejected, or escalated.
-- CONFIRMED: Sybill supplies precedent analysis but does not select the final outcome.
+- CONFIRMED: Finné Memory supplies precedent analysis but does not select the final outcome.
 
 This domain is the current candidate because it has structured evidence, policies, exceptions, repeat decisions, meaningful authority changes, and an understandable distinction between similarity and authority.
 
 ## V1 Product Journey
 
 1. A user or agent submits a new decision matter.
-2. Sybill extracts structured facts from supplied material or receives already-structured facts.
-3. Sybill retrieves similar past decisions.
-4. Sybill checks each candidate's authority status.
-5. Sybill compares the current matter with the past decisions.
-6. Sybill produces a structured `PrecedentPacket` and a readable precedent brief with validated citations.
-7. A downstream human, agent, or system makes the final decision outside Sybill.
-8. CONFIRMED: After the downstream decision is made, an authorized human explicitly confirms whether it may enter Sybill's precedent corpus.
+2. Finné Memory extracts structured facts from supplied material or receives already-structured facts.
+3. Finné Memory retrieves similar past decisions.
+4. Finné Memory checks each candidate's authority status.
+5. Finné Memory compares the current matter with the past decisions.
+6. Finné Memory produces a structured `PrecedentPacket` and a readable precedent brief with validated citations.
+7. A downstream human, agent, or system makes the final decision outside Finné Memory.
+8. CONFIRMED: After the downstream decision is made, an authorized human explicitly confirms whether it may enter Finné Memory's precedent corpus.
 
 UNRESOLVED: Whether model-assisted fact extraction requires human confirmation before packet generation remains a later product-behavior decision.
 
@@ -83,7 +83,7 @@ The V1 demo corpus must be intentionally small and must contain:
 - One decision that supersedes an older rule or decision.
 - One highly similar decision that is no longer authoritative.
 - One less-similar decision that remains active.
-- One current matter that requires Sybill to explain the difference between similarity and authority.
+- One current matter that requires Finné Memory to explain the difference between similarity and authority.
 
 CONFIRMED: Exact synthetic records, evidence, policy language, dates, authority histories, and the expected no-outcome packet behavior for the current matter are defined in the approved `PREREQ-002` outputs.
 
@@ -159,9 +159,9 @@ ASSUMPTION: These are logical product surfaces, not confirmed screens or routes.
 
 ## System Boundaries
 
-Sybill is responsible for recording and retrieving decision precedent, validating deterministic authority and citation facts, and producing evidence-backed precedent analysis.
+Finné Memory is responsible for recording and retrieving decision precedent, validating deterministic authority and citation facts, and producing evidence-backed precedent analysis.
 
-Sybill is not responsible for:
+Finné Memory is not responsible for:
 
 - Making or enforcing the final business decision.
 - Executing procurement approval or rejection in an external system.
@@ -191,7 +191,7 @@ UNRESOLVED: Exact user-facing states, retry behavior, degraded-mode behavior, an
 
 - CONFIRMED: Model output is untrusted until checked against deterministic records and schemas.
 - CONFIRMED: Authority state and citation validity cannot be changed by model-generated text.
-- CONFIRMED: The final decision remains outside Sybill.
+- CONFIRMED: The final decision remains outside Finné Memory.
 - CONFIRMED: Unverified or disputed facts remain visible with status and provenance but cannot support an authoritative conclusion.
 - CONFIRMED: A Matter Submitter may submit and view analysis; a Decision Reviewer may record an external outcome and confirm write-back; an Authority Steward may maintain authority metadata; an Automated Client may submit and consume packets but may not confirm write-back or change authority.
 - UNRESOLVED: Authentication, exact authorization rules, role combinations, tenant boundaries, audit retention, sensitive-data handling, and whether authority stewardship is exposed in the V1 interface.
@@ -232,7 +232,7 @@ CONFIRMED: The demo uses the supplier-onboarding scenario described above.
 
 - Risk: The product looks like generic retrieval-augmented generation. Mitigation: demonstrate explicit authority states, supersession, citation validation, and similarity-versus-authority reasoning.
 - Risk: Generated prose invents support. Mitigation: constrain generation to validated records and reject unresolved citations.
-- Risk: Judges believe Sybill autonomously decides outcomes. Mitigation: show the `PrecedentPacket` as decision support and make the downstream decision boundary explicit.
+- Risk: Judges believe Finné Memory autonomously decides outcomes. Mitigation: show the `PrecedentPacket` as decision support and make the downstream decision boundary explicit.
 - Risk: Scope drifts toward Finné/x402. Mitigation: enforce the non-overlap rule in the PRD, agent instructions, tasks, and reviews.
 - UNRESOLVED: Domain-specific risks concerning procurement data, fairness, policy interpretation, and regulatory obligations.
 

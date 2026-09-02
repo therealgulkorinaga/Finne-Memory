@@ -262,3 +262,17 @@ Each decision should use this structure:
 - Decision: Treat `PREREQ-001` and `PREREQ-002` exclusively as approved planning contracts. No bounded implementation `SPEC-*` exists yet. The first bounded implementation specification may be created only after `PREREQ-003` is approved, and it must then pass the approval and commit gate before any implementation task can be authorized.
 - Consequences: The completed prerequisite contracts cannot be cited as implementation authorization. `TASK-001` remains reserved, absent, and unauthorized, and no application implementation may begin.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`, `PREREQ-003`
+
+### DECISION-021: Rename Sybill To Finné Memory
+
+- ID: `DECISION-021`
+- Date: `2026-09-02`
+- Type: `Product / Repository Naming`
+- Status: `Accepted`
+- Classification: CONFIRMED
+- Context: The current product and repository require distinct confirmed names while the Sybill hackathon/event name and truthful historical records retain their original wording.
+- Decision: Rename the product from `Sybill` to `Finné Memory`, rename the repository to `Finne-Memory`, and use `finne-memory` where accents or spaces are technically unsuitable. Present the current product as: “Finné Memory gives autonomous systems institutional memory and precedent for consequential decisions.”
+- Historical-record rule: The product was renamed from Sybill to Finné Memory under DECISION-021. Historical references retain the former name. Existing decisions, logs, reviews, saved prompts, commit descriptions, and pull-request records are not rewritten. `Sybill` remains the hackathon/event name wherever it refers to the event, organizer, rules, eligibility, submission, deadline, or event-specific restrictions.
+- Scope consequence: This naming decision does not change the approved product thesis, V1 domain, representative matter, authority model, corpus, permissions, implementation gates, or separation from the Finné/x402 project.
+- Affected current-facing documents: `README.md`, `PRD.md`, `AGENTS.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `AI_BUILD_GOVERNANCE.md`, `TASKS.md`, `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_REVIEW_PACKET.md`, and `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`.
+- Related Prerequisites: `PREREQ-001`, `PREREQ-002`, `PREREQ-003`

@@ -5,7 +5,7 @@
 - CONFIRMED: This is a planning proposal only and does not authorize application code, scaffolding, dependencies, architecture selection, or implementation tasks.
 - CONFIRMED: This proposal has been resolved and superseded by `PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md` and its synthetic seed-data appendix.
 - CONFIRMED: Supplier onboarding and procurement compliance is the V1 domain.
-- CONFIRMED: Sybill produces cited precedent support but does not make the final supplier decision.
+- CONFIRMED: Finné Memory produces cited precedent support but does not make the final supplier decision.
 - CONFIRMED: A completed downstream decision may enter the precedent corpus only after explicit confirmation by an authorized human.
 - CONFIRMED: Arko approved decision packages `P2-02` through `P2-10` and `P2-12` in principle with the amendments incorporated below.
 - CONFIRMED: Decision packages `P2-01`, `P2-11`, and `P2-13` were approved after exact review and the ten detected issues were resolved as recorded in `PREREQ-002_TRACEABILITY_REVIEW.md`.
@@ -30,7 +30,7 @@
 - PROPOSED: `DecisionMatter.domain` is `supplier_onboarding` in V1.
 - PROPOSED: `DecisionMatter.question` contains the decision question in plain language.
 - PROPOSED: `DecisionMatter.submitted_by` identifies the permitted human or automated client that submitted it.
-- PROPOSED: `DecisionMatter.submitted_at` records when it entered Sybill.
+- PROPOSED: `DecisionMatter.submitted_at` records when it entered Finné Memory.
 - CONFIRMED: `DecisionMatter.relevant_at` is the single explicit date used to select the applicable policy version and authority snapshot for analysis.
 - PROPOSED: `DecisionMatter.fact_ids` references the matter's structured facts.
 - PROPOSED: `DecisionMatter.evidence_ids` references supporting or conflicting evidence.
@@ -43,7 +43,7 @@
 ## 3. Complete DecisionRecord
 
 - PROPOSED: A `DecisionRecord` represents a completed downstream decision that has passed human confirmation and deterministic validation for entry into the corpus.
-- PROPOSED: `DecisionRecord.decision_id` is a stable unique identifier within Sybill.
+- PROPOSED: `DecisionRecord.decision_id` is a stable unique identifier within Finné Memory.
 - PROPOSED: `DecisionRecord.record_version` is a positive integer identifying an immutable version of the record.
 - PROPOSED: `DecisionRecord.previous_version_id` references the prior version when a correction is issued and is absent for the first version.
 - PROPOSED: `DecisionRecord.matter_id` references the originating `DecisionMatter`.
@@ -219,10 +219,10 @@
 
 ## 10. Human-Confirmation Workflow
 
-1. CONFIRMED: Sybill produces a cited precedent packet without making the final supplier decision.
-2. CONFIRMED: A downstream authorized person or system makes the approval, rejection, or escalation decision outside Sybill.
+1. CONFIRMED: Finné Memory produces a cited precedent packet without making the final supplier decision.
+2. CONFIRMED: A downstream authorized person or system makes the approval, rejection, or escalation decision outside Finné Memory.
 3. CONFIRMED: A Decision Reviewer records the outcome, rationale summary, decision-maker reference, `decided_at`, facts, evidence, policy versions selected by `relevant_at`, and packet reference.
-4. CONFIRMED: Sybill validates identifiers, required provenance, source and evidence references, policy dates, citation edges, and outcome completeness.
+4. CONFIRMED: Finné Memory validates identifiers, required provenance, source and evidence references, policy dates, citation edges, and outcome completeness.
 5. CONFIRMED: The Decision Reviewer explicitly attests that the record accurately represents the completed external decision and confirms corpus entry in a timestamped audit event.
 6. CONFIRMED: Successful confirmation creates an immutable `DecisionRecord` version in `draft` authority state and records its separate `created_at`.
 7. CONFIRMED: An Authority Steward separately reviews the draft and either activates or withdraws it through a later timestamped authority event; the draft history is not overwritten.
@@ -251,7 +251,7 @@
 ### Current Matter Fixture
 
 - PROPOSED: `MAT-001` concerns a privately held medium-risk supplier seeking urgent onboarding with a self-attestation, a partial registry extract, and one beneficial owner whose identity remains unverified.
-- PROPOSED: `MAT-001` has no outcome when submitted to Sybill.
+- PROPOSED: `MAT-001` has no outcome when submitted to Finné Memory.
 - CONFIRMED: The expected packet retrieves `DR-005` because of its high factual similarity, visibly marks it `withdrawn`, and excludes it from active authority.
 - CONFIRMED: The expected packet presents `DR-004` as the active current baseline and explains its material factual and policy relevance.
 - CONFIRMED: The expected packet uses `DR-003` to explain why the listed-company exception does not apply and includes `DR-006` only as lower-similarity active context.
@@ -292,6 +292,6 @@
 - CONFIRMED: `P2-09` approves the role permissions and permits one demo user to hold Decision Reviewer and Authority Steward roles while requiring separate timestamped audit events and prohibiting implicit activation.
 - CONFIRMED: `P2-10` approves human-confirmed write-back as an immutable `draft` version followed by a separately recorded Authority Steward event that does not overwrite draft history.
 - CONFIRMED: `P2-11` is approved as amended in `PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`.
-- CONFIRMED: `P2-12` approves retrieval of similar-but-withdrawn `DR-005` with visible exclusion from active authority, presentation of `DR-004` as active baseline, and no Sybill-generated supplier outcome.
+- CONFIRMED: `P2-12` approves retrieval of similar-but-withdrawn `DR-005` with visible exclusion from active authority, presentation of `DR-004` as active baseline, and no Finné Memory-generated supplier outcome.
 - CONFIRMED: `P2-13` is approved as amended in the final deterministic invariants in `PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`.
 - CONFIRMED: All decision packages are reconciled; this proposal remains only as chronological planning history.

@@ -34,3 +34,14 @@ This is the repository-wide attribution record for material AI assistance. Entri
 
 - FIX-DOC-002 assistance: Codex identified the missing attribution during the final public PR-level review and, under Arko's bounded instruction, drafted this correction in `AI_USAGE.md`, recorded it in `BUILD_LOG.md`, and saved `prompts/2026-09-02-complete-planning-ai-attribution.md`.
 - Product and implementation effect: None. This correction changes attribution only and does not alter product, architecture, corpus, authority, or implementation behavior.
+
+## 2026-09-02: DECISION-021 Product And Repository Naming Migration
+
+- Decision reference: `DECISION-021: Rename Sybill To Finné Memory`.
+- AI tool: OpenAI Codex desktop agent.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-02-rename-product-finne-memory.md`.
+- Codex assistance: Inventoried every tracked `Sybill`, `Sibyl`, former repository-name, and former GitHub-URL occurrence; classified each occurrence before editing; drafted current-facing naming updates and `DECISION-021`; and checked terminology, links, scope, and Git boundaries.
+- Assisted files: `README.md`, `PRD.md`, `AGENTS.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `AI_BUILD_GOVERNANCE.md`, `TASKS.md`, `DECISIONS.md`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_REVIEW_PACKET.md`, `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`, and `prompts/2026-09-02-rename-product-finne-memory.md`.
+- Arko's decisions and corrections: Arko confirmed `Finné Memory` as the product name, `Finne-Memory` as the repository name, and `finne-memory` as the technical slug. Arko corrected the initial overbroad instruction by confirming that `Sybill` remains the hackathon/event name and directed preservation of historical records and saved prompts.
+- Approval boundary: This entry records preparation only. Arko has not approved staging or commit of the migration, and no product behavior or implementation authorization changed.
