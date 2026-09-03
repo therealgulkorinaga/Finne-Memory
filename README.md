@@ -65,7 +65,7 @@ A purpose-built `AuthorizationReceipt` contract records the authorized policy am
 
 ## Boundaries
 
-Finné Memory is not a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product. Those belong to the separate Finné/x402 direction. Base is used here for authorized execution and outcome evidence only.
+Finné Memory is not a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.  Base is used here for authorized execution and outcome evidence only.
 
 ## Documentation
 
