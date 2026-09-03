@@ -2,9 +2,9 @@
 
 ## Architecture Status
 
-DECIDED — PENDING ARKO'S APPROVAL
+APPROVED AND COMMITTED — `SPEC-001` IS ALSO APPROVED
 
-The full architecture is `docs/architecture/PREREQ-003_ARCHITECTURE.md`, recorded as `DECISION-023`. This file is the summary and the standing constraint register. `PREREQ-003` is complete as a proposal; approval unblocks `SPEC-001`.
+The full architecture is `docs/architecture/PREREQ-003_ARCHITECTURE.md`, recorded as `DECISION-023` and approved by Arko on 2026-09-03. This file is the summary and the standing constraint register. `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` is also approved (2026-09-03); `TASK-001` may now be created.
 
 ## System Overview
 

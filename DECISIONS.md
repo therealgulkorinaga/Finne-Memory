@@ -334,8 +334,8 @@ Historical preservation:
 - ID: `DECISION-023`
 - Date: `2026-09-03`
 - Type: `Architecture`
-- Status: `Proposed`
-- Classification: PROPOSED — requires Arko's approval before `SPEC-001` may be approved and committed.
+- Status: `Accepted`
+- Classification: CONFIRMED — approved by Arko on 2026-09-03 and committed in `d82f224`.
 - Context: `PREREQ-003` required the minimum credible architecture. The earlier web-stack assumption is not viable: Sibyl Memory is a local-first, Python-native SQLite library, so the runtime must sit next to it rather than behind a web service.
 - Decision: Adopt a single Python package with five modules — agent runtime, Sibyl Memory adapter, deterministic authority engine, Base adapter, and a terminal interface — plus a test suite for authority invariants and a two-script reproducible demo. Full detail, including every one of the nineteen required `PREREQ-003` decisions, is recorded in `docs/architecture/PREREQ-003_ARCHITECTURE.md`.
 - Key choices: Python 3.11 with `venv` and `pip`; `sibyl-memory-client` as the only remembered-history store; owner policy as a version-controlled TOML file that Finné Memory can read but never write; a pure-function authority engine with no I/O; deterministic FTS5-backed precedent retrieval with a deterministic material-difference rule set; `web3.py` against a purpose-built `AuthorizationReceipt` demo contract on Base; a signing boundary in which only the Base adapter holds the key, loaded from the environment and never persisted to memory or the repository; and model assistance that is strictly optional and absent by default.

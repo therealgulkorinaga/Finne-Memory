@@ -4,9 +4,9 @@ This is the implementation-oriented issue list. It is intentionally short. Do no
 
 ## Implementation Readiness
 
-- Status: PLANNING APPROVED / AWAITING SPEC-001 APPROVAL AND COMMIT
-- Position: Arko approved this planning checkpoint on 2026-09-03, including `DECISION-022` and `DECISION-023`, and selected the MIT licence. `SPEC-001` is written but not yet separately approved or committed.
-- Consequence: `TASK-001` remains reserved. Approving and committing `SPEC-001` is the only remaining gate before implementation.
+- Status: SPEC-001 APPROVED / TASK-001 MAY BE CREATED
+- Position: Arko approved `DECISION-022`, `DECISION-023`, the MIT licence, `DECISION-025`, and now `SPEC-001` itself (2026-09-03).
+- Consequence: `TASK-001` may now be created and implementation may begin under it.
 
 ## Immediate Build Sequence
 
@@ -17,8 +17,8 @@ This is the implementation-oriented issue list. It is intentionally short. Do no
 | 3 | ~~Resolve `ORG-Q2` and add the `LICENSE` file~~ | Arko | **DONE 2026-09-03** — MIT, `DECISION-024` |
 | 4 | Independent review of this planning checkpoint | Independent reviewer | Not started |
 | 5 | Commit the planning checkpoint | Arko | Not started |
-| 6 | Approve and commit `SPEC-001` | Arko | Not started |
-| 7 | Create `TASK-001` from `SPEC-001` | Orchestrator | Blocked by step 6 |
+| 6 | ~~Approve and commit `SPEC-001`~~ | Arko | **DONE 2026-09-03** |
+| 7 | Create `TASK-001` from `SPEC-001` | Orchestrator | **Unblocked — the next step** |
 | 8 | Implement `SPEC-001` | Implementation agent | Blocked by step 7 |
 | 9 | Ask the organisers `ORG-Q1` (Base mainnet vs Sepolia) | Arko | Can run in parallel |
 
@@ -51,25 +51,25 @@ Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROP
 
 ### PREREQ-003: Define Initial Architecture And Ownership Map
 
-- Status: COMPLETE AS PROPOSAL / AWAITING ARKO'S APPROVAL
+- Status: COMPLETE / APPROVED AND COMMITTED
 - Owner role: Orchestrator / Integration Agent
 - Output: `docs/architecture/PREREQ-003_ARCHITECTURE.md`, recorded as `DECISION-023`; summarised in `ARCHITECTURE.md`.
 - Objective: Decide the minimum credible architecture for the two-session learned-authority slice.
 - Decided: agent runtime; Sibyl Memory integration method; memory read/write boundary; structured memory format; owner-policy representation; deterministic authority engine; precedent retrieval; material-difference handling; Base adapter; key and signing boundary; safe demo contract and action; fresh-session reset procedure; model-optional behaviour; testing approach; local run procedure; demonstration approach; module boundaries; repository layout; failure behaviour.
 - Ownership map: section 18 replaces the `UNRESOLVED` logical areas in `AGENT_BUILD_INSTRUCTIONS.md` section 3 with concrete, non-overlapping paths.
-- Acceptance criteria: SATISFIED as a proposal. Every required decision is made; trust boundaries are explicit; each implementation area has non-overlapping file ownership; material technology choices are proposed for approval.
-- Remaining: Arko's approval and commit.
+- Acceptance criteria: SATISFIED. Every required decision is made; trust boundaries are explicit; each implementation area has non-overlapping file ownership; material technology choices are approved (`DECISION-023`) and committed.
+- Remaining: None. Superseded by the `SPEC-001` approval gate below as the next planning step.
 
 ## Specifications
 
 ### SPEC-001: Fresh-Session Learned-Authority Vertical Slice
 
-- Status: PROPOSED — not approved, not committed, not implemented
+- Status: APPROVED by Arko 2026-09-03 — not yet implemented
 - Location: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`
 - Objective: Prove that remembered operating history changes what an autonomous agent is permitted to do in a genuinely fresh session, deterministically, bounded by owner authority, and auditably.
 - Observable outcome: a fresh process proposes 25,000 USDC and is bound to 10,000 USDC by a precedent retrieved from Sibyl Memory, and cannot do so when that memory is removed.
 - Acceptance criteria: 14, mapped to 8 test files.
-- Blocking dependencies: approval and commit of `DECISION-023` and this specification.
+- Blocking dependencies: approval and commit of this specification. `DECISION-023` is already approved and committed.
 - Suggested split points if Arko prefers smaller commits: section 14 of the specification names five seams.
 
 ## Unresolved Dependencies
@@ -83,23 +83,23 @@ Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROP
 - RESOLVED: `ORG-Q2` — repository licensed MIT under `DECISION-024`; `LICENSE` exists at repository root.
 - UNRESOLVED: `VERIFY-AT-BUILD` — exact `sibyl-memory-client` 0.8.0 signatures. Non-blocking; first step of `SPEC-001` implementation, with a documented fallback.
 - RESOLVED: Arko approved `DECISION-022`, `DECISION-023`, and the licence choice on 2026-09-03.
-- PENDING: Arko's explicit approval and commit of `SPEC-001` before `TASK-001` may be created.
+- RESOLVED: Arko approved `SPEC-001` on 2026-09-03. `TASK-001` may now be created.
 
 ## TASK-001 Creation Gate
 
 The Orchestrator may draft `TASK-001` only when:
 
 1. Its governing product behavior is `CONFIRMED`. — Satisfied by `DECISION-022`.
-2. Its referenced specification is approved and contains inputs, outputs, state changes, rules, permissions, failures, invariants, acceptance criteria, and out-of-scope behavior. — `SPEC-001` contains all of these; **approval pending**.
+2. Its referenced specification is approved and contains inputs, outputs, state changes, rules, permissions, failures, invariants, acceptance criteria, and out-of-scope behavior. — Satisfied. `SPEC-001` contains all of these and is approved.
 3. Its consumed and exposed interfaces are documented. — Satisfied by `SPEC-001` section 7.
 4. Its exact ownership area and expected files are known. — Satisfied by `PREREQ-003` section 18.
-5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md`. — Recorded as `DECISION-023`; **approval pending**.
+5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md`. — Recorded as `DECISION-023`, approved and committed.
 6. Its testing approach and required test cases are defined. — Satisfied by `SPEC-001` section 12.
 7. It can be completed and independently reviewed without another agent making a product or architecture decision. — Satisfied, subject to the two `VERIFY-AT-BUILD` and `ORG-Q1` items, both of which have documented defaults.
-8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization. — **Not satisfied.**
+8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization. — Satisfied. Approved 2026-09-03.
 9. Its prompt, attribution, audit-document, manual-verification, independent-review, and mandatory commit-gate obligations are explicit. — Satisfied by `AI_BUILD_GOVERNANCE.md`.
 
-Gate status: **8 of 9 conditions satisfied. Condition 8 is the remaining blocker.**
+Gate status: **9 of 9 conditions satisfied. `TASK-001` may be created.**
 
 ## Current Expected Delivery
 

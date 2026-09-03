@@ -3,10 +3,10 @@
 ## 1. Spec ID And Approval Status
 
 - Spec ID: `SPEC-001`
-- Status: **PROPOSED — NOT APPROVED, NOT COMMITTED, NOT IMPLEMENTED**
-- Governing decisions: `DECISION-022` (product), `DECISION-023` (architecture, itself `Proposed`)
+- Status: **APPROVED BY ARKO 2026-09-03 — NOT YET IMPLEMENTED**
+- Governing decisions: `DECISION-022` (product, approved and committed), `DECISION-023` (architecture, approved and committed 2026-09-03), `DECISION-025` (two-tool operating model — Claude implements, Codex independently reviews with a two-pass cap, Arko approves/commits/pushes/merges — governs how this spec gets implemented)
 - Governing contracts: `PRD.md`, `docs/product/ACTIVE_DEMO_DESIGN.md`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, retained `PREREQ-002` object model
-- Authorization gate: Implementation may not begin until Arko approves this specification **and** `DECISION-023`, and both are committed. No implementation task exists.
+- Authorization gate: SATISFIED. `DECISION-022`, `DECISION-023`, and this specification are all approved and committed. `TASK-001` may now be created per the gate in `TASKS.md`.
 
 ## 2. Goal And Actors
 
@@ -50,8 +50,8 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 4. Intersection yields zero autonomous authority → `escalate`. **Not** a silent 25,000 allow.
 5. Owner approves constrained authority of 10,000 USDC.
 6. Base adapter calls `recordAuthorization` with the 10,000 policy value and the facts hash. Zero value moves.
-7. Write W1 (case version), W2 (policy snapshot), W4 (outcome and transaction reference).
-8. Owner confirmation appends authority event W3: `draft` → `active`.
+7. Write W1 (case version), W2 (policy snapshot), W4 (outcome and transaction reference). This write is performed as the Owner, acting as Decision Reviewer, confirming creation of immutable draft `DV-001-V1` — per the retained `PREREQ-002` transitions, this confirmation **is** the initial `No prior state → draft` authority event, not a separate step.
+8. The Owner, acting separately as Authority Steward, appends a second, distinct authority event W3: `draft` → `active`.
 9. **Process exits.**
 
 ### Session 2 — memory changes behaviour
@@ -61,8 +61,8 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 3. R1 generates candidates; R2 reads each exactly; R3 folds authority state; R4 reads outcomes.
 4. `CASE-001` is comparable, `active`, `success` → eligible. `CASE-003` (withdrawn), `CASE-006` (superseded), `CASE-007` (questioned), `CASE-008` (draft) are retrieved and displayed but excluded.
 5. `learned_max_amount` = 10,000.
-6. Intersection binds on the learned constraint → `constrain` to 10,000, citing `DV-001-V1`.
-7. Base action executes within the bound; outcome written back.
+6. Intersection binds on the learned constraint → `constrain` to 10,000. `AuthorizationDecision.cited_precedents` names `DV-001-V1` — an explanation-level citation, not yet a persisted `PrecedentRelationship`, since `CASE-002` has no decision version until write-back.
+7. Base action executes within the bound; outcome written back. The Owner, acting as Decision Reviewer, confirms creation of draft `DV-002-V1` (the initial authority event for `CASE-002`). The Owner then, acting separately as Authority Steward — a distinct timestamped confirmation from the step above — confirms the `follows` (`DV-002-V1` → `DV-001-V1`) and `distinguishes` (`DV-002-V1` → `DV-005-V1`) `PrecedentRelationship` records, each carrying required `fact_ids` and `citation_ids`. This persists the relationships without activating `DV-002-V1`, which remains `draft`; promoting it to `active` is out of scope for this slice.
 
 ### Control
 
@@ -105,7 +105,7 @@ finne.base.adapter.BaseAdapter.{record_authorization, get_receipt}
 finne.explain.explain(decision) -> str
 ```
 
-`VERIFY-AT-BUILD`: confirm `sibyl-memory-client` 0.8.0 signatures before writing `finne/memory/client.py`. The published README documents the v0.4.x surface. Fallback for authority-event storage is `PREREQ-003` section 3.
+`VERIFY-AT-BUILD`: confirm `sibyl-memory-client` 0.8.0 signatures before writing `finne/memory/client.py`. The published README documents the v0.4.x surface. A documented fallback exists **only** for R3, authority-event storage via `read_events` (`PREREQ-003` section 3). It does not cover `search_entities` (R1, candidate retrieval) or tenant selection — if either of those is incompatible with the installed package, that is a stop condition under section 16, not something the fallback silently absorbs.
 
 ## 8. Failure Paths And Degraded Behavior
 
@@ -164,18 +164,20 @@ The model may not expand authority, authorize an action, change an authority sta
 | `test_authority_states.py` | A7, invariant 4 |
 | `test_comparability.py` | A8 |
 | `test_memory_roundtrip.py` | A2, invariant 8 |
-| `test_fresh_session.py` | A1, A3, A4, A5, A6, invariant 6 |
+| `test_fresh_session.py` | A1, A3, A4, A5, A6, A14, invariant 6 — A14 is proven by the test's own setup phase, which invokes `reset_demo.py` and asserts the pre-seeded (`CASE-003`..`008`) and not-seeded (`CASE-001`) state before each session run, then re-runs the full flow from that known state |
 | `test_negative_cases.py` | A9, A10, A12, A13, invariant 7 |
 | `test_base_adapter.py` | A11, A12, A13, invariant 10 |
 | `test_import_boundaries.py` | Module constraints, invariant 9 |
 
 ## 13. Allowed Files And Ownership Area
 
-Exactly the layout in `PREREQ-003` section 18, plus `README.md` for the required memory read/write table. No file outside that layout may be created or modified under this spec.
+Application files: exactly the layout in `PREREQ-003` section 18, plus `README.md` for the required memory read/write table. No application file outside that layout may be created or modified under this spec.
+
+This restriction governs application code only. It does not, and cannot, override the standing obligations in `AGENT_BUILD_INSTRUCTIONS.md` to save material prompts under `prompts/` and to maintain `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, and `REUSED_COMPONENTS.md` as work occurs. Those five locations are always in scope for every task under this spec, regardless of the application-file boundary above.
 
 ## 14. Dependencies And Rollback
 
-- **Blocking:** Arko's approval and commit of `DECISION-023` and this specification. Arko approved this planning checkpoint on 2026-09-03; `SPEC-001` itself still requires explicit approval and a commit before implementation.
+- **Blocking:** None. Arko approved this specification 2026-09-03. `TASK-001` may now be created.
 - **Resolved:** `ORG-Q2`. The repository is MIT-licensed (`DECISION-024`). `pyproject.toml` must declare `license = "MIT"`.
 - **Non-blocking:** `ORG-Q1`. The build targets Base Sepolia; the network is one configuration value.
 - **Rollback:** current `HEAD`. The slice adds new files only; no existing behavior can regress because none exists.
