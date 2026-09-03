@@ -2,256 +2,284 @@
 
 ## Document Status
 
-- CONFIRMED: Finné Memory's product identity, non-commerce boundary, V1 decision-support loop, deterministic/model responsibility split, target user and buyer, representative matter, human write-back boundary, and `PREREQ-002` data contract.
-- CONFIRMED: Supplier onboarding and procurement compliance is the V1 demo domain.
-- CONFIRMED: `PREREQ-002` defines matter and decision versioning, facts, evidence, sources, authority events and transitions, citations, precedent relationships, policy dates, product permissions, invariants, and the complete synthetic corpus.
-- UNRESOLVED: Retrieval ranking, packet schema beyond the exact matter-version reference, technical authorization, interfaces, implementation architecture, integrations, and quantitative success thresholds.
-- DEFERRED: Product capabilities beyond the single V1 precedent loop.
-- UNRESOLVED: Implementation readiness. `TASK-001` remains reserved until the prerequisites and creation gate in `TASKS.md` are satisfied.
+- CONFIRMED: The active V1 use case, product thesis, owner-authority model, Sibyl Memory substrate role, Base execution role, deterministic/model split, and fresh-session demonstration are defined by `DECISION-022`.
+- CONFIRMED: The `PREREQ-002` object model, authority semantics, invariants, and validation approach carry forward unchanged. Only its supplier-domain instantiation is superseded.
+- CONFIRMED: Architecture is decided in `docs/architecture/PREREQ-003_ARCHITECTURE.md` under `DECISION-023`, pending Arko's approval.
+- HISTORICAL: Supplier onboarding and procurement compliance was the V1 demo domain under `DECISION-010`. It is retained as historical design work and is no longer the active V1.
+- CONFIRMED: The repository is licensed MIT under `DECISION-024`, satisfying the event's OSI-licence requirement.
+- UNRESOLVED: `ORG-Q1` (Base mainnet versus Base Sepolia for the partner multiplier) in `HACKATHON_RULES.md`.
+- UNRESOLVED: Implementation readiness. `SPEC-001` is proposed but not approved or committed, so no implementation task is authorized.
 
 ## Product Summary
 
-Finné Memory gives autonomous systems institutional memory and precedent for consequential decisions. It records consequential decisions with their evidence, sources, reasoning, and authority status. For a new matter, it retrieves relevant past decisions, checks whether they remain authoritative, compares the facts, and produces a cited precedent brief.
+Finné Memory converts an autonomous agent's remembered operating history into bounded authority for its next action.
 
-Finné Memory does not make the final decision. Its primary output is a structured, cited `PrecedentPacket` for a human, agent, or downstream system to use when making that decision.
+> Sibyl lets agents remember. Finné determines what that memory authorizes them to do next.
+
+Finné Memory is not generic agent memory. Sibyl Memory provides the persistent memory. Finné Memory operates above it, turning persisted experiences into structured precedents and using those precedents to derive a narrower, explainable action authority.
 
 ## Problem Statement
 
-AI agents and automated systems increasingly make recurring consequential decisions, but commonly treat each matter as a fresh reasoning event. Ordinary memory can show that something happened before; it does not establish which past decisions are relevant, whether they remain authoritative, or why current facts should lead a system to follow, distinguish, question, or ignore them.
+Autonomous agents can be given mechanical permissions: maximum spending limits, approved assets, approved contracts, approved protocols, approved functions, and permitted time windows. Those rules define what an agent is technically allowed to do. They do not capture the institutional meaning of the agent's previous performance.
 
-Human institutions address this through precedent, policy histories, citations, authority rules, and audit trails. Finné Memory provides an equivalent decision-memory layer for autonomous systems.
+Mechanical permissions do not answer:
+
+- What happened when the agent exercised a similar permission before?
+- Under what circumstances was the earlier action approved?
+- What amount or scope was considered safe?
+- Did the action succeed or fail?
+- Was the earlier decision later questioned or withdrawn?
+- What conditions made the earlier case safe?
+- What is materially different now?
+- What narrower authority has the agent earned from experience?
+
+An agent with a 25,000 USDC ceiling and no memory of its own history will propose 25,000 USDC on its first day and on its hundredth. Finné Memory closes that gap.
 
 ## Product Principle
 
-Memory says that something happened before. Precedent establishes that a past decision is relevant, identifies whether it remains authoritative, and explains how it should inform the current matter.
+Memory says that something happened before. Precedent establishes that a past case is relevant, identifies whether it remains authoritative, and determines what narrower authority the agent has actually earned.
+
+## Core Authority Model
+
+The owner defines the hard permission ceiling. A representative ceiling is:
+
+| Dimension | Owner ceiling |
+| --- | --- |
+| Maximum amount | 25,000 USDC |
+| Approved network | Base |
+| Approved asset | USDC |
+| Approved action class | Capital deployment |
+| Approved protocol or contract classes | Explicitly enumerated |
+| Unknown situations | Constrained action or owner review |
+
+Finné Memory may narrow the amount, narrow the permitted contract or function, add conditions, block an action, require escalation, or restore authority within the original owner ceiling when an owner-defined derivation policy permits it.
+
+Finné Memory may never exceed the owner's permission ceiling; invent a new asset, contract, protocol, function, network, or action class; grant the agent powers the owner did not delegate; treat past success as unlimited authority; let the agent rewrite its own authority policy; or let a language model determine final authorization.
+
+- CONFIRMED: The owner ceiling is always superior to learned authority.
+- CONFIRMED: Effective authority is the strictest combination of the owner permission ceiling, current hard policy, active remembered precedents, learned constraint, and current action facts.
+
+The deterministic formulation is conceptually:
+
+```
+effective_authority = intersection(
+    owner_permission_ceiling,
+    current_hard_policy,
+    active_precedent_constraints,
+    learned_constraint,
+    current_action_scope
+)
+```
+
+The implementation may differ in form, but the invariant is absolute: effective authority can never exceed owner authority.
+
+## System Roles
+
+### Sibyl Memory — mandatory persistent substrate
+
+Sibyl Memory stores and recalls, across genuinely fresh sessions: past action proposals, relevant context, owner permissions, permission decisions, constraints applied, actions taken, Base transaction references, observed outcomes, incidents, precedent status, and later treatment.
+
+- CONFIRMED: Sibyl Memory is the sole source of truth for remembered agent experiences.
+- CONFIRMED: The application writes important state directly into Sibyl Memory and retrieves it in a fresh process.
+- CONFIRMED: No competing generic memory database is built. Supabase, PostgreSQL, pgvector, Pinecone, and other databases are prohibited as the store of remembered agent experiences.
+- CONFIRMED: If Sibyl Memory is removed, the agent loses the operating history required to derive learned authority, and the product must materially degrade or fail safely.
+
+### Finné Memory — authority layer
+
+Finné Memory operates above Sibyl Memory and provides the owner permission model, decision schema, precedent construction, precedent comparison, material-difference detection, authority-state treatment, learned-constraint derivation, deterministic action authorization, readable explanation, and outcome feedback.
+
+### Base — execution and evidence layer
+
+Finné derives the permitted action, the agent executes that permitted action on Base, the transaction result becomes outcome evidence, the outcome is written into Sibyl Memory, and a future fresh session recalls and uses it.
+
+- CONFIRMED: Base performs genuine work and is not a decorative integration.
+- CONFIRMED: Base is used for authorized execution and outcome evidence only. It does not make this an agent-commerce product.
+
+## Target Users
+
+- CONFIRMED: The primary user is the owner or operator of an autonomous onchain treasury agent who must delegate spending authority without granting unbounded discretion.
+- CONFIRMED: The primary buyer is the treasury, risk, or operations function accountable for what a delegated agent is permitted to do.
+- CONFIRMED: The consumer of the authorization output is the agent runtime itself, which is bounded by the result.
+- UNRESOLVED: Buyer organization size, deployment environment, decision volume, regulated-industry requirements, and production role structure.
+
+## Active V1 Use Case
+
+- CONFIRMED: An autonomous treasury agent uses remembered operating history to determine its bounded authority for a materially similar Base action in a fresh session.
+- CONFIRMED: The representative matter is whether a proposed Base capital-deployment action, made against a 25,000 USDC owner ceiling, is authorized in full, narrowed, blocked, or escalated on the evidence of the agent's own recorded history.
+- CONFIRMED: Finné Memory determines the authority bound. It does not select the business action within that bound.
+
+## V1 Product Journey
+
+1. The agent proposes an action with structured facts: network, asset, amount, contract, function, and action class.
+2. Finné Memory loads the owner permission ceiling and current hard policy from owner-controlled configuration.
+3. Finné Memory retrieves candidate prior cases from Sibyl Memory.
+4. Finné Memory checks each candidate's authority state; only `active` cases are eligible to support learned authority.
+5. Finné Memory compares material facts and detects material differences.
+6. Finné Memory derives the learned constraint and intersects all five authority inputs.
+7. Finné Memory emits an `AuthorizationDecision` — allow, constrain, block, or escalate — with a readable, citation-backed explanation.
+8. The agent executes only within the authorized bound on Base.
+9. The transaction reference and observed outcome are written back into Sibyl Memory as new evidence.
+10. An owner confirmation event promotes the recorded case to `active` precedent, available to a future fresh session.
+
+## Required V1 Capabilities
+
+- Represent an owner permission ceiling and hard policy in owner-controlled configuration that Finné Memory reads but never writes.
+- Persist a complete case — proposal, context, material facts, owner ceiling, constrained authority, decision, action, Base transaction reference, observed outcome, supporting evidence, and precedent status — into Sibyl Memory.
+- Retrieve prior cases from Sibyl Memory in a genuinely fresh process with no carried-over in-process state.
+- Distinguish factual similarity from authoritative eligibility.
+- Detect material differences between the current proposal and a candidate precedent.
+- Derive a learned constraint from active precedents only.
+- Compute effective authority as a strict intersection that can never exceed the owner ceiling.
+- Emit an `AuthorizationDecision` with an auditable explanation naming the precedents relied upon and the binding constraint.
+- Execute a safe Base action within the authorized bound and record the transaction reference.
+- Write the observed outcome back into Sibyl Memory.
+- Fail safely when memory is missing, malformed, contradictory, withdrawn, or unavailable.
+
+## Precedent Model
+
+The `PREREQ-002` model is retained: immutable matter versions, immutable decision versions, facts, evidence, sources, canonical fact-evidence links, policy versions, validated citations, precedent relationships, append-only authority events, owner confirmation, provenance, and rejected citation-attempt audit events.
+
+- CONFIRMED: Authority states are `draft`, `active`, `questioned`, `superseded`, and `withdrawn`.
+- CONFIRMED: Only `active` precedents may support learned authority.
+- CONFIRMED: Withdrawn and superseded cases may be retrieved and displayed but cannot authorize an action.
+- CONFIRMED: Precedent relationships are `follows`, `distinguishes`, `questions`, and `supersedes`.
+- CONFIRMED: Similarity, authority, and outcome remain separate. A highly similar precedent may be withdrawn; a less similar precedent may remain active.
+- CONFIRMED: A model may suggest a relationship or a material difference. Only deterministic validation and an authorized confirmation path may persist or apply it.
+
+## Active Demo Corpus
+
+The exact synthetic corpus, fixtures, authority histories, and expected authorization outcomes for the active V1 are defined in `docs/product/ACTIVE_DEMO_DESIGN.md`.
+
+- HISTORICAL: `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md` remains the validated supplier-domain corpus. It is preserved as historical design work and is not the active demo corpus.
+
+## Deterministic Responsibilities
+
+The deterministic system owns the owner permission ceiling; effective action authority; permission intersection; amount limits; approved network, asset, contract, protocol, and function scope; authority states; authority transitions; terminal-state enforcement; valid citations; precedent eligibility; policy versions; exact identifier resolution; outcome recording; safe fallback behaviour; the final allow, constrain, block, or escalate result; and the prohibition on exceeding owner authority.
+
+- CONFIRMED: The deterministic system must work with no model API key present.
+
+## Model Responsibilities
+
+The model may assist with extracting proposed facts from natural language, suggesting comparable precedents, explaining factual similarities, explaining material differences, drafting a readable precedent explanation, and proposing follow or distinguish treatment.
+
+The model may not expand authority, authorize an action, change an authority state, create a valid citation, confirm a precedent, sign a transaction, hold a private key, submit a Base transaction, or bypass deterministic rules.
+
+## Product Surfaces
+
+- Action proposal input with structured facts.
+- Owner policy display showing the ceiling and hard policy in force.
+- Retrieved precedent candidates with similarity and authority shown separately.
+- The `AuthorizationDecision` with its binding constraint and readable explanation.
+- Base execution result with transaction reference.
+- Outcome write-back and owner confirmation.
+- Demo seed and reset control.
+
+ASSUMPTION: These are logical surfaces. The concrete interface is decided in `docs/architecture/PREREQ-003_ARCHITECTURE.md`.
+
+## System Boundaries
+
+Finné Memory is responsible for representing owner authority, converting remembered operating history into structured precedent, deriving learned constraints, and emitting a deterministic, explainable authorization bound.
+
+Finné Memory is not responsible for:
+
+- Selecting the business action within the authorized bound.
+- Custody of funds or private keys.
+- Providing persistent memory itself; that is Sibyl Memory's role.
+- Payments, escrow, refunds, settlement, transaction disputes, x402 flows, or service-delivery verification.
+- Verifying real-world truth beyond the evidence supplied to it.
 
 ## Non-Overlap With Finné And x402
 
 - CONFIRMED: Finné Memory is not a payment, escrow, refund, settlement, transaction-dispute, or service-delivery verification product.
 - CONFIRMED: Finné Memory does not process x402 payments, hold funds, arbitrate transactions, or determine whether a purchased service was delivered.
 - CONFIRMED: Those capabilities belong to the separate Finné/x402 product direction and are outside Finné Memory's scope.
+- CONFIRMED: Base is used for authorized execution and outcome evidence, not to convert this into an agent-commerce product.
 - CONFIRMED: No agent may redefine Finné Memory to include those capabilities.
-
-## Target Users
-
-- CONFIRMED: The primary user is a supplier-risk or procurement-compliance professional using an automated decision system.
-- CONFIRMED: The primary buyer is the procurement, supplier-risk, or compliance function of an organization operating repeatable supplier-onboarding decisions.
-- CONFIRMED: A downstream consumer may be a human, an AI agent, or another automated system.
-- UNRESOLVED: Buyer organization size, deployment environment, decision volume, regulated-industry requirements, and production role structure.
-
-## V1 Use Case
-
-- CONFIRMED: V1 demonstrates supplier onboarding and procurement compliance.
-- CONFIRMED: The representative matter is whether a supplier with incomplete beneficial-ownership evidence should be approved, rejected, or escalated.
-- CONFIRMED: Finné Memory supplies precedent analysis but does not select the final outcome.
-
-This domain is the current candidate because it has structured evidence, policies, exceptions, repeat decisions, meaningful authority changes, and an understandable distinction between similarity and authority.
-
-## V1 Product Journey
-
-1. A user or agent submits a new decision matter.
-2. Finné Memory extracts structured facts from supplied material or receives already-structured facts.
-3. Finné Memory retrieves similar past decisions.
-4. Finné Memory checks each candidate's authority status.
-5. Finné Memory compares the current matter with the past decisions.
-6. Finné Memory produces a structured `PrecedentPacket` and a readable precedent brief with validated citations.
-7. A downstream human, agent, or system makes the final decision outside Finné Memory.
-8. CONFIRMED: After the downstream decision is made, an authorized human explicitly confirms whether it may enter Finné Memory's precedent corpus.
-
-UNRESOLVED: Whether model-assisted fact extraction requires human confirmation before packet generation remains a later product-behavior decision.
-
-CONFIRMED: Write-back permissions, deterministic validation, immutable draft creation, and the separate authority-activation event are defined by the approved `PREREQ-002` contract.
-
-## Required V1 Capabilities
-
-- Accept a new decision matter with facts and supporting material.
-- Represent a small synthetic corpus of prior decisions and their authority relationships.
-- Retrieve precedents by factual relevance.
-- Distinguish factual similarity from authoritative eligibility.
-- Validate source and citation references against deterministic records.
-- Explain similarities and differences between the current matter and candidate precedents.
-- Produce a structured, cited `PrecedentPacket` and human-readable `PrecedentBrief`.
-- Permit an authorized, human-confirmed result to be saved as an immutable draft decision version under the approved deterministic rules.
-
-## Synthetic Demo Corpus
-
-The V1 demo corpus must be intentionally small and must contain:
-
-- One original baseline decision.
-- One decision that follows the baseline.
-- One decision that distinguishes the baseline because of different facts.
-- One decision that supersedes an older rule or decision.
-- One highly similar decision that is no longer authoritative.
-- One less-similar decision that remains active.
-- One current matter that requires Finné Memory to explain the difference between similarity and authority.
-
-CONFIRMED: Exact synthetic records, evidence, policy language, dates, authority histories, and the expected no-outcome packet behavior for the current matter are defined in the approved `PREREQ-002` outputs.
-
-## Conceptual Data Requirements
-
-The product specification must define these concepts before implementation:
-
-- `DecisionRecord`
-- `DecisionMatter`
-- `Fact`
-- `Evidence`
-- `Source`
-- `PolicyVersion`
-- `CitationEdge`
-- `AuthorityStatus`
-- `PrecedentCandidate`
-- `PrecedentPacket`
-- `PrecedentBrief`
-
-CONFIRMED: Approved fields, exact-version identity, cardinality, mutability, provenance, authority history, and corpus relationships are defined in `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`. Physical serialization remains deferred to `PREREQ-003`.
-
-## Deterministic Responsibilities
-
-The deterministic system owns:
-
-- Precedent authority status.
-- Source and decision identifiers.
-- Citation relationships.
-- Supersession relationships.
-- Policy version dates.
-- Authority state and transition validity.
-- Whether a citation references valid records.
-- Whether a precedent is eligible to be treated as active authority.
-- CONFIRMED: One explicit `DecisionMatter.relevant_at` date selects the applicable policy version and authority snapshot; record `created_at` and downstream `decided_at` remain separate.
-- CONFIRMED: Human write-back confirmation and subsequent authority activation are separate timestamped audit events; activation cannot occur implicitly during confirmation.
-
-CONFIRMED: The V1 authority vocabulary is `draft`, `active`, `questioned`, `superseded`, and `withdrawn`; only `active` is eligible as active authority. Exact transitions and invariants are defined in the approved `PREREQ-002` contract.
-
-## Probabilistic AI Responsibilities
-
-The AI/model may assist with:
-
-- Extracting facts from unstructured text.
-- Comparing facts across matters.
-- Explaining similarities and differences.
-- Drafting the precedent brief from validated structured data.
-- Suggesting that a precedent may be followed or distinguished.
-- Rendering structured results in readable language.
-
-The AI/model must not:
-
-- Invent sources or decision identifiers.
-- Declare a precedent active, superseded, or otherwise authoritative.
-- Change authority state.
-- Create an accepted citation relationship without deterministic validation.
-- Make the final decision.
-- Override deterministic rules.
-
-UNRESOLVED: Model provider, prompting strategy, confidence representation, evaluation approach, fallback behavior, and whether any model suggestions are persisted.
-
-## Product Surfaces
-
-The V1 needs enough interface to demonstrate the complete loop. Candidate surfaces are:
-
-- Matter submission.
-- Extracted or supplied facts.
-- Retrieved precedent candidates with similarity and authority shown separately.
-- Precedent packet and readable brief with citations.
-- Decision write-back.
-- Demo seed/reset control.
-
-ASSUMPTION: These are logical product surfaces, not confirmed screens or routes. Their grouping and interaction design remain unresolved.
-
-## System Boundaries
-
-Finné Memory is responsible for recording and retrieving decision precedent, validating deterministic authority and citation facts, and producing evidence-backed precedent analysis.
-
-Finné Memory is not responsible for:
-
-- Making or enforcing the final business decision.
-- Executing procurement approval or rejection in an external system.
-- Verifying real-world truth beyond the evidence supplied to it.
-- Payments, escrow, refunds, settlement, transaction disputes, or x402 flows.
-- Replacing an organization's source policies or systems of record.
-
-UNRESOLVED: Which external systems, if any, are integrated in V1 and which system is authoritative for identity, policy, evidence, and final outcomes.
 
 ## Failure States
 
-The V1 specification must define observable behavior for:
+The V1 must define observable behavior for:
 
-- No relevant precedent found.
-- Similar precedent found but no active authority found.
+- Sibyl Memory unavailable, uninitialised, or unauthenticated.
+- No relevant precedent found (cold start).
+- Similar precedent found but not `active`.
+- Withdrawn or superseded precedent retrieved.
 - Conflicting active precedents.
-- Missing or invalid source references.
-- Citation to a nonexistent or ineligible record.
-- Incomplete facts or evidence.
-- Malformed or unavailable model output.
-- Retrieval or storage failure.
-- Unauthorized write-back or authority-state change.
+- Materially different facts against an otherwise comparable precedent.
+- Requested amount above the owner ceiling.
+- Malformed or contradictory memory records.
+- Model unavailable or returning malformed output.
+- Base transaction failure, revert, or timeout.
+- Duplicate execution of the same authorized action.
 
-UNRESOLVED: Exact user-facing states, retry behavior, degraded-mode behavior, and which failures block packet generation.
+- CONFIRMED: Every one of these resolves to constrain, block, or escalate. None may resolve to a wider authority than the safe default.
 
 ## Security And Trust Boundaries
 
-- CONFIRMED: Model output is untrusted until checked against deterministic records and schemas.
-- CONFIRMED: Authority state and citation validity cannot be changed by model-generated text.
-- CONFIRMED: The final decision remains outside Finné Memory.
-- CONFIRMED: Unverified or disputed facts remain visible with status and provenance but cannot support an authoritative conclusion.
-- CONFIRMED: A Matter Submitter may submit and view analysis; a Decision Reviewer may record an external outcome and confirm write-back; an Authority Steward may maintain authority metadata; an Automated Client may submit and consume packets but may not confirm write-back or change authority.
-- UNRESOLVED: Authentication, exact authorization rules, role combinations, tenant boundaries, audit retention, sensitive-data handling, and whether authority stewardship is exposed in the V1 interface.
+- CONFIRMED: Model output is untrusted until validated against deterministic records and schemas.
+- CONFIRMED: Authority state, effective authority, and citation validity cannot be changed by model-generated text.
+- CONFIRMED: The owner ceiling lives in owner-controlled configuration that the agent cannot write.
+- CONFIRMED: The agent may not rewrite its own authority policy.
+- CONFIRMED: Only the Base adapter holds signing capability. No key material is written to Sibyl Memory, the repository, or any log.
+- CONFIRMED: Records retrieved from memory are validated on read; a malformed record is treated as absent, not as permission.
+- UNRESOLVED: Authentication, multi-tenant boundaries, audit retention, and production key management beyond the demo.
 
 ## Product-Level Acceptance Criteria
 
 V1 is product-complete for the demo when:
 
-1. A prepared current matter can complete the full product journey from submission through cited packet generation.
-2. The demo corpus includes every scenario listed in the synthetic corpus section.
-3. The result presents factual similarity separately from authority status.
-4. A highly similar but non-authoritative precedent is not represented as active authority.
-5. Every cited decision and source can be resolved to a deterministic record, and invalid citations are rejected or clearly surfaced.
-6. The brief explains material similarities and differences using only supplied facts and validated references.
-7. Model output cannot change authority status, create an accepted citation edge without validation, or make the final decision.
-8. CONFIRMED: The demonstrated result can enter the precedent corpus only after the downstream decision is made and an authorized human explicitly confirms it.
-9. Model unavailability or malformed output produces a defined failure or degraded state without corrupting deterministic data.
-10. The exact demo can be reset and rehearsed from a known starting state.
-11. No V1 behavior implements payments, escrow, x402, refunds, settlement, transaction disputes, or service-delivery verification.
+1. Session 1 establishes a constrained 10,000 USDC authority under a 25,000 USDC owner ceiling and persists the complete case to Sibyl Memory.
+2. Session 1's process terminates completely, with no carried-over in-process state.
+3. Session 2 starts fresh, proposes the broader 25,000 USDC action, and is bounded to 10,000 USDC by precedent retrieved from Sibyl Memory.
+4. The changed action is visible and attributable to the recalled memory, naming the precedent relied upon.
+5. With Sibyl Memory removed or emptied, Session 2 cannot derive the learned authority and falls back to constrain, block, or require owner approval.
+6. A withdrawn precedent is retrievable and displayable but cannot authorize an action.
+7. A materially different proposal is not silently allowed to follow the precedent.
+8. A request above the owner ceiling is blocked regardless of precedent.
+9. The deterministic path produces identical authorization results with no model API key present.
+10. A safe Base action executes within the authorized bound and its transaction reference is recorded and written back to memory.
+11. Base failure produces no false success and no fabricated outcome record.
+12. The demo can be reset and rehearsed from a known starting state.
+13. No V1 behavior implements payments, escrow, x402, refunds, settlement, transaction disputes, or service-delivery verification.
 
-UNRESOLVED: Quantitative retrieval quality, latency, reliability, accessibility, privacy, and performance thresholds.
+UNRESOLVED: Quantitative retrieval quality, latency, reliability, accessibility, and performance thresholds.
 
 ## Demo Requirements
 
-The demo must make the following legible to judges:
+The demo must make the following legible to judges within 2 to 5 minutes:
 
-- The recurring decision problem and why ordinary memory is insufficient.
-- The difference between similarity and authority.
-- A superseded or otherwise inactive precedent being handled correctly.
-- Validated citations linking the brief to source records.
-- The boundary between deterministic rules and model assistance.
-- The downstream actor retaining final decision authority.
-- A new decision becoming available as future precedent.
-
-CONFIRMED: The demo uses the supplier-onboarding scenario described above.
+- The delegation problem: mechanical permissions do not encode earned trust.
+- Session 1 establishing constrained authority and persisting it.
+- A genuine process termination between sessions.
+- The fresh-session recall moment, shown as one continuous unedited segment.
+- The action changing from 25,000 USDC proposed to 10,000 USDC authorized, attributed to the recalled precedent.
+- A genuine Base transaction executed within the bound.
+- The memory-deleted control showing safe degradation.
+- The boundary between deterministic authority and model assistance.
 
 ## Risks And Mitigations
 
-- Risk: The product looks like generic retrieval-augmented generation. Mitigation: demonstrate explicit authority states, supersession, citation validation, and similarity-versus-authority reasoning.
-- Risk: Generated prose invents support. Mitigation: constrain generation to validated records and reject unresolved citations.
-- Risk: Judges believe Finné Memory autonomously decides outcomes. Mitigation: show the `PrecedentPacket` as decision support and make the downstream decision boundary explicit.
+- Risk: The product reads as generic agent memory. Mitigation: state plainly that Sibyl Memory provides memory and Finné Memory provides bounded authority; show the authority computation, not the storage.
+- Risk: The memory integration reads as decorative. Mitigation: the memory-deleted control is part of the demo and part of the test suite.
+- Risk: Judges believe a model is deciding authorization. Mitigation: run the demo with no model API key present.
+- Risk: Base appears bolted on. Mitigation: the authorized amount is carried in the onchain authorization receipt and the transaction result is the outcome evidence written back to memory.
 - Risk: Scope drifts toward Finné/x402. Mitigation: enforce the non-overlap rule in the PRD, agent instructions, tasks, and reviews.
-- UNRESOLVED: Domain-specific risks concerning procurement data, fairness, policy interpretation, and regulatory obligations.
+- Risk: `ORG-Q1` resolves against Base Sepolia. Mitigation: keep the network a single configuration value.
 
 ## Out Of Scope For V1
 
 - Payment, escrow, x402, refund, settlement, or transaction-dispute behavior.
-- Final autonomous outcome selection or enforcement.
+- Selecting the business action within the authorized bound.
+- Custody, treasury management, or portfolio strategy.
+- Virtuals Protocol integration.
 - Broad multi-domain precedent support.
-- Production-scale corpus ingestion or migration.
-- Production compliance certification.
-- Unapproved sponsor integrations.
-- Any capability not required for the single end-to-end V1 loop.
+- Production-scale corpus ingestion, migration, or compliance certification.
+- Any capability not required for the two-session vertical slice.
 
 ## Open Decisions Before Coding
 
-- CONFIRMED: The four product decision packages in `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md` were approved, closing `PREREQ-001`.
-- CONFIRMED: The `PREREQ-002` decision-record contract and complete synthetic seed-data appendix were approved, closing `PREREQ-002`.
-- UNRESOLVED: Establish observable product behavior for failure states not governed by the approved `PREREQ-002` contract.
-- UNRESOLVED: Define retrieval relevance, ranking requirements, and the complete `PrecedentPacket` contract without selecting technology prematurely.
-- UNRESOLVED: Decide whether any external integration is necessary for the V1 demo.
-- UNRESOLVED: Set measurable demo and non-functional acceptance thresholds.
-- UNRESOLVED: Complete `PREREQ-003` and approve architecture, interfaces, repository layout, runtime, dependencies, testing, and known hackathon restrictions before creating `TASK-001`.
+- CONFIRMED: `DECISION-022` records the controlled domain pivot and the active V1 use case.
+- PROPOSED: `DECISION-023` and `docs/architecture/PREREQ-003_ARCHITECTURE.md` require Arko's approval.
+- PROPOSED: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` requires Arko's approval and a commit before implementation may begin.
+- RESOLVED: `ORG-Q2` — the repository is licensed MIT under `DECISION-024`.
+- UNRESOLVED: `ORG-Q1` — Base mainnet versus Base Sepolia for the partner multiplier.

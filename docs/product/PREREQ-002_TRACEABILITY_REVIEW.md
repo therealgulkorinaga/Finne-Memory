@@ -1,5 +1,7 @@
 # PREREQ-002 Documentation And Traceability Review
 
+> **HISTORICAL.** This review validated the supplier-onboarding corpus against the `PREREQ-002` contract. Its findings remain true of that corpus. Under `DECISION-022` (2026-09-03) the active demo corpus moved to `docs/product/ACTIVE_DEMO_DESIGN.md`, which requires its own validation before `SPEC-001` implementation. Preserved unrewritten as historical design work.
+
 ## Review Status
 
 - CONFIRMED: Review scope is limited to documentation, internal consistency, referential integrity, PRD traceability, and deterministic rule coverage.

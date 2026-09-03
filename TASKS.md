@@ -1,144 +1,118 @@
 # Finné Memory Issue And Task Registry
 
-This is the implementation-oriented issue list. It is intentionally short while product prerequisites remain unresolved. Do not expand every possible workstream into a backlog before the shared product contracts and architecture are approved.
+This is the implementation-oriented issue list. It is intentionally short. Do not expand every possible workstream into a backlog.
 
 ## Implementation Readiness
 
-- Status: UNRESOLVED / BLOCKED
-- Decision: There is not yet enough confirmed information to create the first implementation task.
-- Reason: Every plausible first code change would require at least one undocumented product, schema, authority, interface, architecture, repository-layout, or testing decision.
-- Consequence: `TASK-001` is reserved and has not been created. The items below are specification prerequisites, not implementation tasks.
+- Status: PLANNING APPROVED / AWAITING SPEC-001 APPROVAL AND COMMIT
+- Position: Arko approved this planning checkpoint on 2026-09-03, including `DECISION-022` and `DECISION-023`, and selected the MIT licence. `SPEC-001` is written but not yet separately approved or committed.
+- Consequence: `TASK-001` remains reserved. Approving and committing `SPEC-001` is the only remaining gate before implementation.
+
+## Immediate Build Sequence
+
+| Step | Item | Owner | Status |
+| --- | --- | --- | --- |
+| 1 | ~~Approve `DECISION-022` (domain pivot)~~ | Arko | **DONE 2026-09-03** |
+| 2 | ~~Approve `DECISION-023` and `docs/architecture/PREREQ-003_ARCHITECTURE.md`~~ | Arko | **DONE 2026-09-03** |
+| 3 | ~~Resolve `ORG-Q2` and add the `LICENSE` file~~ | Arko | **DONE 2026-09-03** — MIT, `DECISION-024` |
+| 4 | Independent review of this planning checkpoint | Independent reviewer | Not started |
+| 5 | Commit the planning checkpoint | Arko | Not started |
+| 6 | Approve and commit `SPEC-001` | Arko | Not started |
+| 7 | Create `TASK-001` from `SPEC-001` | Orchestrator | Blocked by step 6 |
+| 8 | Implement `SPEC-001` | Implementation agent | Blocked by step 7 |
+| 9 | Ask the organisers `ORG-Q1` (Base mainnet vs Sepolia) | Arko | Can run in parallel |
+
+Per the velocity model in the governing instruction: one decision, one PRD, one architecture document, one specification, one independent review, then build. Do not add documentation that documents other documentation.
 
 ## Workflow
 
-The mandatory lifecycle in `AGENT_BUILD_INSTRUCTIONS.md` applies. In particular, implementation requires an approved and committed bounded `SPEC-*` before a feature branch or implementation task may authorize code changes.
+The mandatory lifecycle in `AGENT_BUILD_INSTRUCTIONS.md` applies. Implementation requires an approved and committed bounded `SPEC-*` before a feature branch or implementation task may authorize code changes.
 
 ## Required Task Format
 
-Each implementation task must include:
+Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROPOSED | ASSUMPTION | UNRESOLVED | DEFERRED`); Owner role; Spec reference; Objective; Why this task exists; Dependencies; Exact scope; Explicit exclusions; Files or components expected to be affected; Interfaces consumed and exposed; Functional acceptance criteria; Technical acceptance criteria; Testing requirements; Documentation requirements; Handoff requirements; Stop conditions; Mandatory commit-gate requirements; Definition of Done.
 
-- Task ID
-- Title
-- Status: `CONFIRMED | PROPOSED | ASSUMPTION | UNRESOLVED | DEFERRED`
-- Owner role
-- Spec reference
-- Objective
-- Why this task exists
-- Dependencies
-- Exact scope
-- Explicit exclusions / out of scope
-- Files or components expected to be affected
-- Interfaces consumed and exposed
-- Functional acceptance criteria
-- Technical acceptance criteria
-- Testing requirements
-- Documentation requirements
-- Handoff requirements
-- Stop conditions
-- Mandatory commit-gate requirements
-- Definition of Done
-
-## Prerequisites Before TASK-001
+## Prerequisites
 
 ### PREREQ-001: Confirm V1 Product Choices
 
-- Status: CONFIRMED / COMPLETE
-- Owner role: Product Spec Agent
-- Spec reference: `PRD.md` and `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`
-- Objective: Obtain approval or changes for the four product decision packages in the Product Definition Proposal.
-- Scope: Target user, supplier-onboarding demo domain, representative matter, downstream decision boundary, write-back expectation, and demo narrative.
-- Allowed files or ownership area: `PRD.md`, `DECISIONS.md`, and product notes under `docs/product/`.
-- Required interfaces: None; this is a product-definition task.
-- Exclusions: Technical architecture, framework selection, data-store selection, implementation, and external integration selection.
-- Dependencies: Satisfied by Arko's approval of the four product decision packages.
-- Acceptance criteria: SATISFIED. Arko approved the V1 domain, primary user and buyer, representative matter, and clarified human-confirmed write-back rule; the proposal, PRD, and decision log are reconciled.
-- Testing requirements: Not applicable; review the PRD for internal consistency and traceability.
-- Handoff requirements: Present only the four decisions Arko must approve or change to close `PREREQ-001`.
-- Stop conditions: Stop if a choice would redefine Finné Memory as a commerce or final-decision product.
+- Status: COMPLETE / HISTORICAL
+- Outcome: Closed 2026-09-02 with the supplier-onboarding V1 approved under `DECISION-010`, `DECISION-011`, and `DECISION-012`.
+- Superseding decision: `DECISION-022` changed the active V1 to Base agent-permission precedent. The problem framing and the similarity-versus-authority principle carry forward; the supplier user, buyer, and matter are historical.
+- Current-facing replacement: `PRD.md` sections "Target Users" and "Active V1 Use Case".
 
 ### PREREQ-002: Define Decision Record And Precedent Corpus
 
-- Status: CONFIRMED / COMPLETE
-- Owner role: Product Spec Agent, with Data Model Agent input and Orchestrator review
-- Spec reference: `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`, and `docs/product/PREREQ-002_TRACEABILITY_REVIEW.md`
-- Objective: Obtain approval or changes for the proposed decision record, supporting objects, authority model, permissions, write-back workflow, invariants, and synthetic V1 corpus.
-- Scope: Conceptual objects, required fields, identifiers, provenance, authority statuses and semantics, permitted state transitions, policy versions, citation-edge rules, invariants, permissions, failure cases, exact demo records, and acceptance criteria.
-- Allowed files or ownership area: The PREREQ-002 proposal and approved `PREREQ-002` outputs under `docs/product/`; related product sections and append-only entries in `DECISIONS.md`.
-- Required interfaces: Define the technology-neutral contracts later implementation tasks must consume.
-- Exclusions: Database selection, API framework, UI implementation, retrieval implementation, model provider, and application code.
-- Dependencies: PREREQ-001 is CONFIRMED / COMPLETE.
-- Acceptance criteria: SATISFIED. All decision packages and ten detected issues are resolved; the approved specification and complete seed appendix define exact versioning, objects, fields, authority transitions, citations, relationships, permissions, fixtures, invariants, and negative cases; documentation traceability and referential-integrity review pass.
-- Testing requirements: Specification review with example records and state-transition cases; no application tests yet.
-- Handoff requirements: SATISFIED by the review packet, final specification, complete seed-data appendix, and traceability review.
-- Stop conditions: Stop for Arko and Orchestrator approval if authority semantics, permissions, or shared contracts remain ambiguous.
+- Status: COMPLETE / MODEL RETAINED, DOMAIN SUPERSEDED
+- Outcome: Closed 2026-09-02. The object model, authority semantics, transitions, citation rules, invariants, permissions, and negative cases remain the authoritative contract.
+- Superseding decision: `DECISION-022` replaced the supplier-domain instantiation only.
+- Current-facing replacement: `docs/product/ACTIVE_DEMO_DESIGN.md` is the active corpus. `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md` is retained as a historical worked example.
+- Carried-forward obligation: the active corpus needs its own referential-integrity validation during `SPEC-001`, equivalent to what `PREREQ-002_TRACEABILITY_REVIEW.md` did for the supplier corpus.
 
 ### PREREQ-003: Define Initial Architecture And Ownership Map
 
-- Status: UNRESOLVED / NEXT PLANNING GATE
+- Status: COMPLETE AS PROPOSAL / AWAITING ARKO'S APPROVAL
 - Owner role: Orchestrator / Integration Agent
-- Spec reference: Approved PRD and `PREREQ-002` outputs; the first bounded `SPEC-*` remains to be written and approved after architecture decisions are complete.
-- Objective: Propose the minimum architecture needed for one complete V1 loop and replace unresolved code ownership placeholders in `AGENT_BUILD_INSTRUCTIONS.md`.
-- Scope: System boundaries, major components, data flow, shared schemas, interfaces, trust boundaries, deployment assumptions, test boundaries, and exact repository ownership paths.
-- Allowed files or ownership area: `ARCHITECTURE.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, and architecture notes under `docs/architecture/`.
-- Required interfaces: Must preserve the approved product contracts from `PREREQ-002`.
-- Exclusions: Application implementation, speculative scale architecture, unapproved integrations, and product-scope changes.
-- Dependencies: PREREQ-001 and PREREQ-002 are CONFIRMED / COMPLETE; hackathon-specific technical constraints remain unresolved.
-- Acceptance criteria: Every major component and interface is described; trust boundaries are explicit; each implementation role has non-overlapping default file ownership; all material technology choices are proposed for approval and logged after approval.
-- Testing requirements: Architecture review against PRD flows, failures, and acceptance criteria.
-- Handoff requirements: Provide alternatives considered, recommended option, consequences, unresolved choices, and proposed first bounded implementation task.
-- Stop conditions: Stop before choosing architecture where product requirements or hackathon constraints are still materially unresolved.
+- Output: `docs/architecture/PREREQ-003_ARCHITECTURE.md`, recorded as `DECISION-023`; summarised in `ARCHITECTURE.md`.
+- Objective: Decide the minimum credible architecture for the two-session learned-authority slice.
+- Decided: agent runtime; Sibyl Memory integration method; memory read/write boundary; structured memory format; owner-policy representation; deterministic authority engine; precedent retrieval; material-difference handling; Base adapter; key and signing boundary; safe demo contract and action; fresh-session reset procedure; model-optional behaviour; testing approach; local run procedure; demonstration approach; module boundaries; repository layout; failure behaviour.
+- Ownership map: section 18 replaces the `UNRESOLVED` logical areas in `AGENT_BUILD_INSTRUCTIONS.md` section 3 with concrete, non-overlapping paths.
+- Acceptance criteria: SATISFIED as a proposal. Every required decision is made; trust boundaries are explicit; each implementation area has non-overlapping file ownership; material technology choices are proposed for approval.
+- Remaining: Arko's approval and commit.
 
-## Unresolved Dependencies Blocking TASK-001
+## Specifications
 
-`TASK-001` must not be created until all material items below are resolved or explicitly deferred with a rationale:
+### SPEC-001: Fresh-Session Learned-Authority Vertical Slice
 
-- CONFIRMED: The V1 domain, primary user and buyer, representative matter, and human-confirmed write-back boundary were approved in `PREREQ-001`.
-- CONFIRMED: The approved `PREREQ-002` product/data contracts define exact record fields, version identifiers, provenance, authority semantics, transitions, citation rules, invariants, permissions, negative cases, and the synthetic corpus.
-- UNRESOLVED: Define the minimum shared interface or schema that the first implementation task would consume or expose.
-- UNRESOLVED: Define authorization and trust boundaries for record creation, authority changes, citation changes, and decision write-back to the extent relevant to the first task.
-- UNRESOLVED: Approve the minimum architecture, repository structure, component boundaries, file ownership, runtime, dependency policy, and test approach required by the first task.
-- UNRESOLVED: Record any event-specific hackathon technology restrictions that could invalidate the selected implementation approach, or explicitly confirm that none are known.
-- UNRESOLVED: Identify the first vertical slice and give it observable functional and technical acceptance criteria without relying on unstated choices.
-- UNRESOLVED: No bounded implementation `SPEC-*` exists yet; the first may be created only after `PREREQ-003` is approved.
-- UNRESOLVED: Write, approve, and commit the first bounded `SPEC-*` before creating an implementation-authorizing `TASK-001`.
+- Status: PROPOSED — not approved, not committed, not implemented
+- Location: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`
+- Objective: Prove that remembered operating history changes what an autonomous agent is permitted to do in a genuinely fresh session, deterministically, bounded by owner authority, and auditably.
+- Observable outcome: a fresh process proposes 25,000 USDC and is bound to 10,000 USDC by a precedent retrieved from Sibyl Memory, and cannot do so when that memory is removed.
+- Acceptance criteria: 14, mapped to 8 test files.
+- Blocking dependencies: approval and commit of `DECISION-023` and this specification.
+- Suggested split points if Arko prefers smaller commits: section 14 of the specification names five seams.
+
+## Unresolved Dependencies
+
+- RESOLVED: Minimum shared interfaces and schemas — `PREREQ-003` sections 3, 4, and 17; `SPEC-001` section 7.
+- RESOLVED: Authorization and trust boundaries — `PREREQ-003` sections 5, 6, 10; `SPEC-001` section 6.
+- RESOLVED: Architecture, repository structure, component boundaries, file ownership, runtime, dependency policy, and test approach — `PREREQ-003` sections 1, 14, 17, 18.
+- RESOLVED: Event-specific technology restrictions — `HACKATHON_RULES.md` now carries verified rules.
+- RESOLVED: First vertical slice with observable acceptance criteria — `SPEC-001` sections 11 and 12.
+- UNRESOLVED: `ORG-Q1` — Base mainnet versus Base Sepolia. Non-blocking; the network is one configuration value.
+- RESOLVED: `ORG-Q2` — repository licensed MIT under `DECISION-024`; `LICENSE` exists at repository root.
+- UNRESOLVED: `VERIFY-AT-BUILD` — exact `sibyl-memory-client` 0.8.0 signatures. Non-blocking; first step of `SPEC-001` implementation, with a documented fallback.
+- RESOLVED: Arko approved `DECISION-022`, `DECISION-023`, and the licence choice on 2026-09-03.
+- PENDING: Arko's explicit approval and commit of `SPEC-001` before `TASK-001` may be created.
 
 ## TASK-001 Creation Gate
 
 The Orchestrator may draft `TASK-001` only when:
 
-1. Its governing product behavior is `CONFIRMED`.
-2. Its referenced specification is approved and contains inputs, outputs, state changes, rules, permissions, failures, invariants, acceptance criteria, and out-of-scope behavior.
-3. Its consumed and exposed interfaces are documented.
-4. Its exact ownership area and expected files or components are known.
-5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md` where material.
-6. Its testing approach and required test cases are defined.
-7. It can be completed and independently reviewed without another agent making a product or architecture decision.
-8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization.
-9. Its prompt, attribution, audit-document, manual-verification, independent-review, and mandatory commit-gate obligations are explicit.
+1. Its governing product behavior is `CONFIRMED`. — Satisfied by `DECISION-022`.
+2. Its referenced specification is approved and contains inputs, outputs, state changes, rules, permissions, failures, invariants, acceptance criteria, and out-of-scope behavior. — `SPEC-001` contains all of these; **approval pending**.
+3. Its consumed and exposed interfaces are documented. — Satisfied by `SPEC-001` section 7.
+4. Its exact ownership area and expected files are known. — Satisfied by `PREREQ-003` section 18.
+5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md`. — Recorded as `DECISION-023`; **approval pending**.
+6. Its testing approach and required test cases are defined. — Satisfied by `SPEC-001` section 12.
+7. It can be completed and independently reviewed without another agent making a product or architecture decision. — Satisfied, subject to the two `VERIFY-AT-BUILD` and `ORG-Q1` items, both of which have documented defaults.
+8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization. — **Not satisfied.**
+9. Its prompt, attribution, audit-document, manual-verification, independent-review, and mandatory commit-gate obligations are explicit. — Satisfied by `AI_BUILD_GOVERNANCE.md`.
 
-## Current Expected Codex Delivery
+Gate status: **8 of 9 conditions satisfied. Condition 8 is the remaining blocker.**
 
-- CONFIRMED: No application-code delivery is authorized yet.
-- CONFIRMED: Codex must not scaffold a project, select a stack, add dependencies, define schemas in code, or implement product behavior before `TASK-001` exists.
-- CONFIRMED: `TASK-001` cannot authorize application implementation unless it references an approved and committed bounded `SPEC-*`.
-- CONFIRMED: For an assigned prerequisite, Codex may deliver only the named repository documentation, decision proposals, examples, and traceability review within that prerequisite's scope.
-- CONFIRMED: The first future implementation delivery must be exactly the files, behavior, tests, and documentation specified by an approved `TASK-001`; nothing outside that task is implied.
+## Current Expected Delivery
 
-## Deferred Implementation Issue Groups
+- CONFIRMED: No application-code delivery is authorized. The current turn delivered planning documents only.
+- CONFIRMED: No implementation agent may scaffold a project, select a stack beyond what `DECISION-023` records, add dependencies, define schemas in code, or implement product behavior before `TASK-001` exists.
+- CONFIRMED: `TASK-001` cannot authorize implementation unless it references an approved and committed bounded `SPEC-*`.
+- CONFIRMED: The first implementation delivery must be exactly the files, behavior, tests, and documentation specified by `SPEC-001` and an approved `TASK-001`.
 
-These groups are planning placeholders, not authorized implementation tasks:
+## Deferred Groups
 
-- Project structure and development baseline.
-- Shared schemas and synthetic corpus.
-- Deterministic authority and citation validation.
-- Precedent retrieval and ranking.
-- Fact extraction and comparison.
-- Precedent packet and brief generation.
-- Decision write-back.
-- API and service orchestration.
-- Frontend workflow.
-- QA, red-team, security, and model-boundary tests.
-- Demo seed/reset flow.
-- README, demo script, pitch material, and submission checklist.
+Planning placeholders only, all downstream of `SPEC-001`:
 
-No implementation group may be promoted to a bounded task until its governing specification, dependencies, file ownership, interfaces, acceptance criteria, tests, and stop conditions are recorded.
+- Demo recording, build-in-public posts, and the submission checklist.
+- README memory read/write table and Prior Work declaration (required by the event; drafted during `SPEC-001`).
+- Retrieval ranking quality beyond deterministic candidate generation.
+- Any second domain instantiation of the retained `PREREQ-002` model.

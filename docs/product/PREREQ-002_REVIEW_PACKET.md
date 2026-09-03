@@ -1,5 +1,7 @@
 # PREREQ-002 Review Packet
 
+> **HISTORICAL.** This packet preserves the pre-resolution review snapshot for `PREREQ-002`. Its supplier-onboarding domain was superseded by `DECISION-022` (2026-09-03). The object and field tables carry forward as the retained model; the supplier-domain values are historical. The active demo design is `docs/product/ACTIVE_DEMO_DESIGN.md`. Preserved unrewritten as historical design work.
+
 ## Review Status
 
 - CONFIRMED: This packet exposes the exact contents incorporated by decision packages `P2-01`, `P2-11`, and `P2-13` for review.

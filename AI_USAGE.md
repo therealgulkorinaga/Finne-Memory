@@ -45,3 +45,62 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Assisted files: `README.md`, `PRD.md`, `AGENTS.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `AI_BUILD_GOVERNANCE.md`, `TASKS.md`, `DECISIONS.md`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_REVIEW_PACKET.md`, `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`, and `prompts/2026-09-02-rename-product-finne-memory.md`.
 - Arko's decisions and corrections: Arko confirmed `Finné Memory` as the product name, `Finne-Memory` as the repository name, and `finne-memory` as the technical slug. Arko corrected the initial overbroad instruction by confirming that `Sybill` remains the hackathon/event name and directed preservation of historical records and saved prompts.
 - Approval boundary: This entry records preparation only. Arko has not approved staging or commit of the migration, and no product behavior or implementation authorization changed.
+
+## 2026-09-03: DECISION-022 Domain Pivot And PREREQ-003 Architecture
+
+- Decision references: `DECISION-022` (controlled domain pivot), `DECISION-023` (architecture).
+- AI tool: **Claude Code (Anthropic), model Opus 5.** This is a different tool from the OpenAI Codex desktop agent used for all prior entries in this file. The change of tool is recorded rather than blended into earlier attribution.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-03-revised-direction-base-agent-authority.md`, saved contemporaneously before any file in this turn was changed.
+- Claude's inspection role: Performed read-only inspection of branch, `HEAD`, working tree, index, remote, commit history, and merged pull-request state; read every document named in Arko's instruction; inventoried supplier-onboarding occurrences across all tracked Markdown; and verified the official event rules and the Sibyl Memory SDK surface from source.
+- Claude's drafting role: Drafted `DECISION-022` and `DECISION-023`; rewrote `PRD.md`, `HACKATHON_RULES.md`, `ARCHITECTURE.md`, `TASKS.md`, and `README.md`; created `docs/product/ACTIVE_DEMO_DESIGN.md`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, and proposed `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`; added historical labels to six `docs/product/` files without rewriting their content; and reconciled three governance statements that the revised authority model contradicted.
+- Assisted files: `README.md`, `PRD.md`, `ARCHITECTURE.md`, `TASKS.md`, `DECISIONS.md`, `HACKATHON_RULES.md`, `AGENTS.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `AI_BUILD_GOVERNANCE.md`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, `REUSED_COMPONENTS.md`, `docs/product/ACTIVE_DEMO_DESIGN.md`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`, `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_REVIEW_PACKET.md`, `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`, `docs/product/PREREQ-002_TRACEABILITY_REVIEW.md`, and `prompts/2026-09-03-revised-direction-base-agent-authority.md`.
+- Arko's decisions: Arko supplied the revised product thesis, the core authority model and its invariants, the Sibyl/Finné/Base relationship, the two-session demonstration and its exact amounts, the retained precedent model, the deterministic/model split, the architecture direction and its prohibitions, the velocity model, and the prohibition on code, scaffolding, dependencies, contract deployment, and onchain transactions in this turn.
+- Claude's escalation: Claude identified that the revised model changes Finné Memory's output from advisory-only decision support to a binding deterministic authorization bound, which contradicts `DECISION-002`, `DECISION-013`, `AGENT_BUILD_INSTRUCTIONS.md` section 2 and section 9, and `AI_BUILD_GOVERNANCE.md`. Claude recorded the change explicitly in `DECISION-022` and reconciled the contradicting statements rather than applying the change silently, and surfaced it to Arko in the end-of-turn report.
+- Verification performed and its limits: Official rules were verified on 2026-09-03 from the six official URLs listed in `HACKATHON_RULES.md`. The `sibyl-memory-client` version, licence, Python requirement, and API surface were verified from the PyPI JSON API and the official documentation. **The package is not installed on this machine and was not imported.** The published README documents the v0.4.x API surface while the current release is v0.8.0, so exact signatures are marked `VERIFY-AT-BUILD` in `PREREQ-003` rather than asserted as confirmed.
+- Implementation code: None. No application code, scaffolding, dependency installation, contract deployment, or onchain transaction occurred.
+- Git operations: None. Nothing was staged, committed, pushed, or merged.
+
+## 2026-09-03: Planning Checkpoint Approval, MIT Licence, And Commit
+
+- Decision reference: `DECISION-024`.
+- AI tool: Claude Code (Anthropic), model Opus 5.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-03-revised-direction-base-agent-authority.md` and Arko's subsequent approval instruction recorded in `HUMAN_DECISIONS.md`.
+- Claude's assistance: Added the MIT `LICENSE`; drafted `DECISION-024`; propagated the `ORG-Q2` resolution across `HACKATHON_RULES.md`, `README.md`, `PRD.md`, `ARCHITECTURE.md`, `TASKS.md`, `AI_BUILD_GOVERNANCE.md`, `REUSED_COMPONENTS.md`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, and `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`; updated the build sequence to reflect the approvals given; and created the feature branch and commit that Arko approved.
+- Arko's decisions: Approved the planning checkpoint and the proposed commit; selected MIT.
+- Claude's disclosure: The `LICENSE` copyright holder was inferred as `Arko Ganguli` from repository context, not supplied verbatim. This is flagged in `HUMAN_DECISIONS.md` for correction if a different entity is intended.
+- Implementation code: None. No application code, scaffolding, dependency installation, contract deployment, or onchain transaction occurred.
+
+## 2026-09-03: DECISION-025 Two-Tool Operating Model Addendum
+
+- Decision reference: `DECISION-025`.
+- AI tool: Claude Code (Anthropic). The session's model was switched mid-conversation from Opus 5 to Sonnet 5 by Arko via the `/model` command, carrying full conversation context forward. This is recorded as a retrospective, unverified self-report in `BUILD_LOG.md`'s 2026-09-03 fix entry below — written during a later corrective pass in the same session, not at the moment of the switch — not as contemporaneous or independent corroboration.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-03-two-tool-operating-model.md`. **Correction:** this file was not saved at the time of the original exchange. Claude's first draft of this entry stated the table did not need saving because it was "short" — an unauthorized exception to the prompt-preservation requirement in `AGENT_BUILD_INSTRUCTIONS.md` Section 1, decided unilaterally rather than asked about. An independent Codex review of this addendum flagged the omission as a `BLOCKER`. The prompt file was then written as the correction; it is not backdated to claim contemporaneity it does not have, and this limitation is stated in the file itself.
+- Claude's assistance: Compared Arko's proposed table against `AGENT_BUILD_INSTRUCTIONS.md` Sections 7 and 8 before any file was changed, and reported three specific findings — the commit-execution ambiguity, the push/PR gap, and the role-fleet collapse — rather than adopting the table silently. After Arko confirmed, drafted `AGENT_BUILD_INSTRUCTIONS.md` Section 11, `DECISION-025`, and this and the related audit entries. A first-pass independent Codex review then found two BLOCKERs (this unsaved prompt, and a lifecycle-ordering compression affecting `SAVE PROMPT` and `UPDATE AUDIT DOCUMENTS`) and two IMPORTANT findings (this unverifiable model-switch claim, and no named owner for the Section 7 items 2–3 checks). All four were corrected; see `BUILD_LOG.md` for the full review record.
+- Assisted files: `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, `HUMAN_DECISIONS.md`, `AI_USAGE.md`, `BUILD_LOG.md`, `prompts/2026-09-03-two-tool-operating-model.md`.
+- Arko's decisions: Supplied the operating table; confirmed adopting it formally rather than informally; approved the specific resolution of the commit-execution ambiguity in Claude's favor (Claude may execute a commit after explicit approval) and the push/PR boundary in Arko's favor (Arko performs both personally); ran the independent Codex review that caught the four findings above.
+- Product and implementation effect: None. This is a process clarification; no product rule, authority rule, or approval boundary changed.
+- Git operation status at time of writing: Not yet committed. Per the protocol this entry itself documents, Claude prepared the change, corrected it against Codex's first-pass review, and is awaiting Arko's explicit approval before executing the commit.
+
+## 2026-09-03: Second Codex Review, Wording Fix, And Review-Pass Cap
+
+- Decision reference: `DECISION-025` (amended).
+- AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, second pass on the same pending change.
+- Human director: Arko.
+- Claude's assistance: Received Codex's second-pass finding (the "contemporaneous corroboration" overclaim), fixed the wording in all three locations it appeared, then drafted a third review prompt per the then-standing default of drafting review prompts automatically at every step. Arko stopped that before it ran and gave a direct instruction to cap independent review passes at two per bounded change and record that cap in governance immediately. Claude added the cap to `AGENT_BUILD_INSTRUCTIONS.md` Section 11 and to `DECISION-025`, and updated the corresponding feedback memory to reflect the cap rather than leaving the unbounded version in place.
+- Assisted files: `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, `AI_USAGE.md`, `BUILD_LOG.md`, `HUMAN_DECISIONS.md`, `prompts/2026-09-03-two-tool-operating-model.md`.
+- Arko's decisions: Corrected the "contemporaneous corroboration" wording by way of Codex's finding; directly instructed the two-pass cap; directed that the cap be recorded in the rules immediately rather than only applied informally.
+- Product and implementation effect: None. Process clarification only.
+- Git operation status: Not yet committed. Two of the two permitted independent passes are complete; the pass-2 fix has not been independently re-verified by a third pass, per the new cap, and this is disclosed rather than presented as confirmed.
+
+## 2026-09-03: HACKATHON_RULES.md AI-Attribution Submission Practice
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Claude's assistance: Explained that attribution is unaffected by who runs `git push`, since it lives in commit trailers and the audit trail rather than in the pusher's identity. Drafted the new `HACKATHON_RULES.md` section at Arko's request, explicitly marked as self-imposed rather than an invented official rule, consistent with the document's own integrity requirement not to invent event rules.
+- Assisted files: `HACKATHON_RULES.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Requested the section; explicitly waived the independent Codex review for this specific bounded change ("no need for codex"); directed that this commit not be pushed now and instead be pushed together with the prior commit later.
+- Product and implementation effect: None.
+- Git operation status: Committed on Claude's execution after Arko's explicit approval, per the standing commit-execution rule in `AGENT_BUILD_INSTRUCTIONS.md` Section 11. Not pushed.

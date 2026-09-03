@@ -161,7 +161,7 @@ Work also stops when required information is `UNRESOLVED`, ownership would be cr
 ## Finné Memory Product Guardrails
 
 - No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, transaction-performance-verification, or service-delivery-verification product.
-- Finné Memory does not make the final supplier outcome.
+- Finné Memory emits a binding deterministic authorization bound and never selects the business action within it. The owner permission ceiling is always superior to learned authority, and effective authority can never exceed owner authority. Amended by `DECISION-022`.
 - Similarity, authority, precedent treatment, and outcome remain separate.
 - Models may assist extraction, comparison, explanation, and drafting but cannot establish deterministic authority or citation facts.
 - Shared schemas, stable interfaces, authority rules, permissions, and ownership require explicit Orchestrator and Arko approval.
@@ -169,6 +169,7 @@ Work also stops when required information is `UNRESOLVED`, ownership would be cr
 
 ## Official Event-Rule Boundary
 
-- CONFIRMED: `HACKATHON_RULES.md` is the sole register for verified official Sybill event rules.
+- CONFIRMED: `HACKATHON_RULES.md` is the sole register for verified official event rules. The event is the Sibyl Labs Hackathon; historical references to `Sybill` are preserved unrewritten.
+- CONFIRMED: Official rules were verified from source on 2026-09-03 and are now recorded. `ORG-Q2` is resolved: the repository is MIT-licensed under `DECISION-024`. `ORG-Q1` (Base mainnet versus Sepolia) and `ORG-Q3` (free-tier limits) remain open and neither blocks implementation.
 - CONFIRMED: Unresolved official event restrictions block implementation authorization until they are explicitly resolved or ruled inapplicable.
 - CONFIRMED: This governance document does not establish event eligibility, sponsor requirements, submission requirements, deadlines, or technical restrictions.

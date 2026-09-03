@@ -31,3 +31,49 @@ This ledger records material human decisions, corrections, rejected AI suggestio
 - Historical boundary: Historical decisions, logs, reviews, prompts, commit descriptions, pull-request records, and historical repository URLs retain their original wording. Saved prompts are not rewritten.
 - Product boundary: The naming migration changes no product thesis, V1 behavior, authority rule, corpus fixture, permission, acceptance criterion, or implementation gate.
 - Approval boundary: Arko required occurrence classification before correction and has not authorized staging or commit.
+
+## 2026-09-03: Controlled Domain Pivot To Base Agent Authority
+
+- Human decision-maker: Arko.
+- Decision references: `DECISION-022`, `DECISION-023`.
+- Prompt record: `prompts/2026-09-03-revised-direction-base-agent-authority.md`.
+- Decision: Change the demonstration domain, not the product. Finné Memory converts an autonomous agent's remembered operating history into bounded, auditable authority for its next action. The active V1 is an autonomous treasury agent deriving its bounded authority for a materially similar Base action in a fresh session.
+- Naming correction supplied by Arko: Sibyl Labs is the organiser, Sibyl Memory is its mandatory infrastructure, Finné is the umbrella venture, Finné Memory is the product, `Finne-Memory` is the repository, and `finne-memory` is the slug. The product must never be described as Sibyl, and must never be claimed to provide generic agent memory.
+- Authority model supplied by Arko: the owner permission ceiling is always superior to learned authority; effective authority is the strictest intersection of owner ceiling, hard policy, active precedents, learned constraint, and current action scope; and effective authority can never exceed owner authority.
+- Substrate decision supplied by Arko: Sibyl Memory is the mandatory and sole store of remembered agent experiences. Supabase, PostgreSQL, pgvector, Pinecone, and other databases are prohibited for that purpose.
+- Scope change accepted by Arko and flagged by Claude: Finné Memory's output changes from an advisory-only `PrecedentPacket` to a binding deterministic `AuthorizationDecision`. This amends `DECISION-002` and `DECISION-013` and required reconciling `AGENT_BUILD_INSTRUCTIONS.md` sections 2 and 9 and `AI_BUILD_GOVERNANCE.md`. Claude recorded it explicitly rather than applying it silently. **Arko's confirmation of this specific amendment is requested at the approval checkpoint.**
+- Historical boundary required by Arko: historical decisions, saved prompts, build logs, previous commits, and merged pull-request records are preserved unrewritten. `DECISION-010`, `DECISION-011`, and `DECISION-012` are marked superseded with annotations; `DECISION-002` and `DECISION-013` are annotated as amended; six `docs/product/` files carry historical labels with their content untouched.
+- Velocity model directed by Arko: one decision, one PRD, one architecture document, one specification, one independent review, then build. No documentation that documents other documentation, and no recursive review bureaucracy.
+- Rejected or deferred by Claude under Arko's instruction: no alternative architectures, review packets, or competing proposals were produced, because no genuine blocker prevented a decision.
+- Blocking item raised to Arko: the repository has **no `LICENSE` file**, which fails a stated submission requirement. Claude did not create one, because the licence choice is Arko's. MIT is recommended, matching `sibyl-memory-client`.
+- Approval boundary: This turn is preparation only. Arko has not approved `DECISION-023` or `SPEC-001`, and has not authorized staging, commit, push, merge, dependency installation, contract deployment, onchain transactions, or implementation.
+
+## 2026-09-03: Planning Checkpoint Approval And MIT Licence
+
+- Human decision-maker: Arko.
+- Decision references: `DECISION-022`, `DECISION-023`, `DECISION-024`.
+- Approval given: Arko approved the planning checkpoint, including the controlled domain pivot (`DECISION-022`), the architecture (`DECISION-023`), and the proposed commit boundary and message.
+- Scope-change confirmation: Arko's approval covers the flagged amendment that Finné Memory's output becomes a binding deterministic authorization bound rather than advisory decision support. `DECISION-002` and `DECISION-013` remain annotated as amended, and the reconciled statements in `AGENT_BUILD_INSTRUCTIONS.md` sections 2 and 9 and `AI_BUILD_GOVERNANCE.md` stand as approved.
+- Licence decision: Arko selected **MIT**, closing `ORG-Q2`. Recorded as `DECISION-024`. `LICENSE` was added as the standard unmodified OSI MIT template with copyright `2026 Arko Ganguli`.
+- Copyright-holder note raised by Claude: the copyright line names Arko Ganguli, inferred as the repository owner rather than supplied verbatim. If the intended holder is a different entity, `LICENSE` must be corrected before submission.
+- Approval boundary that remains: `SPEC-001` still requires explicit approval and a commit of its own before `TASK-001` may be created or any implementation may begin. Arko has not authorized a push, a pull request, a merge, dependency installation, contract deployment, onchain transactions, or implementation.
+
+## 2026-09-03: Two-Tool Operating Model Confirmed
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-025`.
+- Decision: Arko supplied a fifteen-row role-and-action table for the implementation phase and asked Claude to check it against `AGENT_BUILD_INSTRUCTIONS.md` before adopting it.
+- Claude's findings, presented before any file changed: the table matches the documented Review Protocol and Commit Protocol in substance; one real ambiguity exists in "agents do not commit directly" (literal human keystroke versus approval-gated agent execution); one gap exists because the current text is silent on who pushes a branch or opens a pull request; and the table implicitly collapses the documented ten-role agent fleet to two AI tools (Claude, Codex) plus Arko.
+- Arko's decision: Confirmed the table as the operating model and directed Claude to record it as a formal addendum and decision rather than an informal note.
+- Resolution recorded: Claude executes commits only after Arko's explicit, change-specific approval; push and pull-request creation remain Arko's alone, performed personally via authenticated Bash or the GitHub CLI; Codex serves as the independent reviewer for diff review and fix verification; prompt-saving and audit-document updates remain mandatory even though the table does not list them as separate rows.
+- Approval boundary: This entry documents the clarification only. It does not itself authorize a commit; per the just-confirmed protocol, Claude prepared the addendum and this entry and is awaiting Arko's explicit approval before committing them.
+
+## 2026-09-03: Review-Pass Cap
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-025` (amended).
+- Context: After a second independent Codex review found and Claude fixed one remaining overclaim (the "contemporaneous corroboration" wording), Claude drafted a third review prompt automatically, per the standing default established earlier in this session of drafting the review prompt at every step regardless of size.
+- Decision: Arko stopped the third pass before it ran and set an explicit cap: at most two independent Codex review passes per bounded change per turn. If a finding remains open after two passes, Claude stops and asks Arko how to proceed rather than continuing to draft review prompts automatically. Arko directed this be recorded in `AGENT_BUILD_INSTRUCTIONS.md` immediately, not treated as an informal instruction for this turn only.
+- Effect on the earlier "draft automatically every time" correction: Not reversed. The first two passes remain automatic and unasked. Only unbounded repetition past two passes is capped.
+- Current state left for Arko's decision: two of two permitted passes are complete for the pending `DECISION-025` addendum; the pass-2 fix has not been independently re-verified by a third pass. Arko may approve the commit on that basis, direct a specific further check, or defer the remaining item to a follow-up.
+- Approval boundary: This entry documents the clarification only. The pending `DECISION-025` addendum, including this cap, is not yet committed.
