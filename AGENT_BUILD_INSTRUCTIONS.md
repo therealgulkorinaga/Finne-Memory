@@ -300,6 +300,7 @@ This is an operating assignment, not a change to Section 4's role definitions. I
 - CONFIRMED: Section 8's "Agents do not commit directly" means an agent may not commit without Arko's prior, explicit, change-specific approval. It does not require Arko to personally type the `git commit` command.
 - CONFIRMED: Once Arko has approved a specific commit's content and message, Claude may execute the commit as a tool call. The approval is what authorizes the commit; the keystroke is mechanical.
 - CONFIRMED: This clarification does not extend to push, PR creation, or merge. Those remain actions Arko performs personally; see below.
+- CONFIRMED: Commit messages carry co-author trailers reflecting what actually happened, not a blanket default. `Co-Authored-By: Claude ... <noreply@anthropic.com>` is added on every Claude-authored commit. `Co-Authored-By: Codex <noreply@openai.com>` is added in addition, whenever Codex independently reviewed the specific change being committed — not when Codex review was explicitly waived or skipped for that commit. Neither trailer is retroactively added to past commits; the repository does not rewrite history.
 
 ### Push And Pull-Request Boundary
 
