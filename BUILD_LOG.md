@@ -246,5 +246,41 @@ This chronological log records bounded planning and implementation work, validat
 - Application implementation: None.
 - Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
 - Manual product verification: `NOT APPLICABLE` because no product behavior changed.
-- Git operation status: Not yet committed. Awaiting Arko's approval per the standing commit-execution rule.
-- Rollback point: `53a5d5e` (current `master`, includes the direct README edit).
+- Git operation status: Committed and merged into `master` via PR #4.
+- Rollback point: `53a5d5e` (current `master` at the time, includes the direct README edit).
+
+## 2026-09-03: SPEC-001 Review, Correction, And Approval
+
+- Scope: Fixed docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md and its governing documents for approval, then Arko approved SPEC-001 itself.
+- Trigger: Arko asked to move to SPEC-001. Before presenting it, Claude found SPEC-001 described its own governing decision (DECISION-023) as still "Proposed," when it had actually been approved and committed on 2026-09-03 — the same category of unpropagated status fix already made for TASKS.md earlier this session. Fixed that first, then presented SPEC-001 for review with an automatically-drafted Codex prompt per the standing default.
+- Independent review, pass 1: NOT READY FOR COMMIT. 3 BLOCKERs, 2 IMPORTANT, 1 NICE-TO-HAVE:
+  - BLOCKER: DECISION-023's canonical status in DECISIONS.md, PREREQ-003_ARCHITECTURE.md, and PRD.md still said Proposed/pending, contradicted by SPEC-001's own claim of "approved." Root-caused: Arko's earlier approval ("approval given use MIT license") was never propagated into these canonical status fields. Fixed at the source across all three files, plus ARCHITECTURE.md and README.md, which had the same problem.
+  - BLOCKER: SPEC-001 section 13's file-ownership restriction literally forbade the mandatory prompts/, AI_USAGE.md, HUMAN_DECISIONS.md, BUILD_LOG.md, REUSED_COMPONENTS.md updates required by AGENT_BUILD_INSTRUCTIONS.md. Fixed with an explicit carve-out.
+  - BLOCKER: the active corpus did not faithfully instantiate the retained PREREQ-002 model — PrecedentRelationship records referenced a matter version (MV-002-V1) instead of a decision version, and the required initial "No prior state -> draft" authority event was missing from both SPEC-001 and ACTIVE_DEMO_DESIGN.md's Session 1 walkthrough. Fixed by giving CASE-002 a resulting decision version DV-002-V1 created at write-back, and splitting the single "draft -> active" step into two distinct, correctly-attributed events (Decision Reviewer confirmation, then separate Authority Steward activation) in both documents.
+  - IMPORTANT: the directional risk-tier comparability rule contradicted its own CASE-005 fixture (a high-risk precedent is actually comparable to a low-risk current proposal under the stated rule, not excluded). Fixed by redefining CASE-005 around a target_class mismatch instead, and adding a note clarifying the risk-tier direction is proven by test_comparability.py rather than a corpus fixture, since every corpus proposal is fixed at low risk.
+  - IMPORTANT: acceptance criterion A14 (repeatable reset) had no mapped test. Fixed by mapping it to test_fresh_session.py's setup phase.
+  - NICE-TO-HAVE: the VERIFY-AT-BUILD fallback note overstated its own coverage. Fixed to state it covers R3 (authority-event storage) only.
+- Independent review, pass 2 (final, per the two-pass cap): NOT READY FOR COMMIT. 2 BLOCKERs:
+  - BLOCKER: TASKS.md — cut from master before the earlier reconciliation branch existed — still had the same DECISION-023 status conflict in three places (PREREQ-003 block, SPEC-001 summary, TASK-001 Creation Gate condition 5). Fixed directly on this branch.
+  - BLOCKER: the fix for the first BLOCKER's relationship-persistence gap didn't go far enough — persisting a PrecedentRelationship is specifically an Authority Steward confirmation per the retained PREREQ-002 contract (requiring fact_ids and citation_ids), distinct from the Decision Reviewer confirmation that creates the draft decision version. Fixed by making relationship persistence its own explicit, separately-timestamped Authority Steward step in both SPEC-001 and ACTIVE_DEMO_DESIGN.md, without activating DV-002-V1.
+- Cap reached: two independent Codex passes ran against this change; both sets of findings were fixed and verified against source. Per AGENT_BUILD_INSTRUCTIONS.md section 11, a third pass required Arko's explicit direction rather than continuing automatically.
+- Arko's decision: "approve as-is." Read as approving both the accumulated fixes and SPEC-001 itself, given the turn's framing was explicitly about moving SPEC-001 toward approval. Claude propagated the resulting "SPEC-001 approved" fact across SPEC-001 itself, TASKS.md (Implementation Readiness, Immediate Build Sequence, Unresolved Dependencies, TASK-001 Creation Gate conditions 2 and 8 and the gate-status summary, and the Specifications block), README.md, and ARCHITECTURE.md — applying the same grep-sweep discipline that two Codex passes had just validated, without a third review round, since this propagation is mechanical application of an already-reviewed pattern rather than new substantive content.
+- Result: TASK-001 Creation Gate is now 9 of 9 satisfied. TASK-001 may be created.
+- Files changed: ARCHITECTURE.md, DECISIONS.md, PRD.md, README.md, TASKS.md, docs/architecture/PREREQ-003_ARCHITECTURE.md, docs/product/ACTIVE_DEMO_DESIGN.md, docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md.
+- Application implementation: None. This entire cycle was documentation and specification correction; no code exists yet.
+- Automated implementation tests: `NOT APPLICABLE` — no code to test.
+- Manual product verification: `NOT APPLICABLE` — no product behavior exists yet.
+- Git operation status: Committed as `cd6172c` on `docs/spec-001-status-accuracy`. Merging into `master` required resolving a conflict against PR #4's independent `TASKS.md` reconciliation (see the merge-resolution note below); both branches had touched `TASKS.md`, `AI_USAGE.md`, and `BUILD_LOG.md` in overlapping ways because `docs/spec-001-status-accuracy` was branched before PR #4 merged.
+- Rollback point: `53a5d5e` (branch point before PR #4).
+
+## 2026-09-03: Merge Conflict Resolved Between PR #4 And PR #5
+
+- Cause: `docs/spec-001-status-accuracy` (this branch) was created from `master` at `53a5d5e`, before `docs/reconcile-tasks-status` (PR #4) merged. Both branches independently corrected overlapping `DECISION-023`/`SPEC-001` status language in `TASKS.md`, and both appended new entries to `AI_USAGE.md` and `BUILD_LOG.md`. GitHub could not auto-merge PR #5 as a result.
+- Resolution approach: `git merge origin/master` locally (not a rebase, so `cd6172c` and PR #4's commits both keep their original hashes; no force-push needed).
+- `TASKS.md`: both sides described the same facts at different points in time. Kept the more detailed step 4/5 wording from PR #4 (the `WAIVED` note, exact commit hashes) and combined it with this branch's later truth that `SPEC-001` is now approved and `TASK-001` is unblocked, rather than picking one side wholesale.
+- `AI_USAGE.md` and `BUILD_LOG.md`: both sides had appended a genuinely different, non-contradictory entry after the same base point — not a real disagreement, just two branches growing the log independently. Kept both entries, ordered by when each activity actually happened (PR #4's `TASKS.md` reconciliation, 12:40 UTC, before this branch's SPEC-001 approval work).
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE`.
+- Manual product verification: `NOT APPLICABLE`.
+- Git operation status: Merge resolved locally, not yet committed as the merge commit.
+- Rollback point: `cd6172c` (this branch before the merge).

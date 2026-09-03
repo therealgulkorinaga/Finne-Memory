@@ -77,3 +77,12 @@ This ledger records material human decisions, corrections, rejected AI suggestio
 - Effect on the earlier "draft automatically every time" correction: Not reversed. The first two passes remain automatic and unasked. Only unbounded repetition past two passes is capped.
 - Current state left for Arko's decision: two of two permitted passes are complete for the pending `DECISION-025` addendum; the pass-2 fix has not been independently re-verified by a third pass. Arko may approve the commit on that basis, direct a specific further check, or defer the remaining item to a follow-up.
 - Approval boundary: This entry documents the clarification only. The pending `DECISION-025` addendum, including this cap, is not yet committed.
+
+## 2026-09-03: SPEC-001 Approved
+
+- Human decision-maker: Arko.
+- Decision: Approved `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` — the first bounded implementation specification — after two independent Codex review passes (the standing cap) found and Claude fixed five BLOCKER and two IMPORTANT findings across the specification and its governing documents.
+- What this authorizes: Per `TASKS.md`'s `TASK-001` Creation Gate, all 9 conditions are now satisfied. `TASK-001` may be created and implementation may begin under it, governed by the two-tool operating model in `DECISION-025`.
+- What Arko corrected along the way: caught that Claude's own earlier fix had introduced a NEW status conflict (claiming `DECISION-023` was approved when its canonical record still said otherwise) via the first Codex pass; caught a second-order gap (relationship persistence needing its own Authority Steward confirmation, distinct from draft creation) via the second Codex pass. Both required Claude to verify findings against the actual `PREREQ-002` contract text rather than take the review's description on trust.
+- Scope confirmed: this is a documentation and specification approval only. No application code, dependencies, scaffolding, contract deployment, or onchain transaction is authorized by this entry. The next action is creating `TASK-001`.
+- Approval boundary: "approve as-is" was read as approving both the accumulated review-cycle fixes and `SPEC-001` itself, given the turn's explicit framing throughout was moving `SPEC-001` toward approval. Arko has not yet authorized `TASK-001` creation as a separate act, or any implementation work under it.

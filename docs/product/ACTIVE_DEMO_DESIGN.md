@@ -49,6 +49,8 @@ A prior case is **materially comparable** to a current proposal if and only if:
 
 Any mismatch is a **material difference**. A materially different case may be retrieved and displayed, and a model may explain the difference, but it cannot be followed. Amount never affects comparability; it is the value being constrained.
 
+- CONFIRMED: The directional risk-tier check specifically stops a current proposal that is *riskier* than its precedent from inheriting that precedent's authority — e.g. a `high`-risk current proposal could not follow a `low`-risk precedent even if every other dimension matched exactly. A precedent that is riskier than the current proposal remains comparable (a successful high-risk case is at least as strong grounds for a lower-risk one). Every proposal in this corpus is fixed at `low` risk, so this exclusion direction is never exercised by a corpus fixture; it is proven by `test_comparability.py` against a synthetic higher-risk-current-vs-lower-risk-precedent input instead.
+
 ## 4. Learned-Constraint Derivation Policy
 
 Owner-defined and owner-controlled. V1 policy `LCP-001`:
@@ -73,10 +75,10 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 | Case | Matter / Decision version | Facts | Authorized | Outcome | Authority state | Role in demo |
 | --- | --- | --- | --- | --- | --- | --- |
 | `CASE-001` | `MV-001-V1` / `DV-001-V1` | base, USDC, capital_deployment, yield_vault_conservative, deposit, risk `low` | `10000.00` | `success` | `active` | Session 1 baseline; the precedent Session 2 must find |
-| `CASE-002` | `MV-002-V1` / — | Identical fact profile to `CASE-001`, proposed `25000.00` | — | — | — | Session 2 current proposal; expects constrain to `10000.00` |
+| `CASE-002` | `MV-002-V1` / `DV-002-V1` (created at write-back) | Identical fact profile to `CASE-001`, proposed `25000.00` | `10000.00` | `success` | `draft` | Session 2 current proposal; expects constrain to `10000.00`; its own resulting decision version stays `draft` — promoting it to `active` is out of this slice's scope |
 | `CASE-003` | `MV-003-V1` / `DV-003-V1` | Identical fact profile, authorized `20000.00` | `20000.00` | `success` | `withdrawn` | Highly similar but **withdrawn**; must not raise authority to 20,000 |
 | `CASE-004` | `MV-004-V1` / `DV-004-V1` | base, USDC, capital_deployment, `demo_receipt`, `recordAuthorization`, risk `low` | `5000.00` | `success` | `active` | Less similar but active; proves similarity and authority are separate |
-| `CASE-005` | `MV-005-V1` / `DV-005-V1` | Same as `CASE-001` except `counterparty_risk_tier` = `high` | `10000.00` | `success` | `active` | Material-difference fixture; cannot be silently followed by a `low`-tier proposal's inverse |
+| `CASE-005` | `MV-005-V1` / `DV-005-V1` | Same as `CASE-001` except `target_class` = `yield_vault_aggressive` | `10000.00` | `success` | `active` | Material-difference fixture: `target_class` mismatch excludes it from derivation even though authority state and outcome match `CASE-001` exactly |
 | `CASE-006` | `MV-006-V1` / `DV-006-V1` | Identical fact profile, authorized `15000.00` | `15000.00` | `success` | `superseded` | Superseded by `DV-001-V1`; retrievable, not authorizing |
 | `CASE-007` | `MV-007-V1` / `DV-007-V1` | Identical fact profile, authorized `12000.00` | `12000.00` | `failure` | `questioned` | Failed outcome later questioned; excluded from derivation |
 | `CASE-008` | `MV-008-V1` / `DV-008-V1` | Identical fact profile, authorized `18000.00` | `18000.00` | `success` | `draft` | Recorded but never owner-confirmed; cannot authorize |
@@ -90,9 +92,10 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 | --- | --- | --- | --- |
 | `supersedes` | `DV-001-V1` | `DV-006-V1` | `CASE-006` moves to `superseded` |
 | `questions` | `DV-007-V1` | `DV-007-V1` (outcome-driven) | `CASE-007` moves to `questioned` |
-| `distinguishes` | `MV-002-V1` | `DV-005-V1` | Records why the `high`-tier case is not followed |
-| `follows` | `MV-002-V1` | `DV-001-V1` | The authorizing citation for Session 2 |
+| `distinguishes` | `DV-002-V1` | `DV-005-V1` | Records why the `target_class`-mismatched case is not followed |
+| `follows` | `DV-002-V1` | `DV-001-V1` | The authorizing citation for Session 2 |
 
+- CONFIRMED: Every `PrecedentRelationship` is canonically between two exact `decision_version_id`s, per the retained `PREREQ-002` contract. The `distinguishes` and `follows` rows above are therefore not pre-existing at proposal time — they can only be persisted once `DV-002-V1` exists, which happens at Session 2's write-back (section 7 below), not when `CASE-002` is merely proposed.
 - CONFIRMED: A model may propose any of these. Only deterministic validation plus an authorized confirmation path may persist or apply them.
 
 ## 7. The Two-Session Demonstration
@@ -105,8 +108,8 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 4. The intersection yields zero autonomous authority. The decision is `escalate` — **not** a silent 25,000 USDC allow.
 5. The owner approves a constrained authority of `10000.00` USDC under the `CASE-001` conditions.
 6. The agent executes the safe Base demonstration action within the bound. The authorization receipt records `10000.00` USDC as a policy value; the transaction carries zero value.
-7. Finné Memory writes the complete case to Sibyl Memory: owner ceiling, proposal, circumstances, material facts, constrained authority, decision, action, Base transaction reference, observed outcome, supporting evidence, and precedent status.
-8. Owner confirmation promotes `DV-001-V1` from `draft` to `active` as a separate timestamped authority event.
+7. Finné Memory writes the complete case to Sibyl Memory: owner ceiling, proposal, circumstances, material facts, constrained authority, decision, action, Base transaction reference, observed outcome, and supporting evidence. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-001-V1`. Per the retained `PREREQ-002` authority transitions, this confirmation is itself the initial `No prior state → draft` `AuthorityEvent` — not merely a data write.
+8. The Owner, acting separately as **Authority Steward** — a distinct timestamped action, even though it is the same person — confirms activation: a second `AuthorityEvent` records `draft → active`, promoting `DV-001-V1` to `active`.
 9. **The process terminates completely.**
 
 ### Session 2 — memory changes behaviour
@@ -117,10 +120,11 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 4. Finné Memory retrieves prior cases from Sibyl Memory.
 5. Deterministic checks: `CASE-001` is materially comparable; its authority state is `active`; the current facts satisfy its conditions. `CASE-003`, `CASE-006`, `CASE-007`, and `CASE-008` are retrieved and displayed but excluded from derivation by authority state or outcome.
 6. `learned_max_amount` = `10000.00`.
-7. The intersection binds on the learned constraint. The decision is `constrain` to `10000.00` USDC, citing `DV-001-V1` under a `follows` relationship.
+7. The intersection binds on the learned constraint. The decision is `constrain` to `10000.00` USDC. The `AuthorizationDecision.cited_precedents` names `DV-001-V1` as the supporting precedent — this is the decision's own explanation citing a prior decision version, not yet a persisted `PrecedentRelationship`, since `CASE-002` has no decision version of its own until write-back.
 8. The action changes: **25,000 USDC proposed → 10,000 USDC authorized**.
 9. The agent executes the safe Base action within the bound. The receipt represents `10000.00` USDC; zero value moves.
-10. The new outcome is written back to Sibyl Memory.
+10. The new outcome is written back to Sibyl Memory. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-002-V1` for `CASE-002` — the initial `No prior state → draft` `AuthorityEvent`, exactly as in Session 1 step 7.
+11. Now that `DV-002-V1` exists, the Owner — acting separately as **Authority Steward**, a distinct timestamped confirmation from the Decision Reviewer draft-creation step above — confirms the `follows` (`DV-002-V1` → `DV-001-V1`) and `distinguishes` (`DV-002-V1` → `DV-005-V1`) `PrecedentRelationship` records from section 6, each carrying its required `fact_ids` and `citation_ids` per the retained `PREREQ-002` contract. This confirmation persists the relationships; it does not activate `DV-002-V1`, which remains `draft` — promoting it to `active` is out of scope for this slice.
 
 - CONFIRMED: The changed action must be visible on screen and attributable to the recalled memory, naming `DV-001-V1` as the binding precedent.
 

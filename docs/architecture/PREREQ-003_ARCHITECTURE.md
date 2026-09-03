@@ -2,7 +2,7 @@
 
 ## Status
 
-- PROPOSED: This document closes `PREREQ-003` and is recorded as `DECISION-023`. It requires Arko's approval before `SPEC-001` may be approved and committed.
+- CONFIRMED: This document closes `PREREQ-003` and is recorded as `DECISION-023`. Arko approved it on 2026-09-03; it is committed in `d82f224`. `SPEC-001` remains a separate approval gate.
 - CONFIRMED: It decides every item required of `PREREQ-003`. Where a fact could not be verified without installing software, the verification step is named rather than guessed.
 - CONFIRMED: Scope is the minimum credible architecture for the two-session learned-authority slice in `docs/product/ACTIVE_DEMO_DESIGN.md`. Nothing is designed for scale that the demo does not need.
 

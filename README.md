@@ -27,12 +27,12 @@ The product was renamed from Sybill to Finné Memory under `DECISION-021`. Histo
 
 ## Status
 
-Planning complete, pending approval. **Implementation has not started.** No application code, scaffolding, or dependencies exist yet.
+Planning approved for `DECISION-022`–`DECISION-025` and `SPEC-001`. **Implementation has not started.** No application code, scaffolding, or dependencies exist yet.
 
 - Active V1 and domain pivot: `DECISION-022`
-- Architecture: `docs/architecture/PREREQ-003_ARCHITECTURE.md` (`DECISION-023`, awaiting approval)
-- First specification: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` (proposed)
-- Remaining gate: Arko's approval and commit of `DECISION-023` and `SPEC-001`
+- Architecture: `docs/architecture/PREREQ-003_ARCHITECTURE.md` (`DECISION-023`, approved and committed)
+- First specification: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` (approved 2026-09-03)
+- Next step: `TASK-001` creation, then implementation under the two-tool operating model (`DECISION-025`)
 
 ## The Demonstration
 
@@ -75,7 +75,7 @@ Finné Memory is not a payment, escrow, x402, refund, settlement, transaction-di
 - `ARCHITECTURE.md` — architecture summary and constraint register
 - `docs/architecture/PREREQ-003_ARCHITECTURE.md` — the full architecture decision
 - `docs/product/ACTIVE_DEMO_DESIGN.md` — active demo corpus, fixtures, and negative cases
-- `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` — proposed first specification
+- `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` — approved first specification
 - `HACKATHON_RULES.md` — verified official event rules and open organiser questions
 - `TASKS.md` — task registry and immediate build sequence
 - `DECISIONS.md` — chronological product, architecture, and process decisions

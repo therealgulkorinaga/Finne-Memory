@@ -4,7 +4,7 @@
 
 - CONFIRMED: The active V1 use case, product thesis, owner-authority model, Sibyl Memory substrate role, Base execution role, deterministic/model split, and fresh-session demonstration are defined by `DECISION-022`.
 - CONFIRMED: The `PREREQ-002` object model, authority semantics, invariants, and validation approach carry forward unchanged. Only its supplier-domain instantiation is superseded.
-- CONFIRMED: Architecture is decided in `docs/architecture/PREREQ-003_ARCHITECTURE.md` under `DECISION-023`, pending Arko's approval.
+- CONFIRMED: Architecture is decided in `docs/architecture/PREREQ-003_ARCHITECTURE.md` under `DECISION-023`, approved and committed 2026-09-03.
 - HISTORICAL: Supplier onboarding and procurement compliance was the V1 demo domain under `DECISION-010`. It is retained as historical design work and is no longer the active V1.
 - CONFIRMED: The repository is licensed MIT under `DECISION-024`, satisfying the event's OSI-licence requirement.
 - UNRESOLVED: `ORG-Q1` (Base mainnet versus Base Sepolia for the partner multiplier) in `HACKATHON_RULES.md`.
@@ -279,7 +279,7 @@ The demo must make the following legible to judges within 2 to 5 minutes:
 ## Open Decisions Before Coding
 
 - CONFIRMED: `DECISION-022` records the controlled domain pivot and the active V1 use case.
-- PROPOSED: `DECISION-023` and `docs/architecture/PREREQ-003_ARCHITECTURE.md` require Arko's approval.
+- CONFIRMED: `DECISION-023` and `docs/architecture/PREREQ-003_ARCHITECTURE.md` are approved and committed.
 - PROPOSED: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md` requires Arko's approval and a commit before implementation may begin.
 - RESOLVED: `ORG-Q2` — the repository is licensed MIT under `DECISION-024`.
 - UNRESOLVED: `ORG-Q1` — Base mainnet versus Base Sepolia for the partner multiplier.
