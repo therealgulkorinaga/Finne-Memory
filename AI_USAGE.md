@@ -104,3 +104,13 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Requested the section; explicitly waived the independent Codex review for this specific bounded change ("no need for codex"); directed that this commit not be pushed now and instead be pushed together with the prior commit later.
 - Product and implementation effect: None.
 - Git operation status: Committed on Claude's execution after Arko's explicit approval, per the standing commit-execution rule in `AGENT_BUILD_INSTRUCTIONS.md` Section 11. Not pushed.
+
+## 2026-09-03: TASKS.md Status Reconciliation
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Claude's assistance: Identified that `TASKS.md` no longer reflected reality after `DECISION-025` and the PR #3 merge, and corrected the build-sequence table, `PREREQ-003` status, and the unresolved-dependencies list to match. Explicitly recorded Arko's decision not to run a retroactive Codex review against `d82f224`, rather than silently marking that step complete or omitting it.
+- Assisted files: `TASKS.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Directed the status-only correction; explicitly declined the retroactive independent review of `d82f224`.
+- Product and implementation effect: None.
+- Git operation status: Not yet committed. Awaiting Arko's approval.

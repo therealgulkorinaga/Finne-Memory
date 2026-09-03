@@ -229,3 +229,22 @@ This chronological log records bounded planning and implementation work, validat
 - Manual product verification: `NOT APPLICABLE` because no product behavior changed.
 - Git operation status: Committed as a new, separate commit on `docs/base-agent-authority-pivot` per Arko's explicit approval to commit. Not pushed. Arko will push this commit together with the prior `fab9cff` commit at a later time.
 - Rollback point: `fab9cff` (the prior commit on this branch).
+
+## 2026-09-03: TASKS.md Reconciled To Current State
+
+- Scope: Documentation-only status correction. `TASKS.md` had gone stale — it was last touched as part of the `d82f224` pivot commit and was never updated when `DECISION-025` (two-tool operating model), the AI-attribution submission-practice note, or the PR #3 merge into `master` happened.
+- Trigger: Arko asked what needs to happen next; the answer surfaced that `TASKS.md`'s "Immediate Build Sequence" table still showed "Independent review of this planning checkpoint: Not started" and "Commit the planning checkpoint: Not started" despite the commit having happened. Arko decided not to run a retroactive Codex review against the original `d82f224` pivot content (step 4 in that table) and asked only for the status table to be corrected.
+- Corrections made:
+  - "Implementation Readiness" header now states `DECISION-022` through `DECISION-025` are approved and merged via PR #3.
+  - Build-sequence step 4 marked `WAIVED 2026-09-03 by Arko`, with an explanatory note that `d82f224`'s content predates the two-tool review model and was not retroactively reviewed, distinct from `DECISION-025`'s own addendum (two Codex passes) and the attribution note (one explicitly-waived pass).
+  - Build-sequence step 5 marked `DONE`, naming all three commits and the PR #3 merge.
+  - `PREREQ-003` status corrected from "AWAITING ARKO'S APPROVAL" to "COMPLETE / APPROVED AND COMMITTED" — it was approved (build-sequence step 2) and committed, but the prerequisite's own status block hadn't been updated to say so.
+  - "Unresolved Dependencies" gained a line recording `DECISION-025` as the resolved dependency governing `SPEC-001`'s eventual implementation.
+- What did not change: the actual remaining gate. `SPEC-001` is still `PROPOSED`, not approved or committed; `TASK-001` remains blocked on it; nothing here authorizes implementation.
+- Independent review: Not requested for this change; a plain status-accuracy correction with no product, authority, or process-rule content.
+- Files changed: `TASKS.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: Not yet committed. Awaiting Arko's approval per the standing commit-execution rule.
+- Rollback point: `53a5d5e` (current `master`, includes the direct README edit).
