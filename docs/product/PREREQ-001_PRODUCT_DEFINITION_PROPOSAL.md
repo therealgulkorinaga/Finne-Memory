@@ -1,5 +1,7 @@
 # PREREQ-001: Finné Memory V1 Product Definition Proposal
 
+> **HISTORICAL.** This document records the supplier-onboarding V1 product definition approved under `DECISION-010`, `DECISION-011`, and `DECISION-012`. Under `DECISION-022` (2026-09-03) the active V1 changed to Base agent-permission precedent, with a new primary user and representative matter. The problem framing and the similarity-versus-authority principle carry forward; the supplier user, buyer, and matter are superseded. See `PRD.md` and `docs/product/ACTIVE_DEMO_DESIGN.md` for the active V1. This document is preserved unrewritten as historical design work.
+
 ## Proposal Status
 
 - CONFIRMED: This document is a planning proposal for Arko's review and does not authorize implementation.

@@ -1,5 +1,7 @@
 # PREREQ-002: Decision Record And Precedent Corpus
 
+> **PARTLY HISTORICAL — the model carries forward, the domain does not.** Under `DECISION-022` (2026-09-03) the active V1 demonstration domain changed from supplier onboarding to Base agent-permission precedent. The object model defined here — immutable matter and decision versions, facts, evidence, sources, canonical fact-evidence links, policy versions, validated citations, precedent relationships, append-only authority events, confirmation, provenance, rejected citation-attempt audit events, the five authority states, and the deterministic invariants — remains the authoritative contract and is retained in full. Every supplier-domain example, actor, field value, and fixture is historical. The active domain instantiation is `docs/product/ACTIVE_DEMO_DESIGN.md`.
+
 ## Status
 
 - CONFIRMED: This product and data-contract specification is approved for planning purposes.

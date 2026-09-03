@@ -40,6 +40,7 @@ Each decision should use this structure:
 - Decision: Sybill's primary output is a structured, cited `PrecedentPacket` and readable brief. A downstream human, agent, or system makes the final decision.
 - Consequences: Product flows and interfaces must expose decision support without representing Sybill as the final authority. Write-back records the resulting decision only under rules still to be specified.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`
+- Amended by: `DECISION-022`. Finné Memory now emits a binding deterministic authorization bound (allow, constrain, block, escalate) rather than advisory-only decision support. The retained boundary is that Finné Memory bounds the agent's authority and never selects the business action or exceeds the owner ceiling.
 
 ### DECISION-003: Deterministic Authority Boundary For Model Assistance
 
@@ -134,36 +135,39 @@ Each decision should use this structure:
 - ID: `DECISION-010`
 - Date: `2026-09-02`
 - Type: `Product`
-- Status: `Accepted`
+- Status: `Superseded`
 - Classification: CONFIRMED
 - Context: `DECISION-005` proposed supplier onboarding and procurement compliance as the V1 domain.
 - Decision: Supplier onboarding and procurement compliance is the confirmed V1 domain.
 - Consequences: V1 specifications, corpus fixtures, acceptance criteria, and demo materials will use this domain unless a later decision explicitly supersedes it.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`
+- Superseded by: `DECISION-022`, for the demonstration domain only. Supplier onboarding is retained as historical design work and is no longer the active V1 demo.
 
 ### DECISION-011: Confirm Primary User And Buyer
 
 - ID: `DECISION-011`
 - Date: `2026-09-02`
 - Type: `Product`
-- Status: `Accepted`
+- Status: `Superseded`
 - Classification: CONFIRMED
 - Context: `DECISION-007` proposed a primary user and organizational buyer for the V1 domain.
 - Decision: The primary user is a supplier-risk or procurement-compliance professional. The primary buyer is the organization's procurement, supplier-risk, or compliance function.
 - Consequences: Product workflows and language must support an accountable professional using an automated decision system.
 - Related Prerequisites: `PREREQ-001`
+- Superseded by: `DECISION-022`. The active V1 user is the owner of an autonomous onchain treasury agent; the supplier-risk user is historical.
 
 ### DECISION-012: Confirm Representative Matter
 
 - ID: `DECISION-012`
 - Date: `2026-09-02`
 - Type: `Product`
-- Status: `Accepted`
+- Status: `Superseded`
 - Classification: CONFIRMED
 - Context: `DECISION-008` proposed a concrete supplier matter for the V1 precedent workflow.
 - Decision: The representative matter is whether a supplier with incomplete beneficial-ownership evidence should be approved, rejected, or escalated.
 - Consequences: The synthetic corpus and current-matter fixture must demonstrate this question without allowing Sybill to choose the final outcome.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`
+- Superseded by: `DECISION-022`. The active representative matter is a Base capital-deployment action proposed against an owner permission ceiling; the beneficial-ownership matter is historical.
 
 ### DECISION-013: Confirm Final-Decision And Human Write-Back Boundary
 
@@ -176,6 +180,7 @@ Each decision should use this structure:
 - Decision: Sybill produces a cited precedent packet but does not make the final supplier decision. After the downstream decision has been made, it may enter Sybill's precedent corpus only after explicit confirmation by an authorized human.
 - Consequences: Models and automated clients cannot make the outcome authoritative or confirm corpus entry. `PREREQ-002` must define the exact confirmation, validation, and initial-authority workflow.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`
+- Amended by: `DECISION-022`. Owner confirmation is retained as the gate that turns a recorded case into active precedent, but Finné Memory now deterministically authorizes the action bound itself.
 
 ### DECISION-014: Partial Approval Of PREREQ-002 Direction
 
@@ -276,3 +281,78 @@ Each decision should use this structure:
 - Scope consequence: This naming decision does not change the approved product thesis, V1 domain, representative matter, authority model, corpus, permissions, implementation gates, or separation from the Finné/x402 project.
 - Affected current-facing documents: `README.md`, `PRD.md`, `AGENTS.md`, `AGENT_BUILD_INSTRUCTIONS.md`, `AI_BUILD_GOVERNANCE.md`, `TASKS.md`, `docs/product/PREREQ-001_PRODUCT_DEFINITION_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_CORPUS_PROPOSAL.md`, `docs/product/PREREQ-002_DECISION_RECORD_AND_PRECEDENT_CORPUS.md`, `docs/product/PREREQ-002_REVIEW_PACKET.md`, and `docs/product/PREREQ-002_SYNTHETIC_SEED_DATA_APPENDIX.md`.
 - Related Prerequisites: `PREREQ-001`, `PREREQ-002`, `PREREQ-003`
+
+### DECISION-022: Controlled Domain Pivot To Base Agent Authority From Remembered History
+
+- ID: `DECISION-022`
+- Date: `2026-09-03`
+- Type: `Product`
+- Status: `Accepted`
+- Classification: CONFIRMED
+- Context: The Sibyl Labs Hackathon requires a mandatory, load-bearing Sibyl Memory integration whose recall in a genuinely fresh session changes what the agent knows, decides, or does. The approved precedent-and-authority model satisfies that requirement, but the supplier-onboarding demonstration domain does not exercise cross-session behavioural change, does not use the mandatory memory substrate, and gives Base no genuine role.
+- Decision: Change the demonstration domain, not the product. Finné Memory converts an autonomous agent's remembered operating history into bounded, auditable authority for its next action. The active V1 is: an autonomous treasury agent uses remembered operating history to determine its bounded authority for a materially similar Base action in a fresh session.
+
+What is retained unchanged:
+
+- The precedent and authority product is intact: immutable matter and decision versions, facts, evidence, sources, canonical fact-evidence links, policy versions, validated citations, precedent relationships, append-only authority events, owner confirmation, provenance, and rejected citation-attempt audit events.
+- Authority states remain `draft`, `active`, `questioned`, `superseded`, and `withdrawn`. Only `active` precedents may support learned authority. Withdrawn and superseded cases remain retrievable and displayable but cannot authorize an action.
+- Precedent relationships remain `follows`, `distinguishes`, `questions`, and `supersedes`.
+- Similarity, authority, and outcome remain three separate dimensions.
+- A model may suggest a relationship or a material difference; only deterministic validation and an authorized confirmation path may persist or apply it.
+
+What changes:
+
+- The demonstration domain changes from supplier onboarding and procurement compliance to Base agent-permission precedent. Supplier onboarding is no longer the active V1 demo.
+- Sibyl Memory becomes the mandatory persistent-memory substrate and the sole source of truth for remembered agent experiences. No Supabase, PostgreSQL, pgvector, Pinecone, or other database may hold that state.
+- Base becomes the intended execution and evidence layer. Finné derives the permitted action, the agent executes it on Base, the transaction result becomes outcome evidence, and the outcome is written into Sibyl Memory for a future fresh session.
+- Product output changes from an advisory-only `PrecedentPacket` to a binding deterministic `AuthorizationDecision` that bounds the agent's next action as allow, constrain, block, or escalate, accompanied by a readable explanation. This amends `DECISION-002` and `DECISION-013`.
+
+Owner-authority invariant:
+
+- The owner defines the hard permission ceiling and that ceiling is always superior to learned authority.
+- Effective authority is the strictest intersection of the owner permission ceiling, current hard policy, active remembered precedent constraints, learned constraint, and current action scope.
+- Finné Memory may narrow an amount, narrow a permitted contract or function, add conditions, block, require escalation, or restore authority within the original owner ceiling under an owner-defined derivation policy.
+- Finné Memory may never exceed the owner ceiling; invent an asset, contract, protocol, function, network, or action class; grant undelegated powers; treat past success as unlimited authority; let the agent rewrite its own authority policy; or let a language model determine final authorization.
+- When relevant memory is missing, malformed, contradictory, withdrawn, or unavailable, the system fails safely by constraining, blocking, or escalating to the owner.
+
+Boundary preservation:
+
+- This is not a pivot into x402, payments, escrow, settlement, refunds, transaction disputes, or service-delivery verification. Base is used for authorized execution and outcome evidence only. Finné Memory remains distinct from the separate Finné/x402 project, and `DECISION-001` is unchanged.
+- Finné Memory is not generic agent memory. Sibyl Memory provides persistent memory; Finné Memory converts remembered operating history into bounded, auditable authority.
+
+Historical preservation:
+
+- Historical decisions, logs, reviews, saved prompts, commit descriptions, and merged pull-request records are preserved unrewritten. `DECISION-010`, `DECISION-011`, and `DECISION-012` are marked superseded with annotations. `DECISION-002` and `DECISION-013` are annotated as amended.
+- `docs/product/PREREQ-001_*` and `docs/product/PREREQ-002_*` are retained and labelled historical. The `PREREQ-002` object model, authority semantics, invariants, and validation approach carry forward; only its supplier-domain instantiation is superseded.
+
+- Consequences: `PRD.md`, `ARCHITECTURE.md`, `TASKS.md`, `README.md`, and the active demo design are revised to the Base agent-permission use case. The active demo corpus is defined in `docs/product/ACTIVE_DEMO_DESIGN.md`. `HACKATHON_RULES.md` now carries verified official rules.
+- Related Prerequisites: `PREREQ-001` (historical), `PREREQ-002` (model retained, domain superseded), `PREREQ-003`
+- Related Specifications: proposed `SPEC-001`
+
+### DECISION-023: Minimum Python Architecture For The Learned-Authority Slice
+
+- ID: `DECISION-023`
+- Date: `2026-09-03`
+- Type: `Architecture`
+- Status: `Proposed`
+- Classification: PROPOSED — requires Arko's approval before `SPEC-001` may be approved and committed.
+- Context: `PREREQ-003` required the minimum credible architecture. The earlier web-stack assumption is not viable: Sibyl Memory is a local-first, Python-native SQLite library, so the runtime must sit next to it rather than behind a web service.
+- Decision: Adopt a single Python package with five modules — agent runtime, Sibyl Memory adapter, deterministic authority engine, Base adapter, and a terminal interface — plus a test suite for authority invariants and a two-script reproducible demo. Full detail, including every one of the nineteen required `PREREQ-003` decisions, is recorded in `docs/architecture/PREREQ-003_ARCHITECTURE.md`.
+- Key choices: Python 3.11 with `venv` and `pip`; `sibyl-memory-client` as the only remembered-history store; owner policy as a version-controlled TOML file that Finné Memory can read but never write; a pure-function authority engine with no I/O; deterministic FTS5-backed precedent retrieval with a deterministic material-difference rule set; `web3.py` against a purpose-built `AuthorizationReceipt` demo contract on Base; a signing boundary in which only the Base adapter holds the key, loaded from the environment and never persisted to memory or the repository; and model assistance that is strictly optional and absent by default.
+- Consequences: No Supabase, PostgreSQL, pgvector, vector database, LangChain, microservice, or cloud infrastructure is introduced. The deterministic path runs with no model API key. Exact `sibyl-memory-client` signatures must be verified against the installed package at the start of `SPEC-001` because the published README documents the v0.4.x surface while the current release is v0.8.0.
+- Related Prerequisites: `PREREQ-003`
+- Related Specifications: proposed `SPEC-001`
+
+### DECISION-024: Adopt The MIT Licence
+
+- ID: `DECISION-024`
+- Date: `2026-09-03`
+- Type: `Process`
+- Status: `Accepted`
+- Classification: CONFIRMED
+- Context: The Sibyl Labs Hackathon requires a public repository under an OSI-approved licence, MIT or Apache-2.0. The repository had no `LICENSE` file, which failed a stated submission requirement and was tracked as `ORG-Q2`.
+- Decision: License the repository under the MIT Licence. `LICENSE` is the standard unmodified OSI MIT template, copyright `2026 Arko Ganguli`.
+- Rationale: MIT is permissive, is explicitly permitted by the rules, and matches `sibyl-memory-client`, the mandatory memory substrate, which is also MIT. Every other dependency specified by `DECISION-023` is MIT-compatible; `hypothesis` is MPL-2.0 but is dev-only and not distributed.
+- Consequences: `ORG-Q2` is closed and the licence submission requirement is satisfied. `pyproject.toml` must declare `license = "MIT"` when `SPEC-001` is implemented. Any future dependency with a copyleft distribution obligation requires an explicit decision before it is added.
+- Human decision-maker: Arko, on 2026-09-03.
+- Related: `HACKATHON_RULES.md` `ORG-Q2`, `REUSED_COMPONENTS.md`

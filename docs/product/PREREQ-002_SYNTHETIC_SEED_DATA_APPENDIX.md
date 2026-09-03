@@ -1,5 +1,7 @@
 # PREREQ-002 Synthetic Seed-Data Appendix
 
+> **HISTORICAL.** This is the validated supplier-onboarding corpus. Under `DECISION-022` (2026-09-03) it is no longer the active demo corpus. The active corpus is `docs/product/ACTIVE_DEMO_DESIGN.md`. This appendix remains a valid worked example of the retained `PREREQ-002` model and is preserved unrewritten as historical design work.
+
 ## Status And Conventions
 
 - CONFIRMED: Every item in this appendix is synthetic and exists only to instantiate and test the approved V1 precedent corpus.

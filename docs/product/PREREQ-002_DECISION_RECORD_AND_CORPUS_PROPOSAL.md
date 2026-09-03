@@ -1,5 +1,7 @@
 # PREREQ-002: Decision Record And Precedent Corpus Proposal
 
+> **HISTORICAL.** This proposal was resolved into the approved `PREREQ-002` contract and is doubly historical: it was superseded as a proposal, and its supplier-onboarding domain was superseded by `DECISION-022` (2026-09-03). The object model, authority semantics, and invariants carry forward unchanged; only the supplier-domain instantiation is superseded. The active demo design is `docs/product/ACTIVE_DEMO_DESIGN.md`. Preserved unrewritten as historical design work.
+
 ## Proposal Status
 
 - CONFIRMED: This is a planning proposal only and does not authorize application code, scaffolding, dependencies, architecture selection, or implementation tasks.

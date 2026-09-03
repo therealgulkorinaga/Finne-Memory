@@ -42,9 +42,10 @@ No step may be silently skipped. For documentation-only commits, implementation 
 
 ## 2. Shared Product Boundaries
 
-- CONFIRMED: Finné Memory is a machine precedent layer for autonomous decision-making.
-- CONFIRMED: Finné Memory retrieves relevant past decisions, applies deterministic authority and citation rules, compares facts, and produces a cited `PrecedentPacket` for a downstream decision-maker.
-- CONFIRMED: Finné Memory does not make the final decision.
+- CONFIRMED: Finné Memory converts an autonomous agent's remembered operating history into bounded authority for its next action. Amended by `DECISION-022`.
+- CONFIRMED: Finné Memory retrieves relevant past cases from Sibyl Memory, applies deterministic authority and citation rules, compares material facts, and emits a binding `AuthorizationDecision` — allow, constrain, block, or escalate — with a readable, citation-backed explanation.
+- CONFIRMED: Finné Memory bounds the agent's authority. It does not select the business action within that bound, and the owner permission ceiling is always superior to learned authority.
+- CONFIRMED: Finné Memory is not generic agent memory. Sibyl Memory provides persistent memory; Finné Memory converts remembered operating history into bounded, auditable authority.
 - CONFIRMED: No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, or transaction-dispute product.
 - CONFIRMED: No agent may add service-delivery verification or other Finné/x402 behavior to Finné Memory.
 - CONFIRMED: Deterministic records own authority status, identifiers, citations, supersession, policy dates, authority transitions, citation validity, and active-authority eligibility.
@@ -73,7 +74,7 @@ Ownership means an agent may edit the listed area only when its assigned task au
 | User-facing workflow | Frontend Agent | Must consume approved API contracts; may not encode authority as UI-only logic |
 | Tests, adversarial cases, scope and security review | QA / Red Team Agent | May inspect all areas; edits require task-specific ownership or handoff |
 
-UNRESOLVED: Exact code directories and file globs for all implementation-owned areas. PREREQ-003 must replace these logical areas with concrete, non-overlapping paths before implementation begins.
+RESOLVED: `docs/architecture/PREREQ-003_ARCHITECTURE.md` section 18 defines the concrete, non-overlapping repository layout, and section 17 defines the hard module constraints — `finne/memory/` is the only module importing `sibyl_memory_client`, `finne/base/` is the only module holding key material or reaching the network, `finne/authority/` is pure, and `finne/explain.py` is the only module permitted to call a model. Those constraints are enforced by `tests/test_import_boundaries.py`. The mapping takes effect when `DECISION-023` is approved.
 
 ## 4. Agent Roles
 
@@ -233,7 +234,7 @@ Review findings must identify the violated requirement or risk and be ranked `BL
 No agent may, without explicit task scope and required approval:
 
 - Redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
-- Make Finné Memory the final decision-maker.
+- Let Finné Memory select the business action within an authorized bound, exceed the owner permission ceiling, or grant the agent a power the owner did not delegate. Amended by `DECISION-022`: emitting a binding authorization bound is required behavior; selecting the action inside it is not.
 - Change shared schemas, public interfaces, authority rules, or file ownership without explicit approval from the Orchestrator and Arko.
 - Change permissions, stable interfaces, or the Finné Memory product thesis without explicit approval and a recorded decision.
 - Add, remove, or reinterpret an authority status.

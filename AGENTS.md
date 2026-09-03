@@ -51,6 +51,10 @@ Do not remove existing functionality unless the task explicitly requires it.
 
 No agent may redefine Finné Memory as a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product.
 
+No agent may replace Sibyl Memory as the store of remembered agent experiences. Supabase, PostgreSQL, pgvector, Pinecone, and any other database are prohibited for that purpose under `DECISION-022`. No agent may describe Finné Memory as generic agent memory, or describe the product as Sibyl.
+
+No agent may write code that lets effective authority exceed the owner permission ceiling, lets a model determine final authorization, or lets the agent rewrite its own authority policy.
+
 ## Incremental Development
 
 Work incrementally. One bounded task should normally produce one understandable unit of development history.
