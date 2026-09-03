@@ -4,8 +4,8 @@ This is the implementation-oriented issue list. It is intentionally short. Do no
 
 ## Implementation Readiness
 
-- Status: PLANNING APPROVED / AWAITING SPEC-001 APPROVAL AND COMMIT
-- Position: Arko approved this planning checkpoint on 2026-09-03, including `DECISION-022` and `DECISION-023`, and selected the MIT licence. `SPEC-001` is written but not yet separately approved or committed.
+- Status: PLANNING APPROVED AND MERGED / AWAITING SPEC-001 APPROVAL AND COMMIT
+- Position: `DECISION-022` through `DECISION-025` are approved and merged into `master` (PR #3, 2026-09-03). The MIT licence is in place. `SPEC-001` is written but not yet separately approved or committed.
 - Consequence: `TASK-001` remains reserved. Approving and committing `SPEC-001` is the only remaining gate before implementation.
 
 ## Immediate Build Sequence
@@ -15,12 +15,14 @@ This is the implementation-oriented issue list. It is intentionally short. Do no
 | 1 | ~~Approve `DECISION-022` (domain pivot)~~ | Arko | **DONE 2026-09-03** |
 | 2 | ~~Approve `DECISION-023` and `docs/architecture/PREREQ-003_ARCHITECTURE.md`~~ | Arko | **DONE 2026-09-03** |
 | 3 | ~~Resolve `ORG-Q2` and add the `LICENSE` file~~ | Arko | **DONE 2026-09-03** — MIT, `DECISION-024` |
-| 4 | Independent review of this planning checkpoint | Independent reviewer | Not started |
-| 5 | Commit the planning checkpoint | Arko | Not started |
-| 6 | Approve and commit `SPEC-001` | Arko | Not started |
+| 4 | ~~Independent review of this planning checkpoint~~ | Independent reviewer | **WAIVED 2026-09-03 by Arko** — see note below; not run against the original pivot content |
+| 5 | ~~Commit the planning checkpoint~~ | Arko | **DONE 2026-09-03** — `d82f224`, `fab9cff`, `39d8c02`, merged into `master` via PR #3 |
+| 6 | Approve and commit `SPEC-001` | Arko | **Not started — the remaining gate** |
 | 7 | Create `TASK-001` from `SPEC-001` | Orchestrator | Blocked by step 6 |
 | 8 | Implement `SPEC-001` | Implementation agent | Blocked by step 7 |
-| 9 | Ask the organisers `ORG-Q1` (Base mainnet vs Sepolia) | Arko | Can run in parallel |
+| 9 | Ask the organisers `ORG-Q1` (Base mainnet vs Sepolia) | Arko | Can run in parallel; not yet asked |
+
+Note on step 4: `DECISION-025` (the two-tool operating model and Codex review-pass cap) was established after `d82f224` was committed, so that original planning rewrite — the `PRD.md`/`ARCHITECTURE.md`/`PREREQ-003`/`ACTIVE_DEMO_DESIGN.md`/`SPEC-001`/`HACKATHON_RULES.md` content — never went through an independent Codex review. Arko explicitly decided not to run one retroactively (2026-09-03). `DECISION-025`'s own addendum did go through two Codex passes (findings fixed; see `BUILD_LOG.md`), and the AI-attribution submission-practice note went through one explicitly-waived pass. Both are merged.
 
 Per the velocity model in the governing instruction: one decision, one PRD, one architecture document, one specification, one independent review, then build. Do not add documentation that documents other documentation.
 
@@ -51,14 +53,14 @@ Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROP
 
 ### PREREQ-003: Define Initial Architecture And Ownership Map
 
-- Status: COMPLETE AS PROPOSAL / AWAITING ARKO'S APPROVAL
+- Status: COMPLETE / APPROVED AND COMMITTED
 - Owner role: Orchestrator / Integration Agent
 - Output: `docs/architecture/PREREQ-003_ARCHITECTURE.md`, recorded as `DECISION-023`; summarised in `ARCHITECTURE.md`.
 - Objective: Decide the minimum credible architecture for the two-session learned-authority slice.
 - Decided: agent runtime; Sibyl Memory integration method; memory read/write boundary; structured memory format; owner-policy representation; deterministic authority engine; precedent retrieval; material-difference handling; Base adapter; key and signing boundary; safe demo contract and action; fresh-session reset procedure; model-optional behaviour; testing approach; local run procedure; demonstration approach; module boundaries; repository layout; failure behaviour.
 - Ownership map: section 18 replaces the `UNRESOLVED` logical areas in `AGENT_BUILD_INSTRUCTIONS.md` section 3 with concrete, non-overlapping paths.
-- Acceptance criteria: SATISFIED as a proposal. Every required decision is made; trust boundaries are explicit; each implementation area has non-overlapping file ownership; material technology choices are proposed for approval.
-- Remaining: Arko's approval and commit.
+- Acceptance criteria: SATISFIED. Every required decision is made; trust boundaries are explicit; each implementation area has non-overlapping file ownership; material technology choices are approved (`DECISION-023`) and committed.
+- Remaining: None. Superseded by the `SPEC-001` approval gate below as the next planning step.
 
 ## Specifications
 
@@ -82,7 +84,8 @@ Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROP
 - UNRESOLVED: `ORG-Q1` — Base mainnet versus Base Sepolia. Non-blocking; the network is one configuration value.
 - RESOLVED: `ORG-Q2` — repository licensed MIT under `DECISION-024`; `LICENSE` exists at repository root.
 - UNRESOLVED: `VERIFY-AT-BUILD` — exact `sibyl-memory-client` 0.8.0 signatures. Non-blocking; first step of `SPEC-001` implementation, with a documented fallback.
-- RESOLVED: Arko approved `DECISION-022`, `DECISION-023`, and the licence choice on 2026-09-03.
+- RESOLVED: Arko approved `DECISION-022`, `DECISION-023`, and the licence choice on 2026-09-03; all merged into `master` via PR #3.
+- RESOLVED: `DECISION-025` establishes the two-tool operating model (Claude implements, Codex independently reviews, capped at two passes per change, Arko approves/pushes/merges) governing `SPEC-001`'s implementation once authorized.
 - PENDING: Arko's explicit approval and commit of `SPEC-001` before `TASK-001` may be created.
 
 ## TASK-001 Creation Gate
