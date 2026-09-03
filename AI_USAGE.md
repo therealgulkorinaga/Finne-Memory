@@ -105,11 +105,21 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Product and implementation effect: None.
 - Git operation status: Committed on Claude's execution after Arko's explicit approval, per the standing commit-execution rule in `AGENT_BUILD_INSTRUCTIONS.md` Section 11. Not pushed.
 
+## 2026-09-03: TASKS.md Status Reconciliation
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Claude's assistance: Identified that `TASKS.md` no longer reflected reality after `DECISION-025` and the PR #3 merge, and corrected the build-sequence table, `PREREQ-003` status, and the unresolved-dependencies list to match. Explicitly recorded Arko's decision not to run a retroactive Codex review against `d82f224`, rather than silently marking that step complete or omitting it.
+- Assisted files: `TASKS.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Directed the status-only correction; explicitly declined the retroactive independent review of `d82f224`.
+- Product and implementation effect: None.
+- Git operation status: Committed and merged into `master` via PR #4.
+
 ## 2026-09-03: SPEC-001 Review, Correction, And Approval
 
 - AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, two passes (the cap) on this bounded change.
 - Human director: Arko.
-- Claude's assistance: Identified and fixed a self-inflicted status-propagation bug (DECISION-023 described as unapproved in SPEC-001 despite being approved) before presenting SPEC-001 for review; drafted both Codex review prompts automatically per the standing default; fixed all findings from both passes, verifying each against the actual governing source documents (PREREQ-002's PrecedentRelationship and AuthorityEvent definitions, the Authority Transitions table) rather than accepting the review's description at face value; after Arko's approval, propagated the resulting "SPEC-001 approved" status across every live document that referenced it.
+- Claude's assistance: Identified and fixed a self-inflicted status-propagation bug (DECISION-023 described as unapproved in SPEC-001 despite being approved) before presenting SPEC-001 for review; drafted both Codex review prompts automatically per the standing default; fixed all findings from both passes, verifying each against the actual governing source documents (PREREQ-002's PrecedentRelationship and AuthorityEvent definitions, the Authority Transitions table) rather than accepting the review's description at face value; after Arko's approval, propagated the resulting "SPEC-001 approved" status across every live document that referenced it; resolved the resulting merge conflict against PR #4's independent TASKS.md reconciliation.
 - Assisted files: ARCHITECTURE.md, DECISIONS.md, PRD.md, README.md, TASKS.md, docs/architecture/PREREQ-003_ARCHITECTURE.md, docs/product/ACTIVE_DEMO_DESIGN.md, docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md, BUILD_LOG.md, AI_USAGE.md.
 - Arko's decisions: Directed the move to SPEC-001; ran both independent review passes; approved the resulting fixes and SPEC-001 itself as-is.
 - Product and implementation effect: SPEC-001 is now the approved, committed specification governing the first implementation task. No application code exists yet; TASK-001 creation is the next step.

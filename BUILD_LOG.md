@@ -230,6 +230,25 @@ This chronological log records bounded planning and implementation work, validat
 - Git operation status: Committed as a new, separate commit on `docs/base-agent-authority-pivot` per Arko's explicit approval to commit. Not pushed. Arko will push this commit together with the prior `fab9cff` commit at a later time.
 - Rollback point: `fab9cff` (the prior commit on this branch).
 
+## 2026-09-03: TASKS.md Reconciled To Current State
+
+- Scope: Documentation-only status correction. `TASKS.md` had gone stale — it was last touched as part of the `d82f224` pivot commit and was never updated when `DECISION-025` (two-tool operating model), the AI-attribution submission-practice note, or the PR #3 merge into `master` happened.
+- Trigger: Arko asked what needs to happen next; the answer surfaced that `TASKS.md`'s "Immediate Build Sequence" table still showed "Independent review of this planning checkpoint: Not started" and "Commit the planning checkpoint: Not started" despite the commit having happened. Arko decided not to run a retroactive Codex review against the original `d82f224` pivot content (step 4 in that table) and asked only for the status table to be corrected.
+- Corrections made:
+  - "Implementation Readiness" header now states `DECISION-022` through `DECISION-025` are approved and merged via PR #3.
+  - Build-sequence step 4 marked `WAIVED 2026-09-03 by Arko`, with an explanatory note that `d82f224`'s content predates the two-tool review model and was not retroactively reviewed, distinct from `DECISION-025`'s own addendum (two Codex passes) and the attribution note (one explicitly-waived pass).
+  - Build-sequence step 5 marked `DONE`, naming all three commits and the PR #3 merge.
+  - `PREREQ-003` status corrected from "AWAITING ARKO'S APPROVAL" to "COMPLETE / APPROVED AND COMMITTED" — it was approved (build-sequence step 2) and committed, but the prerequisite's own status block hadn't been updated to say so.
+  - "Unresolved Dependencies" gained a line recording `DECISION-025` as the resolved dependency governing `SPEC-001`'s eventual implementation.
+- What did not change: the actual remaining gate. `SPEC-001` is still `PROPOSED`, not approved or committed; `TASK-001` remains blocked on it; nothing here authorizes implementation.
+- Independent review: Not requested for this change; a plain status-accuracy correction with no product, authority, or process-rule content.
+- Files changed: `TASKS.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: Committed and merged into `master` via PR #4.
+- Rollback point: `53a5d5e` (current `master` at the time, includes the direct README edit).
+
 ## 2026-09-03: SPEC-001 Review, Correction, And Approval
 
 - Scope: Fixed docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md and its governing documents for approval, then Arko approved SPEC-001 itself.
@@ -251,5 +270,17 @@ This chronological log records bounded planning and implementation work, validat
 - Application implementation: None. This entire cycle was documentation and specification correction; no code exists yet.
 - Automated implementation tests: `NOT APPLICABLE` — no code to test.
 - Manual product verification: `NOT APPLICABLE` — no product behavior exists yet.
-- Git operation status: Not yet committed. Awaiting Arko's approval per the standing commit-execution rule — though "approve as-is" already covers this; commit follows immediately.
-- Rollback point: `53a5d5e` (current `master`).
+- Git operation status: Committed as `cd6172c` on `docs/spec-001-status-accuracy`. Merging into `master` required resolving a conflict against PR #4's independent `TASKS.md` reconciliation (see the merge-resolution note below); both branches had touched `TASKS.md`, `AI_USAGE.md`, and `BUILD_LOG.md` in overlapping ways because `docs/spec-001-status-accuracy` was branched before PR #4 merged.
+- Rollback point: `53a5d5e` (branch point before PR #4).
+
+## 2026-09-03: Merge Conflict Resolved Between PR #4 And PR #5
+
+- Cause: `docs/spec-001-status-accuracy` (this branch) was created from `master` at `53a5d5e`, before `docs/reconcile-tasks-status` (PR #4) merged. Both branches independently corrected overlapping `DECISION-023`/`SPEC-001` status language in `TASKS.md`, and both appended new entries to `AI_USAGE.md` and `BUILD_LOG.md`. GitHub could not auto-merge PR #5 as a result.
+- Resolution approach: `git merge origin/master` locally (not a rebase, so `cd6172c` and PR #4's commits both keep their original hashes; no force-push needed).
+- `TASKS.md`: both sides described the same facts at different points in time. Kept the more detailed step 4/5 wording from PR #4 (the `WAIVED` note, exact commit hashes) and combined it with this branch's later truth that `SPEC-001` is now approved and `TASK-001` is unblocked, rather than picking one side wholesale.
+- `AI_USAGE.md` and `BUILD_LOG.md`: both sides had appended a genuinely different, non-contradictory entry after the same base point — not a real disagreement, just two branches growing the log independently. Kept both entries, ordered by when each activity actually happened (PR #4's `TASKS.md` reconciliation, 12:40 UTC, before this branch's SPEC-001 approval work).
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE`.
+- Manual product verification: `NOT APPLICABLE`.
+- Git operation status: Merge resolved locally, not yet committed as the merge commit.
+- Rollback point: `cd6172c` (this branch before the merge).
