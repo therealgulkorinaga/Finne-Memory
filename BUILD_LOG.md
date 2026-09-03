@@ -217,3 +217,15 @@ This chronological log records bounded planning and implementation work, validat
 - Git operation status: No file was staged or committed, and nothing was pushed or merged during these corrections.
 - Review status after this entry: Two of two permitted independent passes complete. Whether to approve the commit with the unverified pass-2 fix, direct a further specific check, or treat it as a follow-up is Arko's decision per the cap rule just recorded.
 - Rollback point: `d82f224` (the prior commit on this branch); no commit exists yet for this addendum.
+
+## 2026-09-03: Submission-Practice Note Added To HACKATHON_RULES.md
+
+- Scope: Documentation-only. Added a "Submission Practice: AI-Tool Attribution" section to `HACKATHON_RULES.md`, explicitly marked as self-imposed and not a verified official Sibyl Labs rule, recording that both Claude and Codex will be attributed visibly in the PR description and README, not only in the internal audit trail.
+- Trigger: Arko asked whether AI-tool attribution survives Arko personally running `git push` instead of Claude. Answered: yes, attribution lives in commit trailers and the audit trail regardless of who pushes. Arko then asked for this practice to be recorded in `HACKATHON_RULES.md`.
+- Independent review: **Explicitly waived by Arko for this change** ("no need for codex"). Per `AGENT_BUILD_INSTRUCTIONS.md` Section 7's own escape hatch — a review requirement may be waived by Arko with the rationale recorded — this is recorded rather than silently skipped. Rationale: single-file documentation addition, no product/authority/approval-boundary content, explicitly framed as not an official rule to avoid the exact failure mode independent review would normally catch (inventing an event rule).
+- Files changed: `HACKATHON_RULES.md`.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: Committed as a new, separate commit on `docs/base-agent-authority-pivot` per Arko's explicit approval to commit. Not pushed. Arko will push this commit together with the prior `fab9cff` commit at a later time.
+- Rollback point: `fab9cff` (the prior commit on this branch).

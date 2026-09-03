@@ -88,6 +88,15 @@ These are unresolved against the official sources and must be answered by the or
 | `ORG-Q2` | ~~Is `MIT` or `Apache-2.0` preferred?~~ | Both are explicitly permitted by the rules, so no organiser input is needed. | **RESOLVED 2026-09-03.** Arko selected MIT. `LICENSE` exists at repository root. Recorded as `DECISION-024`. |
 | `ORG-Q3` | Does the free Sibyl Memory tier — which requires `sibyl init` browser sign-in and imposes a 5 MB local database cap — impose any limit that affects judging or the deletion test? | The client requires account credentials at `~/.sibyl-memory/credentials.json`; judges reproducing the build will need their own. | The demo corpus is small and stays far below 5 MB. README must document the `sibyl init` prerequisite. |
 
+## Submission Practice: AI-Tool Attribution (Self-Imposed, Not An Official Rule)
+
+- CONFIRMED: No sourced official Sibyl Labs rule in this register mandates disclosing which AI tools were used to build a submission. This section is **not** a `Verified Official Rule` — it records Arko's own submission practice, adopted voluntarily and governed the same way as `AI_BUILD_GOVERNANCE.md`.
+- CONFIRMED: Arko's practice is to attribute both AI tools used on this project prominently in the submission, not only in the internal audit trail:
+  - **Claude Code (Anthropic)** — implementation, drafting, and planning across this repository.
+  - **Codex (OpenAI)** — independent second-pass review, per `AGENT_BUILD_INSTRUCTIONS.md` Section 11.
+- CONFIRMED: The substantive, detailed record of what each tool did already exists in `AI_USAGE.md`, `BUILD_LOG.md`, `HUMAN_DECISIONS.md`, and `prompts/`, and in `Co-Authored-By` trailers on individual commits. This section exists so that attribution is also visible where a judge would actually look: the PR description and the README.
+- CONFIRMED: Before submission, the PR description and the README must each name both tools and point to `AI_USAGE.md` for the full record. This is a submission-readiness checklist item, not a change to any product, authority, or approval rule.
+
 ## Source Requirements
 
 Before any official event rule is marked `CONFIRMED`, record its source, exact requirement, applicability to this project, and verification date. Do not infer or invent event rules from a different hackathon, product, sponsor, or prior project. Re-verify this register before submission.

@@ -94,3 +94,13 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Corrected the "contemporaneous corroboration" wording by way of Codex's finding; directly instructed the two-pass cap; directed that the cap be recorded in the rules immediately rather than only applied informally.
 - Product and implementation effect: None. Process clarification only.
 - Git operation status: Not yet committed. Two of the two permitted independent passes are complete; the pass-2 fix has not been independently re-verified by a third pass, per the new cap, and this is disclosed rather than presented as confirmed.
+
+## 2026-09-03: HACKATHON_RULES.md AI-Attribution Submission Practice
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Claude's assistance: Explained that attribution is unaffected by who runs `git push`, since it lives in commit trailers and the audit trail rather than in the pusher's identity. Drafted the new `HACKATHON_RULES.md` section at Arko's request, explicitly marked as self-imposed rather than an invented official rule, consistent with the document's own integrity requirement not to invent event rules.
+- Assisted files: `HACKATHON_RULES.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Requested the section; explicitly waived the independent Codex review for this specific bounded change ("no need for codex"); directed that this commit not be pushed now and instead be pushed together with the prior commit later.
+- Product and implementation effect: None.
+- Git operation status: Committed on Claude's execution after Arko's explicit approval, per the standing commit-execution rule in `AGENT_BUILD_INSTRUCTIONS.md` Section 11. Not pushed.
