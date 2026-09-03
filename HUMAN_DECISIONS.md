@@ -57,3 +57,23 @@ This ledger records material human decisions, corrections, rejected AI suggestio
 - Licence decision: Arko selected **MIT**, closing `ORG-Q2`. Recorded as `DECISION-024`. `LICENSE` was added as the standard unmodified OSI MIT template with copyright `2026 Arko Ganguli`.
 - Copyright-holder note raised by Claude: the copyright line names Arko Ganguli, inferred as the repository owner rather than supplied verbatim. If the intended holder is a different entity, `LICENSE` must be corrected before submission.
 - Approval boundary that remains: `SPEC-001` still requires explicit approval and a commit of its own before `TASK-001` may be created or any implementation may begin. Arko has not authorized a push, a pull request, a merge, dependency installation, contract deployment, onchain transactions, or implementation.
+
+## 2026-09-03: Two-Tool Operating Model Confirmed
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-025`.
+- Decision: Arko supplied a fifteen-row role-and-action table for the implementation phase and asked Claude to check it against `AGENT_BUILD_INSTRUCTIONS.md` before adopting it.
+- Claude's findings, presented before any file changed: the table matches the documented Review Protocol and Commit Protocol in substance; one real ambiguity exists in "agents do not commit directly" (literal human keystroke versus approval-gated agent execution); one gap exists because the current text is silent on who pushes a branch or opens a pull request; and the table implicitly collapses the documented ten-role agent fleet to two AI tools (Claude, Codex) plus Arko.
+- Arko's decision: Confirmed the table as the operating model and directed Claude to record it as a formal addendum and decision rather than an informal note.
+- Resolution recorded: Claude executes commits only after Arko's explicit, change-specific approval; push and pull-request creation remain Arko's alone, performed personally via authenticated Bash or the GitHub CLI; Codex serves as the independent reviewer for diff review and fix verification; prompt-saving and audit-document updates remain mandatory even though the table does not list them as separate rows.
+- Approval boundary: This entry documents the clarification only. It does not itself authorize a commit; per the just-confirmed protocol, Claude prepared the addendum and this entry and is awaiting Arko's explicit approval before committing them.
+
+## 2026-09-03: Review-Pass Cap
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-025` (amended).
+- Context: After a second independent Codex review found and Claude fixed one remaining overclaim (the "contemporaneous corroboration" wording), Claude drafted a third review prompt automatically, per the standing default established earlier in this session of drafting the review prompt at every step regardless of size.
+- Decision: Arko stopped the third pass before it ran and set an explicit cap: at most two independent Codex review passes per bounded change per turn. If a finding remains open after two passes, Claude stops and asks Arko how to proceed rather than continuing to draft review prompts automatically. Arko directed this be recorded in `AGENT_BUILD_INSTRUCTIONS.md` immediately, not treated as an informal instruction for this turn only.
+- Effect on the earlier "draft automatically every time" correction: Not reversed. The first two passes remain automatic and unasked. Only unbounded repetition past two passes is capped.
+- Current state left for Arko's decision: two of two permitted passes are complete for the pending `DECISION-025` addendum; the pass-2 fix has not been independently re-verified by a third pass. Arko may approve the commit on that basis, direct a specific further check, or defer the remaining item to a follow-up.
+- Approval boundary: This entry documents the clarification only. The pending `DECISION-025` addendum, including this cap, is not yet committed.

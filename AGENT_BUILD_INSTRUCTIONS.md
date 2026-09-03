@@ -157,6 +157,8 @@ An agent may work on a spec category below only when `TASKS.md` assigns that spe
 
 Any spec spanning more than one category must identify one owning agent, all contributing agents, exact interface boundaries, and an integration task owned by the Orchestrator.
 
+For how this ten-role fleet is currently staffed by two AI tools and Arko, see Section 11.
+
 ## 5. Spec Format
 
 Every meaningful implementation spec must define:
@@ -272,6 +274,62 @@ Stop work and return to the Orchestrator and Arko when:
 - Existing user changes make the task unsafe to complete without coordination.
 
 The escalation must state the blocking fact, affected spec or interface, options considered, consequences of each option, and the exact decision required. Do not continue by silently selecting an option.
+
+## 11. Two-Tool Operating Model And Commit/Push Clarifications
+
+- CONFIRMED: This section is recorded as `DECISION-025`. It clarifies how the mandatory lifecycle and the role fleet in Sections 4, 7, and 8 are staffed for this build. It changes no product rule, authority rule, or approval boundary; it makes an existing ambiguity explicit.
+
+### Role Staffing For This Build
+
+The ten-role fleet in Section 4 is not staffed by ten separate agents. For the current build:
+
+- **Claude (Claude Code)** performs every implementer role assigned by `TASKS.md` — creates the feature branch, writes the implementation, runs initial tests, and explains the changed files. Claude also performs, as self-checks against its own work, the Section 7 item 2 check (file ownership, interfaces, integration impact, unintended scope — the Orchestrator role) and the Section 7 item 3 check (behavior against the PRD and acceptance criteria when product behavior changed — the Product Spec Agent role). These are named here explicitly so they cannot silently disappear inside a two-tool model: they are self-checks by the implementer, not independent review, and do not substitute for item 4.
+- **Codex** is the independent reviewer required by Section 7 item 4, and only item 4. It reviews the diff against the governing specification and, separately, verifies that accepted findings were actually fixed. Using a distinct tool from the implementer is what makes this specific check genuinely independent rather than Claude reviewing Claude; items 2 and 3 above remain self-checks, not independent ones.
+- **Arko** manually tests the product, decides which review findings to accept, approves the commit, pushes the branch, opens the pull request, and reviews and merges it. Arko retains every approval, verification, push, PR-creation, and merge action Sections 7 and 8 already reserve to a human.
+
+This is an operating assignment, not a change to Section 4's role definitions. If a future task needs a role Claude and Codex do not jointly cover — for example a domain-specific security review — that gap must be named explicitly rather than assumed covered.
+
+### Review Pass Cap
+
+- CONFIRMED: At most two independent Codex review passes run per bounded change before a commit is proposed for Arko's approval. Claude drafts the review prompt for both passes automatically and unasked, regardless of how small the change looks — that default is unchanged. What is capped is repetition past two passes, not whether the first two happen.
+- CONFIRMED: If a finding remains open after the second pass — including a finding Claude believes it already fixed but that has not been independently re-checked — Claude does not draft a third review prompt on its own. Claude stops, states plainly what is still open and why it wasn't resolved within two passes, and asks Arko how to proceed: approve with the fix as Claude's own self-verified correction, direct a specific change and authorize one more pass, or handle the remaining item as a separate follow-up task.
+- CONFIRMED: This rule exists because an early run of this exact process drafted a third review prompt by default, with no upper bound, before Arko set this cap. See `DECISION-025` and `BUILD_LOG.md` 2026-09-03 for that instance.
+
+### Commit Execution Clarified
+
+- CONFIRMED: Section 8's "Agents do not commit directly" means an agent may not commit without Arko's prior, explicit, change-specific approval. It does not require Arko to personally type the `git commit` command.
+- CONFIRMED: Once Arko has approved a specific commit's content and message, Claude may execute the commit as a tool call. The approval is what authorizes the commit; the keystroke is mechanical.
+- CONFIRMED: This clarification does not extend to push, PR creation, or merge. Those remain actions Arko performs personally; see below.
+
+### Push And Pull-Request Boundary
+
+- CONFIRMED: Sections 7 and 8 are explicit that only Arko merges to the repository's remote default branch, but were silent on who pushes a branch or opens a pull request. That gap is closed here.
+- CONFIRMED: Arko pushes the branch and opens the pull request personally, using authenticated Bash or the GitHub CLI. No agent runs `git push` or `gh pr create` on Arko's behalf.
+- CONFIRMED: Claude may prepare a pull-request title and description for Arko to use, but does not submit it.
+
+### Operating Table
+
+| Action | Owner |
+| --- | --- |
+| Create feature branch | Claude |
+| Write implementation | Claude |
+| Run initial tests | Claude |
+| Explain changed files | Claude |
+| Manually test product | Arko |
+| Review diff against specification | Codex |
+| Decide which findings to accept | Arko |
+| Fix accepted findings | Claude |
+| Verify fixes | Codex |
+| Approve commit | Arko |
+| Create commit | Claude, after Arko's approval |
+| Push branch | Arko, from authenticated Bash |
+| Open PR | Arko, using GitHub CLI or Bash |
+| Write PR draft | Claude may prepare it |
+| Review PR and merge | Arko |
+
+- CONFIRMED: Steps not shown in this table remain mandatory. This table assigns owners to steps that already sit inside the Mandatory Lifecycle in `AI_BUILD_GOVERNANCE.md`; it does not reorder that lifecycle. Two steps deserve their exact position stated, not just "folded in," because getting the order wrong would let the audit trail describe things that have not happened yet:
+  - `SAVE PROMPT` happens **before** "Write implementation" begins — the material prompt is saved first, then implementation starts from it.
+  - `UPDATE AUDIT DOCUMENTS` happens **after** "Manually test product" and after "Verify fixes," once real test results and manual-verification outcomes exist to record, and **before** "Approve commit." It is not tied to "Explain changed files," which only drafts the explanation that later becomes part of those updates; updating `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, and `REUSED_COMPONENTS.md` before manual verification has happened would misstate results that are not yet known.
 
 ## Mandatory Commit Gate
 

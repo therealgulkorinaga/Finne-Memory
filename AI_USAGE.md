@@ -71,3 +71,26 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Approved the planning checkpoint and the proposed commit; selected MIT.
 - Claude's disclosure: The `LICENSE` copyright holder was inferred as `Arko Ganguli` from repository context, not supplied verbatim. This is flagged in `HUMAN_DECISIONS.md` for correction if a different entity is intended.
 - Implementation code: None. No application code, scaffolding, dependency installation, contract deployment, or onchain transaction occurred.
+
+## 2026-09-03: DECISION-025 Two-Tool Operating Model Addendum
+
+- Decision reference: `DECISION-025`.
+- AI tool: Claude Code (Anthropic). The session's model was switched mid-conversation from Opus 5 to Sonnet 5 by Arko via the `/model` command, carrying full conversation context forward. This is recorded as a retrospective, unverified self-report in `BUILD_LOG.md`'s 2026-09-03 fix entry below — written during a later corrective pass in the same session, not at the moment of the switch — not as contemporaneous or independent corroboration.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-03-two-tool-operating-model.md`. **Correction:** this file was not saved at the time of the original exchange. Claude's first draft of this entry stated the table did not need saving because it was "short" — an unauthorized exception to the prompt-preservation requirement in `AGENT_BUILD_INSTRUCTIONS.md` Section 1, decided unilaterally rather than asked about. An independent Codex review of this addendum flagged the omission as a `BLOCKER`. The prompt file was then written as the correction; it is not backdated to claim contemporaneity it does not have, and this limitation is stated in the file itself.
+- Claude's assistance: Compared Arko's proposed table against `AGENT_BUILD_INSTRUCTIONS.md` Sections 7 and 8 before any file was changed, and reported three specific findings — the commit-execution ambiguity, the push/PR gap, and the role-fleet collapse — rather than adopting the table silently. After Arko confirmed, drafted `AGENT_BUILD_INSTRUCTIONS.md` Section 11, `DECISION-025`, and this and the related audit entries. A first-pass independent Codex review then found two BLOCKERs (this unsaved prompt, and a lifecycle-ordering compression affecting `SAVE PROMPT` and `UPDATE AUDIT DOCUMENTS`) and two IMPORTANT findings (this unverifiable model-switch claim, and no named owner for the Section 7 items 2–3 checks). All four were corrected; see `BUILD_LOG.md` for the full review record.
+- Assisted files: `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, `HUMAN_DECISIONS.md`, `AI_USAGE.md`, `BUILD_LOG.md`, `prompts/2026-09-03-two-tool-operating-model.md`.
+- Arko's decisions: Supplied the operating table; confirmed adopting it formally rather than informally; approved the specific resolution of the commit-execution ambiguity in Claude's favor (Claude may execute a commit after explicit approval) and the push/PR boundary in Arko's favor (Arko performs both personally); ran the independent Codex review that caught the four findings above.
+- Product and implementation effect: None. This is a process clarification; no product rule, authority rule, or approval boundary changed.
+- Git operation status at time of writing: Not yet committed. Per the protocol this entry itself documents, Claude prepared the change, corrected it against Codex's first-pass review, and is awaiting Arko's explicit approval before executing the commit.
+
+## 2026-09-03: Second Codex Review, Wording Fix, And Review-Pass Cap
+
+- Decision reference: `DECISION-025` (amended).
+- AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, second pass on the same pending change.
+- Human director: Arko.
+- Claude's assistance: Received Codex's second-pass finding (the "contemporaneous corroboration" overclaim), fixed the wording in all three locations it appeared, then drafted a third review prompt per the then-standing default of drafting review prompts automatically at every step. Arko stopped that before it ran and gave a direct instruction to cap independent review passes at two per bounded change and record that cap in governance immediately. Claude added the cap to `AGENT_BUILD_INSTRUCTIONS.md` Section 11 and to `DECISION-025`, and updated the corresponding feedback memory to reflect the cap rather than leaving the unbounded version in place.
+- Assisted files: `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, `AI_USAGE.md`, `BUILD_LOG.md`, `HUMAN_DECISIONS.md`, `prompts/2026-09-03-two-tool-operating-model.md`.
+- Arko's decisions: Corrected the "contemporaneous corroboration" wording by way of Codex's finding; directly instructed the two-pass cap; directed that the cap be recorded in the rules immediately rather than only applied informally.
+- Product and implementation effect: None. Process clarification only.
+- Git operation status: Not yet committed. Two of the two permitted independent passes are complete; the pass-2 fix has not been independently re-verified by a third pass, per the new cap, and this is disclosed rather than presented as confirmed.

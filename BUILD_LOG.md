@@ -161,3 +161,59 @@ This chronological log records bounded planning and implementation work, validat
 - Remaining gates: independent review; `SPEC-001` approval and commit; `TASK-001` creation; `ORG-Q1` and `ORG-Q3` remain open with the organisers and neither blocks implementation.
 - Rollback point: `3a4f106830d17e14051bdc38970e5b6ab9a048b1` on `master`.
 - Known-good checkpoint: `master` at `3a4f106` remains the last known-good state until this branch is reviewed and merged.
+
+## 2026-09-03: DECISION-025 Two-Tool Operating Model Addendum
+
+- Scope: Documentation-only process clarification, prepared on the existing `docs/base-agent-authority-pivot` branch.
+- Decision reference: `DECISION-025`.
+- Trigger: Arko supplied a role-and-action table for the `SPEC-001` implementation phase and asked for review before adoption.
+- Review performed before any file changed: compared the table against `AGENT_BUILD_INSTRUCTIONS.md` Sections 7 (Review Protocol) and 8 (Commit Protocol). Found the table consistent in substance, but surfaced three items needing explicit resolution rather than silent adoption: (1) Section 8's "agents do not commit directly" is ambiguous between a literal human-keystroke reading and an approval-gated-execution reading; (2) the current text is silent on who pushes a branch or opens a pull request; (3) the table implicitly staffs the ten-role fleet in Section 4 with two AI tools (Claude, Codex) and Arko rather than ten distinct agents.
+- Arko's resolution: Confirmed the table; directed that it be recorded formally.
+- Files changed: `AGENT_BUILD_INSTRUCTIONS.md` (new Section 11 plus a one-line cross-reference from Section 4), `DECISIONS.md` (`DECISION-025`), `HUMAN_DECISIONS.md`, `AI_USAGE.md`, this entry.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Documentation validation: PASS. `DECISION-025` is unique and sequential; the new Section 11 does not renumber or contradict Sections 1–10; the Section 4 cross-reference resolves; no approval boundary was widened for any agent.
+- Git operation status: Nothing staged, committed, pushed, or merged as of this entry. Per the operating model this entry documents, the pending commit requires Arko's explicit approval before Claude executes it.
+- Review status at this checkpoint: Independent Codex review requested next; see the following entry for its result and the corrections made.
+- Rollback point: `d82f224` (the prior commit on this branch).
+
+## 2026-09-03: First Independent Codex Review Of DECISION-025, And Corrections
+
+- Review status: `NOT READY FOR COMMIT`.
+- Reviewer: Codex, given a self-contained prompt drafted by Claude per Section 11 of `AGENT_BUILD_INSTRUCTIONS.md` itself (this addendum applying its own newly-recorded process to its own review, before commit).
+- Review scope: Exactly the five uncommitted files on top of `d82f224` — `AGENT_BUILD_INSTRUCTIONS.md`, `DECISIONS.md`, `HUMAN_DECISIONS.md`, `AI_USAGE.md`, `BUILD_LOG.md`.
+- Blocker 1: The table's compressed treatment of `SAVE PROMPT` and `UPDATE AUDIT DOCUMENTS` ("folded into… alongside 'Write implementation'" / "alongside 'Explain changed files'") did not preserve the Mandatory Lifecycle's required ordering in `AI_BUILD_GOVERNANCE.md`, specifically risking audit documents being updated before manual-verification and fix-verification results existed to record. The same compression was repeated in `DECISIONS.md`.
+- Blocker 2: `AI_USAGE.md` asserted the operating-table prompt was not saved under `prompts/` because it was "short" — an unauthorized, unilateral exception to the prompt-preservation requirement, made by Claude without asking. Codex correctly identified this as the same category of overreach already corrected once in this same conversation (Claude deciding a governance step did not apply, instead of applying it).
+- Important finding 1: The claim that the session's model switched from Opus 5 to Sonnet 5 mid-session at Arko's direction was asserted in `AI_USAGE.md` with no corroborating repository record, so an independent reviewer working only from repository state could not verify it.
+- Important finding 2: `AGENT_BUILD_INSTRUCTIONS.md` Section 11 named Codex as the owner of Section 7 item 4 but did not name any owner for Section 7 items 2 and 3 (the Orchestrator and Product Spec Agent checks), leaving them able to disappear silently once the ten-role fleet collapsed to two tools.
+- Passed checks, stated by the reviewer without prompting: `d82f224` is the correct base and current `HEAD`; review scope was exactly the five stated files; `DECISION-025` is sequential after `DECISION-024` with no duplicate; the Section 4 cross-reference to Section 11 resolves; the Mandatory Commit Gate heading remains intact after the new section; no product, authority, permission, or implementation behavior changed; and push, PR creation, and merge remain exclusively Arko's in the wording reviewed.
+- Corrections applied:
+  1. `AGENT_BUILD_INSTRUCTIONS.md` Section 11: replaced the compressed ordering note with an explicit statement that `SAVE PROMPT` precedes "Write implementation" and `UPDATE AUDIT DOCUMENTS` follows "Manually test product" and "Verify fixes" and precedes "Approve commit." Added explicit ownership of Section 7 items 2 and 3 to Claude's bullet, and clarified Codex owns item 4 only.
+  2. `DECISIONS.md` `DECISION-025`: matched the corrected ordering language and the corrected item-2/3 ownership; added the first-pass Codex review as context; added a reference to the now-saved prompt file.
+  3. Created `prompts/2026-09-03-two-tool-operating-model.md`, transcribing Arko's table verbatim, and disclosing in the file itself that it was written as a correction rather than contemporaneously with the original exchange.
+  4. `AI_USAGE.md`: removed the "not saved because short" claim and pointed to the real saved-prompt file; qualified the model-switch claim to point at this entry as a retrospective, unverified self-report rather than asserting it as contemporaneous or independently verified.
+- Model-switch record, retrospective and unverified: mid-session, Arko ran `/model claude-sonnet-5` to switch this session from Opus 5 to Sonnet 5; the switch preserved full conversation context; all work from that point in the session forward, including this correction, was performed under Sonnet 5. This entry was written during this corrective pass, after the switch occurred, not at the time of the switch itself — it is a same-session self-report, not contemporaneous corroboration, and no independent record confirms it.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: No file was staged or committed, and nothing was pushed or merged during these corrections.
+- Review status after corrections: A second independent Codex pass has not yet been run. Per the operating model this addendum itself records, that pass is expected before Arko is asked to approve the commit.
+- Rollback point: `d82f224` (the prior commit on this branch); no commit exists yet for this addendum.
+
+## 2026-09-03: Second Independent Codex Review Of DECISION-025, Fix, And Arko's Review-Pass Cap
+
+- Review status: `NOT READY FOR COMMIT`.
+- Reviewer: Codex, second independent pass on the same pending change, prompted per the standing rule to draft the review automatically without being asked.
+- Finding, IMPORTANT: `AI_USAGE.md` and the new saved prompt described a `BUILD_LOG.md` entry written during this same corrective session as "contemporaneous corroboration" of the Opus5-to-Sonnet5 model switch. Codex correctly identified this as an overclaim: the entry was written during a retrospective correction pass, not at the time of the switch, so it is a same-session self-report, not contemporaneous or independent corroboration.
+- Confirmed clean by this pass: the `SAVE PROMPT` / `UPDATE AUDIT DOCUMENTS` ordering fix; the existence and honesty of `prompts/2026-09-03-two-tool-operating-model.md`; and the explicit Claude/Codex ownership split for Section 7 items 2 through 4. Also noted, correctly, as pre-existing and out of scope: a broken reference in `TASKS.md` (`PREREQ-002_TRACEABILITY_REVIEW.md` missing its `docs/product/` path prefix), already present in committed `d82f224` and not part of this diff.
+- Correction applied: reworded the model-switch claim in all three locations (`AI_USAGE.md`, `BUILD_LOG.md`'s prior entry, and the saved prompt) from "contemporaneous corroboration" to "retrospective, unverified self-report," stating explicitly that the record was written after the switch during a later corrective pass and is not independently verified.
+- What happened next: Claude drafted a third independent-review prompt for Codex per the standing default of drafting review prompts automatically and unasked. Arko stopped this before it was run and gave a direct instruction: cap independent review passes at two per turn, and record that cap in governance now.
+- Correction applied for the cap: added a "Review Pass Cap" subsection to `AGENT_BUILD_INSTRUCTIONS.md` Section 11, and folded the cap into `DECISION-025`'s Decision and Consequences text. The third review prompt Claude had drafted was withdrawn and was never sent to Codex or executed.
+- Current state of the pending change as of this entry: two independent Codex passes have run and their findings addressed; the fix for pass 2's finding has **not** been independently re-verified by a third pass, per the newly-set cap. This is disclosed rather than presented as independently confirmed.
+- Application implementation: None.
+- Automated implementation tests: `NOT APPLICABLE` because no application code, executable schema, dependency, or scaffold changed.
+- Manual product verification: `NOT APPLICABLE` because no product behavior changed.
+- Git operation status: No file was staged or committed, and nothing was pushed or merged during these corrections.
+- Review status after this entry: Two of two permitted independent passes complete. Whether to approve the commit with the unverified pass-2 fix, direct a further specific check, or treat it as a follow-up is Arko's decision per the cap rule just recorded.
+- Rollback point: `d82f224` (the prior commit on this branch); no commit exists yet for this addendum.
