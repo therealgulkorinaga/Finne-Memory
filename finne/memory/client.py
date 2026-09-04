@@ -325,6 +325,43 @@ class MemoryStore:
     # sessions, so it carries none of this module's immutability or
     # fold guarantees and does not need a dedicated wrapper method.
 
+    # --- demo/test reset only — NOT part of the load-bearing W1-W5/R1-R5
+    # boundary, and deliberately not named like one -----------------------
+
+    def clear_all_case_data_for_demo_reset(self, *, confirm_tenant_id: str) -> None:
+        """Deletes every finne_case_version and finne_outcome entity for
+        this store's tenant. This is a hard, permanent delete
+        (MemoryClient.delete_entity), not the reversible archive_entity —
+        appropriate only because it is scoped to a dedicated demo tenant,
+        never to a tenant holding real data. `confirm_tenant_id` must
+        match the tenant this MemoryStore was actually constructed
+        against (verified via the underlying client, not merely echoed
+        back), so a caller cannot invoke a permanent hard-delete against
+        the wrong tenant by passing the wrong MemoryStore instance —
+        this method is not restricted to any particular tenant value,
+        so that guard is the only thing standing between it and
+        accidental data loss.
+
+        This method exists so scripts/reset_demo.py does not need to
+        reach into this class's private _client attribute directly,
+        preserving the module boundary that finne.memory.client is the
+        only code that talks to sibyl_memory_client. It does NOT clear
+        owner-policy-snapshot references or authority-event/relationship
+        journal entries — sibyl-memory-client exposes no delete for
+        either tier, so a decision version that has already been fully
+        created (case, snapshot, and authority events) cannot be reset
+        in place; see scripts/reset_demo.py's own pre-flight check."""
+        actual_tenant_id = self._client.get_tenant()
+        if confirm_tenant_id != actual_tenant_id:
+            raise ValueError(
+                f"refusing to clear case data: confirm_tenant_id "
+                f"{confirm_tenant_id!r} does not match this store's actual "
+                f"tenant {actual_tenant_id!r}"
+            )
+        for category in (CASE_VERSION_CATEGORY, OUTCOME_CATEGORY):
+            for entity in self._client.list_entities(category=category, limit=1000):
+                self._client.delete_entity(category, entity["name"])
+
     # --- internal ---------------------------------------------------------
 
     def _entity_exists(self, category: str, name: str) -> bool:
