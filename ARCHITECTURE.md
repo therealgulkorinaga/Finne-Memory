@@ -106,6 +106,6 @@ Architectural changes must be recorded in `DECISIONS.md`. Codex must not silentl
 
 ## Open Questions
 
-- `VERIFY-AT-BUILD`: `sibyl-memory-client` 0.8.0 exact signatures for `write_event`, `read_events`, `search_entities`, and tenant selection. The published README documents the v0.4.x surface. One documented fallback exists for the authority-event storage call; see `PREREQ-003` section 3.
+- ~~`VERIFY-AT-BUILD`: `sibyl-memory-client` 0.8.0 exact signatures~~ — **RESOLVED 2026-09-04.** Confirmed empirically during seam (b); see `finne/memory/client.py` and `PREREQ-003` section 3.
 - `ORG-Q1`: Base mainnet versus Base Sepolia for the partner multiplier.
 - RESOLVED `ORG-Q2`: the repository is licensed MIT (`DECISION-024`).

@@ -23,9 +23,9 @@ Verified 2026-09-03 from `https://pypi.org/pypi/sibyl-memory-client/json` and `h
 | Published API | `set_state`/`get_state`, `set_entity(kind, name, body)`/`get_entity`, `write_event(...)`/`read_events(...)`, `set_reference(key, body)`/`get_reference`, `archive_entity(kind, name)`, `delete_entity(kind, name)`, `search_entities(query)` |
 | Uniqueness | `UNIQUE (tenant_id, category, name)` |
 | Tenancy | Every read and write scoped by `tenant_id` |
-| Credentials | `sibyl init` browser sign-in writes `~/.sibyl-memory/credentials.json`; free tier has a 5 MB local cap |
+| Credentials | `sibyl init` browser sign-in writes `~/.sibyl-memory/credentials.json` for the CLI's cloud-tier features. **Not required** for this project: `MemoryClient.local()`'s core operations work with no credentials — confirmed empirically, see below. Free tier has a 5 MB local cap regardless. |
 
-- **VERIFY-AT-BUILD:** The published README documents the v0.4.x surface while the current release is v0.8.0. The exact signatures of `write_event`, `read_events`, `search_entities`, and tenant selection must be confirmed against the installed package (`python -c "import sibyl_memory_client, inspect; print(inspect.signature(...))"`) as the first step of `SPEC-001`. The architecture below depends on the tier semantics, not on argument spellings, and section 3 names the one place a signature difference changes the design.
+- **VERIFY-AT-BUILD — RESOLVED 2026-09-04 (seam (b)):** The published README documents the v0.4.x surface while the current release is v0.8.0. The exact signatures of `write_event`, `read_events`, `search_entities`, `get_reference`, and tenant selection were confirmed against the installed package by construction and exercise, not just `inspect.signature`. Full findings in `finne/memory/client.py`'s module docstring and section 3 below.
 
 ## 1. Agent Runtime
 
@@ -62,7 +62,7 @@ This table is the critical path. It is reproduced in the README to satisfy the o
 | W5 | In-flight proposal working state | `set_state("current_proposal", {...})` | Overwritable | During a session; **never** read across sessions |
 | R1 | **Candidate precedent generation** | `search_entities(<deterministic query>)` | Read | Session 2, before any authorization |
 | R2 | **Exact case retrieval** | `get_entity("finne_case_version", "<id>")` | Read | Session 2, for every candidate |
-| R3 | **Authority-state fold** | `read_events(...)` over `finne_authority_event` records | Read | Session 2, to derive current authority state |
+| R3 | **Authority-state fold** | `client.search(decision_version_id, tiers=("journal",))` over `finne_authority_event` records | Read | Session 2, to derive current authority state |
 | R4 | Outcome lookup for derivation eligibility | `get_entity("finne_outcome", "<id>")` | Read | Session 2, during derivation |
 | R5 | Audit display of the policy in force | `get_reference("owner_policy_snapshot/<id>")` | Read | Session 2, for the explanation |
 
@@ -71,7 +71,7 @@ This table is the critical path. It is reproduced in the README to satisfy the o
 - **Decision:** Immutability is enforced above an overwritable key-value store. `finne/memory/client.py` refuses to overwrite an existing `finne_case_version` or `finne_outcome` name; an attempted overwrite raises and is recorded as an integrity failure. Correction creates a new version identifier, never a mutation.
 - **Decision:** Current authority state is **derived** by folding the append-only authority journal, never stored as a mutable field. This preserves `PREREQ-002` append-only semantics on a store that permits overwrite.
 - **Decision:** `archive_entity` is **not** used for withdrawn or superseded cases. They must stay retrievable and displayable while being ineligible to authorize. Archiving them would break that requirement.
-- **VERIFY-AT-BUILD fallback:** If `read_events` in v0.8.0 cannot return the full authority history deterministically for a tenant, authority events fall back to write-once entities named `AE-<zero-padded-sequence>` read via `search_entities`. The fold logic is identical either way; only the storage call changes. This is the single design point a signature difference affects.
+- **VERIFY-AT-BUILD result (confirmed 2026-09-04, seam (b); corrected 2026-09-04 after a second Codex review found the first version of this note overclaimed):** The `AE-<zero-padded-sequence>` fallback below was not needed — `client.search(query, tiers=("journal",))` does content-filter the journal tier via FTS5, unlike `read_events(limit=...)`, which is descending-order and unfilterable. However, `client.search()` is **not unbounded**: it was found to silently cap real results at `limit // 4` regardless of how many actually match (verified across limit=20/100/400/1000/100000 — the ratio held consistently), with no pagination parameter to retrieve more. `finne/memory/client.py`'s `_authority_events_for` requests a high limit (8000, giving an effective cap of 2000 real events per decision version — far beyond any realistic corpus for this project) and treats hitting that cap as a truncation signal, failing `fold_authority_state` safe to `None` rather than trusting a possibly-incomplete history. See `finne/memory/client.py`'s module docstring for the complete list of verified signature differences from the published README.
 
 ## 4. Structured Memory Format
 
@@ -287,6 +287,6 @@ Every failure resolves to a narrower authority. None widens.
 
 ## 20. Open Items Carried Into SPEC-001
 
-- `VERIFY-AT-BUILD`: confirm `sibyl-memory-client` 0.8.0 signatures and tenant selection before writing `finne/memory/client.py`.
+- RESOLVED `VERIFY-AT-BUILD`: `sibyl-memory-client` 0.8.0 signatures and tenant selection confirmed empirically during seam (b), 2026-09-04 — see section 3 above and `finne/memory/client.py`.
 - `ORG-Q1`: Base mainnet versus Base Sepolia. Build targets Sepolia; the switch is one configuration value.
 - RESOLVED `ORG-Q2`: the repository is licensed MIT (`DECISION-024`), matching `sibyl-memory-client`. `pyproject.toml` must declare `license = "MIT"` and every specified dependency is MIT except `hypothesis`, which is MPL-2.0 and dev-only, so it is not distributed.

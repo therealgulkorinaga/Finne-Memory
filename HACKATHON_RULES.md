@@ -6,7 +6,7 @@
 - CONFIRMED: The rules below were verified on `2026-09-03` from the official sources listed in the Source Register.
 - CONFIRMED: Verified rules in this register are hard project constraints.
 - RESOLVED: `ORG-Q2` was resolved by Arko on 2026-09-03. The repository is licensed MIT; see `LICENSE`. `DECISION-024` records the choice.
-- UNRESOLVED: `ORG-Q1` and `ORG-Q3` remain open and are listed in the Open Organiser Questions section. `ORG-Q1` materially affects the Base partner multiplier.
+- UNRESOLVED: `ORG-Q1` remains open and is listed in the Open Organiser Questions section; it materially affects the Base partner multiplier. `ORG-Q3` is resolved — see below.
 - CONFIRMED: Voluntarily adopted development controls are governed separately by `AI_BUILD_GOVERNANCE.md`; they are not official event rules.
 - CONFIRMED: No ETHOnline rule, sponsor, bounty, deadline, prize cap, submission format, or demo requirement is imported into this project.
 
@@ -86,7 +86,7 @@ These are unresolved against the official sources and must be answered by the or
 | --- | --- | --- | --- |
 | `ORG-Q1` | Does an executed onchain action on **Base Sepolia** satisfy the Base partner multiplier, or is **Base mainnet** required? | Directly determines whether the ×1.15 multiplier is earned, and whether the demo must spend real funds. The published rules state deployment plus an executed onchain action but do not name a network. | Architecture is network-agnostic and configuration-driven. Default build target is Base Sepolia; a mainnet switch must remain a single configuration change. Do not assume Sepolia qualifies. |
 | `ORG-Q2` | ~~Is `MIT` or `Apache-2.0` preferred?~~ | Both are explicitly permitted by the rules, so no organiser input is needed. | **RESOLVED 2026-09-03.** Arko selected MIT. `LICENSE` exists at repository root. Recorded as `DECISION-024`. |
-| `ORG-Q3` | Does the free Sibyl Memory tier — which requires `sibyl init` browser sign-in and imposes a 5 MB local database cap — impose any limit that affects judging or the deletion test? | The client requires account credentials at `~/.sibyl-memory/credentials.json`; judges reproducing the build will need their own. | The demo corpus is small and stays far below 5 MB. README must document the `sibyl init` prerequisite. |
+| `ORG-Q3` | ~~Does the free Sibyl Memory tier's `sibyl init` requirement and 5 MB cap impose any limit affecting judging or the deletion test?~~ | Verified empirically against the installed `sibyl-memory-client` 0.8.0 (2026-09-04): `MemoryClient.local()` requires **no credentials at all** for local operations — `account_id`/`session_token`/`credentials_*` are optional keyword arguments defaulting to `None`, and every core operation (`set_entity`, `get_entity`, `write_event`, `search`, ...) works immediately against a fresh tenant with no sign-in step. The browser-auth `sibyl init` flow applies to the CLI's cloud-tier features (learning, linting, tier upgrades), not to this library's core local API. | **RESOLVED 2026-09-04.** No `sibyl init` prerequisite exists for judges reproducing the build. The 5 MB free-tier cap still applies; the demo corpus stays far below it. |
 
 ## Submission Practice: AI-Tool Attribution (Self-Imposed, Not An Official Rule)
 

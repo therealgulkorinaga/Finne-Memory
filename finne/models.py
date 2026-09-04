@@ -56,7 +56,7 @@ class AuthorizationResult(str, Enum):
     ESCALATE = "escalate"
 
 
-def _require_finite_decimal(name: str, value: Decimal) -> None:
+def require_finite_decimal(name: str, value: Decimal) -> None:
     """Reject anything that is not a genuinely finite `decimal.Decimal`.
 
     Float arithmetic is prohibited anywhere in the authority path
@@ -75,13 +75,13 @@ def _require_finite_decimal(name: str, value: Decimal) -> None:
         raise ValidationError(f"{name} must be finite, got {value}")
 
 
-def _require_positive_or_zero(name: str, value: Decimal) -> None:
-    _require_finite_decimal(name, value)
+def require_positive_or_zero(name: str, value: Decimal) -> None:
+    require_finite_decimal(name, value)
     if value < 0:
         raise ValidationError(f"{name} must be >= 0, got {value}")
 
 
-def _require_nonempty(name: str, value: str) -> None:
+def require_nonempty(name: str, value: str) -> None:
     if not isinstance(value, str):
         raise ValidationError(f"{name} must be a string, got {type(value).__name__}")
     if not value or not value.strip():
@@ -105,17 +105,17 @@ class OwnerPolicy:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _require_positive_or_zero("max_amount", self.max_amount)
-        _require_positive_or_zero(
+        require_positive_or_zero("max_amount", self.max_amount)
+        require_positive_or_zero(
             "cold_start_autonomous_amount", self.cold_start_autonomous_amount
         )
         if self.cold_start_autonomous_amount > self.max_amount:
             raise ValidationError(
                 "cold_start_autonomous_amount cannot exceed max_amount"
             )
-        _require_nonempty("network", self.network)
-        _require_nonempty("asset", self.asset)
-        _require_nonempty("action_class", self.action_class)
+        require_nonempty("network", self.network)
+        require_nonempty("asset", self.asset)
+        require_nonempty("action_class", self.action_class)
         if not self.approved_target_classes:
             raise ValidationError("approved_target_classes must be non-empty")
         if not self.approved_functions:
@@ -144,7 +144,7 @@ class HardPolicy:
 
     def __post_init__(self) -> None:
         if self.max_amount_override is not None:
-            _require_positive_or_zero("max_amount_override", self.max_amount_override)
+            require_positive_or_zero("max_amount_override", self.max_amount_override)
 
 
 @dataclass(frozen=True)
@@ -162,13 +162,13 @@ class Proposal:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _require_nonempty("network", self.network)
-        _require_nonempty("asset", self.asset)
-        _require_nonempty("action_class", self.action_class)
-        _require_nonempty("target_class", self.target_class)
-        _require_nonempty("function", self.function)
-        _require_positive_or_zero("amount", self.amount)
-        _require_nonempty("proposed_at", self.proposed_at)
+        require_nonempty("network", self.network)
+        require_nonempty("asset", self.asset)
+        require_nonempty("action_class", self.action_class)
+        require_nonempty("target_class", self.target_class)
+        require_nonempty("function", self.function)
+        require_positive_or_zero("amount", self.amount)
+        require_nonempty("proposed_at", self.proposed_at)
 
 
 @dataclass(frozen=True)
@@ -214,8 +214,8 @@ class EvaluatedCandidate:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _require_nonempty("decision_version_id", self.decision_version_id)
-        _require_positive_or_zero("authorized_amount", self.authorized_amount)
+        require_nonempty("decision_version_id", self.decision_version_id)
+        require_positive_or_zero("authorized_amount", self.authorized_amount)
 
     def is_eligible(self) -> bool:
         """Eligible for learned-constraint derivation per LCP-001: must be
@@ -241,7 +241,7 @@ class LearnedConstraint:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _require_positive_or_zero("learned_max_amount", self.learned_max_amount)
+        require_positive_or_zero("learned_max_amount", self.learned_max_amount)
         if self.basis not in ("cold_start", "precedent"):
             raise ValidationError(f"unrecognized basis: {self.basis!r}")
         if self.basis == "precedent" and not self.supporting_decision_version_ids:
@@ -268,7 +268,7 @@ class AuthorizationDecision:
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
-        _require_positive_or_zero("authorized_amount", self.authorized_amount)
+        require_positive_or_zero("authorized_amount", self.authorized_amount)
         if self.result == AuthorizationResult.BLOCK and self.authorized_amount != 0:
             raise ValidationError("a blocked decision must authorize zero")
         if self.result == AuthorizationResult.ESCALATE and self.authorized_amount != 0:

@@ -155,3 +155,24 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Ran the second independent Codex review.
 - Product and implementation effect: No product behavior changed beyond correctness fixes. Test count grew from 59 to 78.
 - Git operation status: Not yet committed. Two of two permitted independent passes complete.
+
+## 2026-09-04: Seam (b) — Sibyl Memory Adapter
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-04-seam-b-memory-adapter-kickoff.md`.
+- Claude's assistance: Performed the VERIFY-AT-BUILD step by installing and empirically exercising sibyl-memory-client 0.8.0 against a real local database before writing any adapter code, rather than trusting the published (outdated) README. Designed and implemented finne/memory/schema.py and finne/memory/client.py, and wrote 21 round-trip tests against real temporary databases. Found and fixed a real bug during implementation (get_reference's JSON-stringified body shape) via a failing test, not by inspection. Corrected five already-approved documents to match verified reality, distinguishing fact-correction from a new architecture decision. Made finne/models.py's validation helpers public for reuse. Caught and corrected a process slip — this work had started directly on master instead of a feature branch — before any commit.
+- Assisted files: `finne/memory/schema.py`, `finne/memory/client.py`, `tests/test_memory_roundtrip.py`, `finne/models.py`, `HACKATHON_RULES.md`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`, `ARCHITECTURE.md`, `TASKS.md`, `BUILD_LOG.md`, `AI_USAGE.md`, `prompts/2026-09-04-seam-b-memory-adapter-kickoff.md`.
+- Arko's decisions: Confirmed the seam (a) merge; directed the start of seam (b).
+- Product and implementation effect: Memory is now genuinely wired to persistence, though not yet connected to the authority engine (that's seam (c)). 99 tests pass, including 21 new round-trip tests against real Sibyl Memory databases.
+- Git operation status: Not yet committed. Awaiting independent review and Arko's approval.
+
+## 2026-09-04: Second Codex Review Of Seam (b) And Final Corrections
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, second pass, verified live against the installed package rather than reading claims.
+- Human director: Arko.
+- Claude's assistance: Re-verified all four BLOCKER findings by directly reproducing Codex's exact test conditions against the live installed sibyl-memory-client before fixing anything (confirmed the limit//4 cap empirically across five limit values; confirmed the illegal transitions were genuinely acceptable before the fix). Fixed all six findings with a two-layer design for the transition matrix (intrinsic per-event validation plus cross-event chain consistency) and a truncation-detection design for the search cap, rather than superficial patches. Corrected an additional overclaim in PREREQ-003's prose discovered while fixing the documentation finding. Added 11 new regression tests, each proving one specific finding is fixed, and directly re-confirmed all four original bug scenarios against the live package after fixing.
+- Assisted files: `finne/memory/schema.py`, `finne/memory/client.py`, `tests/test_memory_roundtrip.py`, `docs/architecture/PREREQ-003_ARCHITECTURE.md`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Ran the second independent Codex review.
+- Product and implementation effect: No product behavior changed beyond correctness fixes to already-described seam (b) behavior. Test count grew from 99 to 110.
+- Git operation status: Not yet committed. Two of two permitted independent passes complete.

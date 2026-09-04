@@ -83,7 +83,7 @@ Each implementation task must include: Task ID; Title; Status (`CONFIRMED | PROP
 - RESOLVED: First vertical slice with observable acceptance criteria — `SPEC-001` sections 11 and 12.
 - UNRESOLVED: `ORG-Q1` — Base mainnet versus Base Sepolia. Non-blocking; the network is one configuration value.
 - RESOLVED: `ORG-Q2` — repository licensed MIT under `DECISION-024`; `LICENSE` exists at repository root.
-- UNRESOLVED: `VERIFY-AT-BUILD` — exact `sibyl-memory-client` 0.8.0 signatures. Non-blocking; first step of `SPEC-001` implementation, with a documented fallback.
+- RESOLVED: `VERIFY-AT-BUILD` — exact `sibyl-memory-client` 0.8.0 signatures confirmed empirically during seam (b), 2026-09-04. No `sibyl init` credentials needed for local operations, resolving `HACKATHON_RULES.md` `ORG-Q3` as well.
 - RESOLVED: Arko approved `DECISION-022`, `DECISION-023`, and the licence choice on 2026-09-03; all merged into `master` via PR #3.
 - RESOLVED: `DECISION-025` establishes the two-tool operating model (Claude implements, Codex independently reviews, capped at two passes per change, Arko approves/pushes/merges) governing `SPEC-001`'s implementation; merged into `master` via PR #4.
 - RESOLVED: Arko approved `SPEC-001` on 2026-09-03. `TASK-001` may now be created.
@@ -98,7 +98,7 @@ The Orchestrator may draft `TASK-001` only when:
 4. Its exact ownership area and expected files are known. — Satisfied by `PREREQ-003` section 18.
 5. Its architecture and dependencies are approved in `ARCHITECTURE.md` and recorded in `DECISIONS.md`. — Recorded as `DECISION-023`, approved and committed.
 6. Its testing approach and required test cases are defined. — Satisfied by `SPEC-001` section 12.
-7. It can be completed and independently reviewed without another agent making a product or architecture decision. — Satisfied, subject to the two `VERIFY-AT-BUILD` and `ORG-Q1` items, both of which have documented defaults.
+7. It can be completed and independently reviewed without another agent making a product or architecture decision. — Satisfied. `VERIFY-AT-BUILD` is resolved; `ORG-Q1` remains open with a documented default (Base Sepolia).
 8. Its bounded `SPEC-*` has been approved by Arko and committed before implementation authorization. — Satisfied. Approved 2026-09-03.
 9. Its prompt, attribution, audit-document, manual-verification, independent-review, and mandatory commit-gate obligations are explicit. — Satisfied by `AI_BUILD_GOVERNANCE.md`.
 
