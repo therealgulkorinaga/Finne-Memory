@@ -164,10 +164,12 @@ The model may not expand authority, authorize an action, change an authority sta
 | `test_authority_states.py` | A7, invariant 4 |
 | `test_comparability.py` | A8 |
 | `test_memory_roundtrip.py` | A2, invariant 8 |
-| `test_fresh_session.py` | A1, A3, A4, A5, A6, A14, invariant 6 — A14 is proven by the test's own setup phase, which invokes `reset_demo.py` and asserts the pre-seeded (`CASE-003`..`008`) and not-seeded (`CASE-001`) state before each session run, then re-runs the full flow from that known state |
+| `test_fresh_session.py` | A1, A3, A6, A14, invariant 6, and the retrieval/derivation/relationship-persistence logic underlying A4/A5 (see correction below) — A14 is proven by the test's own setup phase, which invokes `reset_demo.py` and asserts the pre-seeded (`CASE-003`..`008`) and not-seeded (`CASE-001`) state before each session run, then re-runs the full flow from that known state |
 | `test_negative_cases.py` | A9, A10, A12, A13, invariant 7 |
-| `test_base_adapter.py` | A11, A12, A13, invariant 10 |
+| `test_base_adapter.py` | A4, A5, A11, A12, A13, invariant 10 |
 | `test_import_boundaries.py` | Module constraints, invariant 9 |
+
+- CORRECTED 2026-09-04 (fact-correction, not a new architecture decision — the underlying design was already right; only this table's original assignment was wrong): A4/A5 were originally assigned to `test_fresh_session.py` alone. `PREREQ-003` section 3's own W4 row already required this — it was this table's original assignment that was inconsistent with it, caught by the first independent Codex review of seam (c). `finne.base.adapter`'s stub reports `attempted=False`, so `session1.py` cannot honestly write DV-001-V1's outcome yet — and without a recorded `SUCCESS` outcome, `finne.authority.derivation` correctly excludes it from eligibility (per invariant 4). This means `session1.py` -> `session2.py` alone, with no seam (d), cannot yet produce the A4/A5 observable (`constrain` citing `DV-001-V1`) — it honestly escalates twice, which is NEG-07 working correctly, not a defect. `test_fresh_session.py` now proves the retrieval/derivation/relationship-persistence logic underlying A4/A5 directly, by seeding a precedent's outcome the same way `reset_demo.py` already seeds `CASE-003`..`008`'s outcomes (a synthetic-but-honest stand-in for a real seam (d) result). Full end-to-end proof of A4/A5 — a live `session1.py` run producing a real, retrievable `SUCCESS` outcome with no seeding — requires seam (d) and is now `test_base_adapter.py`'s to close, alongside A11/A12.
 
 ## 13. Allowed Files And Ownership Area
 

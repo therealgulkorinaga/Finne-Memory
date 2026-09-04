@@ -321,3 +321,18 @@ class AuthorityEventRecord:
             reason=extra["reason"],
             schema_version=extra["schema_version"],
         )
+
+
+# PrecedentRelationshipRecord (follows/distinguishes/questions/supersedes,
+# per PREREQ-002's PrecedentRelationship) was implemented here in seam
+# (c) round 1 and removed again in round 2: PREREQ-002's own contract
+# requires fact_ids/citation_ids to reference real, human-validated
+# CitationEdge/Fact entities with a rejection-audit path
+# (CitationAttemptAuditEvent) — a genuine validated-reference subsystem,
+# not a shape a few tuples of strings can satisfy. Building that is out
+# of scope per SPEC-001 section 15 ("multi-domain precedent support"),
+# is required by none of SPEC-001's fourteen acceptance criteria, and
+# is not one of PREREQ-003 section 3's load-bearing W1-W5/R1-R5
+# operations — removing it changes nothing about what invariant 6's
+# memory-deleted control proves. Deferred; see ACTIVE_DEMO_DESIGN.md
+# section 6.

@@ -177,9 +177,9 @@ function recordAuthorization(
 | `test_authority_states.py` | Only `active` precedents support learned authority; `draft`, `questioned`, `superseded`, `withdrawn` are retrievable but never authorizing |
 | `test_comparability.py` | Material-difference rules, including the directional risk-tier check |
 | `test_memory_roundtrip.py` | Structured write and read against a real temporary Sibyl Memory database; overwrite of an immutable record raises |
-| `test_fresh_session.py` | Session 1 and Session 2 run as **subprocesses**; Session 2 constrains 25,000 to 10,000; with the tenant emptied it escalates |
+| `test_fresh_session.py` | Session 1 and Session 2 run as **subprocesses**; Session 1 persists W1-W3 without a premature outcome; Session 2 escalates while no seam-(d) outcome exists for a precedent (NEG-07 holding, not a gap); with the tenant emptied it escalates; a seeded-outcome fixture proves Session 2's own constrain/cite logic is correct and ready |
 | `test_negative_cases.py` | `NEG-01` through `NEG-08` |
-| `test_base_adapter.py` | Mocked revert, timeout, and duplicate submission produce no false success; one opt-in live test gated by `FINNE_LIVE_BASE_TEST=1` |
+| `test_base_adapter.py` | Session 2 constrains 25,000 to 10,000 against a real recorded outcome (A4/A5); mocked revert, timeout, and duplicate submission produce no false success; one opt-in live test gated by `FINNE_LIVE_BASE_TEST=1` |
 
 - **Decision:** `test_fresh_session.py` uses subprocesses rather than function calls. Anything less does not prove cross-session behaviour, and this is the project's central claim.
 - **Decision:** The memory-deleted control is an automated test, not only a demo step. The organiser's gate test runs in CI.
