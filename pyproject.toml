@@ -1,0 +1,29 @@
+[project]
+name = "finne-memory"
+version = "0.1.0"
+description = "Finné Memory: bounded, auditable authority derived from remembered operating history."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "sibyl-memory-client==0.8.0",
+    "web3>=6.0",
+    "py-solc-x>=2.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "hypothesis>=6.100",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["finne*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
