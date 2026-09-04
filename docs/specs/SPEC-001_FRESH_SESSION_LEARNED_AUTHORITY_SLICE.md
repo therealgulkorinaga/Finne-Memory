@@ -105,7 +105,7 @@ finne.base.adapter.BaseAdapter.{record_authorization, get_receipt}
 finne.explain.explain(decision) -> str
 ```
 
-`VERIFY-AT-BUILD`: confirm `sibyl-memory-client` 0.8.0 signatures before writing `finne/memory/client.py`. The published README documents the v0.4.x surface. A documented fallback exists **only** for R3, authority-event storage via `read_events` (`PREREQ-003` section 3). It does not cover `search_entities` (R1, candidate retrieval) or tenant selection — if either of those is incompatible with the installed package, that is a stop condition under section 16, not something the fallback silently absorbs.
+`VERIFY-AT-BUILD`: **RESOLVED 2026-09-04, seam (b).** `sibyl-memory-client` 0.8.0's real signatures were confirmed empirically (installed and exercised against a real local database, not just read from source) and differ from the published README in several ways — full detail in `finne/memory/client.py`'s module docstring. All required operations (R1 candidate search via `search_entities(category=...)`, R3 authority-event retrieval via `client.search(tiers=("journal",))`, tenant selection via `tenant_id=`) work as needed. No fallback was required. `MemoryClient.local()` needs no `sibyl init` credentials for local operations, resolving `HACKATHON_RULES.md`'s `ORG-Q3`.
 
 ## 8. Failure Paths And Degraded Behavior
 
