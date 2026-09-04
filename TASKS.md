@@ -111,6 +111,35 @@ Gate status: **9 of 9 conditions satisfied. `TASK-001` may be created.**
 - CONFIRMED: `TASK-001` cannot authorize implementation unless it references an approved and committed bounded `SPEC-*`.
 - CONFIRMED: The first implementation delivery must be exactly the files, behavior, tests, and documentation specified by `SPEC-001` and an approved `TASK-001`.
 
+## TASK-001: Implement SPEC-001 — Fresh-Session Learned-Authority Vertical Slice
+
+- Task ID: `TASK-001`
+- Title: Implement the fresh-session learned-authority vertical slice
+- Status: CONFIRMED — authorized. Creation Gate is 9 of 9 satisfied.
+- Owner role: Claude, per the two-tool operating model in `DECISION-025`. Codex independently reviews each bounded sub-change (capped at two passes each). Arko manually tests, approves, pushes, and merges.
+- Spec reference: `docs/specs/SPEC-001_FRESH_SESSION_LEARNED_AUTHORITY_SLICE.md`, approved by Arko 2026-09-03.
+- Objective: Build the complete two-session demo exactly as `SPEC-001` defines it — a fresh process proposes 25,000 USDC, is bound to 10,000 USDC by a precedent retrieved from Sibyl Memory, and cannot do so when that memory is removed.
+- Why this task exists: `SPEC-001` is approved and committed; this is the implementation authorization it requires before any application code may be written.
+- Dependencies: `DECISION-023` (architecture), `DECISION-025` (operating model), `SPEC-001` (approved). None outstanding.
+- Exact scope: Everything in `SPEC-001` sections 1–16 — the repository layout in `PREREQ-003` section 18, the deterministic authority engine, the Sibyl Memory adapter, retrieval, the Base adapter and demo contract, the two session scripts, the terminal interface, and the eight test files mapped in `SPEC-001` section 12.
+- Build sequence: implemented as five bounded sub-changes, each its own branch, Codex review pass(es), and commit, per `SPEC-001` section 14's seams:
+  - (a) models, policy, and the pure authority engine with its invariant tests
+  - (b) the Sibyl Memory adapter and round-trip tests
+  - (c) retrieval and the two session scripts
+  - (d) the Base contract and adapter
+  - (e) the terminal interface and explanation
+- Explicit exclusions / out of scope: everything listed in `SPEC-001` section 15 — no web application or hosted service as part of this task (tracked separately, outside `SPEC-001`'s authorization, if pursued), no Virtuals Protocol, no real fund transfer, no custody logic, no x402/escrow/settlement, no multi-domain precedent support.
+- Files or components expected to be affected: exactly the layout in `PREREQ-003` section 18, plus `README.md`'s required memory read/write table, plus the standing audit files (`prompts/`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`, `BUILD_LOG.md`, `REUSED_COMPONENTS.md`) per `SPEC-001` section 13's carve-out.
+- Interfaces consumed and exposed: exactly `SPEC-001` section 7.
+- Functional acceptance criteria: `SPEC-001` section 11, A1–A14.
+- Technical acceptance criteria: `SPEC-001` section 10, invariants 1–10.
+- Testing requirements: `SPEC-001` section 12 — eight test files, each mapped to specific criteria and invariants.
+- Documentation requirements: `README.md`'s memory read/write table and Prior Work declaration (deferred group, drafted once code exists); standing audit-document updates on every bounded sub-change.
+- Handoff requirements: each of the five sub-changes gets its own explanation, test results, Codex review outcome, and commit-gate checklist before Arko is asked to approve that commit — per `AGENT_BUILD_INSTRUCTIONS.md` section 6 and the Mandatory Commit Gate.
+- Stop conditions: exactly `SPEC-001` section 16.
+- Mandatory commit-gate requirements: the full checklist in `AGENT_BUILD_INSTRUCTIONS.md`'s Mandatory Commit Gate, satisfied per sub-change, not deferred to the end.
+- Definition of Done: all eight test files pass; all 14 acceptance criteria demonstrably hold; the two-session demo runs end to end with a real Base Sepolia transaction; the memory-deleted control produces `escalate`; `README.md`'s memory table and Prior Work declaration are complete.
+
 ## Deferred Groups
 
 Planning placeholders only, all downstream of `SPEC-001`:

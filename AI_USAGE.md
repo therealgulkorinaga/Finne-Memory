@@ -124,3 +124,34 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Directed the move to SPEC-001; ran both independent review passes; approved the resulting fixes and SPEC-001 itself as-is.
 - Product and implementation effect: SPEC-001 is now the approved, committed specification governing the first implementation task. No application code exists yet; TASK-001 creation is the next step.
 - Git operation status: Committed on Claude's execution after Arko's explicit approval ("approve as-is"), per AGENT_BUILD_INSTRUCTIONS.md section 11.
+
+## 2026-09-03: TASK-001 Definition And Seam (a) Implementation
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5.
+- Human director: Arko.
+- Prompt record: `prompts/2026-09-03-task-001-and-seam-a-kickoff.md`.
+- Claude's assistance: Drafted `TASK-001` per `TASKS.md`'s Required Task Format. Wrote the first application code in this repository: `finne/models.py` (frozen dataclasses, schema-versioned, Decimal-only), `finne/policy.py` and `config/owner_policy.toml` (OP-001/LCP-001), `finne/authority/comparability.py`, `finne/authority/derivation.py`, and `finne/authority/engine.py` (the pure deterministic authority engine), plus three test files including `hypothesis`-based property tests. Made and recorded three routine implementation-level decisions where the governing documents deferred exact detail to implementation: the Python version (3.13.1, since 3.11 is unavailable locally), `HardPolicy`'s schema (a no-op-by-default optional override), and adding `yield_vault_aggressive` to the owner's approved target classes for corpus consistency with `CASE-005`.
+- Assisted files: `TASKS.md`, `.gitignore`, `pyproject.toml`, `finne/models.py`, `finne/policy.py`, `finne/authority/comparability.py`, `finne/authority/derivation.py`, `finne/authority/engine.py`, `finne/__init__.py`, `finne/authority/__init__.py`, `finne/memory/__init__.py`, `finne/base/__init__.py`, `config/owner_policy.toml`, `tests/test_authority_invariants.py`, `tests/test_authority_states.py`, `tests/test_comparability.py`, `BUILD_LOG.md`, `AI_USAGE.md`, `prompts/2026-09-03-task-001-and-seam-a-kickoff.md`.
+- Arko's decisions: Approved the build sequencing (core before web hosting); directed starting `TASK-001` and seam (a) immediately.
+- Product and implementation effect: This is the first working component of Finné Memory's deterministic core. All 17 tests pass, including property tests proving four of the ten `SPEC-001` invariants hold under generated adversarial input, not just the documented demo scenarios.
+- Git operation status: Not yet committed. Awaiting test verification (complete), independent review, and Arko's approval.
+
+## 2026-09-03: First Codex Review Of Seam (a) And Corrections
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, first pass on the seam (a) application code.
+- Human director: Arko.
+- Claude's assistance: Verified each of Codex's findings against the actual code before fixing (confirmed the float/NaN leak empirically, confirmed the tomllib/Python-version mismatch, confirmed the yield_vault_aggressive widening was functionally unnecessary by tracing that comparability.py never reads owner_policy). Fixed all four findings and added new tests specifically proving each one — not just patching the code silently.
+- Assisted files: `finne/models.py`, `finne/authority/engine.py`, `config/owner_policy.toml`, `pyproject.toml`, `tests/test_authority_invariants.py`, `tests/test_authority_states.py`, `tests/test_models_validation.py` (new), `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Ran the independent Codex review.
+- Product and implementation effect: No product behavior changed beyond correctness fixes to already-described seam (a) behavior. Test count grew from 17 to 59.
+- Git operation status: Not yet committed. One of two permitted independent passes complete.
+
+## 2026-09-03: Second Codex Review Of Seam (a) And Final Corrections
+
+- AI tool: Claude Code (Anthropic), model Sonnet 5. Independent reviewer: Codex, second and final pass on seam (a) per the two-pass cap.
+- Human director: Arko.
+- Claude's assistance: Verified the TOML float-precision finding empirically before fixing (confirmed `Decimal(0.1)`'s exact expansion). Fixed the loader boundary and added `tests/test_policy.py`; added the two missing direct validation-coverage tests.
+- Assisted files: `finne/policy.py`, `tests/test_policy.py` (new), `tests/test_models_validation.py`, `BUILD_LOG.md`, `AI_USAGE.md`.
+- Arko's decisions: Ran the second independent Codex review.
+- Product and implementation effect: No product behavior changed beyond correctness fixes. Test count grew from 59 to 78.
+- Git operation status: Not yet committed. Two of two permitted independent passes complete.

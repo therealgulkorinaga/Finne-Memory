@@ -1,0 +1,35 @@
+# Owner permission ceiling (OP-001) and learned-constraint derivation
+# policy (LCP-001), per docs/product/ACTIVE_DEMO_DESIGN.md sections 1 and 4.
+#
+# Finné Memory reads this file. No code path in this repository writes to
+# it — the agent cannot rewrite its own authority policy.
+
+[owner_policy]
+policy_id = "OP-001"
+max_amount = "25000.00"
+network = "base"
+asset = "USDC"
+action_class = "capital_deployment"
+# Exactly the two classes confirmed in ACTIVE_DEMO_DESIGN.md section 1
+# (OP-001). CASE-005's yield_vault_aggressive target class is a fact of
+# that historical case's record, not something the CURRENT owner policy
+# needs to authorize — finne.authority.comparability.compare() excludes
+# CASE-005 by direct fact matching against the current proposal, and
+# never consults this approved-scope list at all. Widening this list to
+# accommodate a historical fixture was an implementation-time error,
+# caught in Codex review, and reverted.
+approved_target_classes = ["demo_receipt", "yield_vault_conservative"]
+approved_functions = ["recordAuthorization", "deposit"]
+unknown_situation_behaviour = "escalate_to_owner"
+cold_start_autonomous_amount = "0.00"
+
+[derivation_policy]
+policy_id = "LCP-001"
+description = """
+eligible = cases that are materially comparable
+           AND authority_state == "active"
+           AND outcome == "success"
+
+learned_max_amount = max(authorized_amount of eligible)  if eligible is non-empty
+                   = cold_start_autonomous_amount        if eligible is empty
+"""
