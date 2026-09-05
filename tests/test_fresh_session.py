@@ -7,12 +7,30 @@ caches, open handles) that a genuinely fresh process cannot have.
 
 Per PREREQ-003 section 3's W4 row ("after the Base transaction
 settles"), an outcome is never recorded until finne.base.adapter
-reports attempted=True. While that adapter remains seam (d)'s stub
-(attempted always False), DV-001-V1 genuinely has no recorded outcome
-after session1.py runs, so it is not yet eligible as precedent
-(finne.authority.derivation requires outcome == SUCCESS) and session2.py
-honestly escalates too — this is NEG-07 working as designed, not a
-gap in this test. What IS fully testable today, without seam (d):
+reports attempted=True.
+
+finne/base/adapter.py is the REAL seam (d) implementation, not a stub
+— it reaches live Base Sepolia infrastructure using real key material.
+Every subprocess this file spawns runs with FINNE_BASE_DRY_RUN=1, which
+makes the adapter skip all network activity and report attempted=False
+without touching the chain. This is not a workaround; it is this
+test file's actual scope, matching PREREQ-003 section 14's own
+mocked-by-default, opt-in-live testing philosophy (already specified
+for test_base_adapter.py): this file exists to prove session1.py's and
+session2.py's own orchestration logic (retrieval, derivation, W1-W4
+timing, the fresh-process boundary), not Base connectivity, which is
+test_base_adapter.py's job. Omitting the dry-run flag was tried once,
+by accident — it submitted two genuine, permanent, zero-value
+transactions to the live deployed contract for the fixed
+decision_version_id values these scripts use ("DV-001-V1",
+"DV-002-V1"), which is exactly the kind of non-hermetic, real-network
+side effect an automated test suite must never have.
+
+With the real adapter dry-run-disabled, DV-001-V1 genuinely has no
+recorded outcome after session1.py runs, so it is not yet eligible as
+precedent (finne.authority.derivation requires outcome == SUCCESS) and
+session2.py honestly escalates too — this is NEG-07 working as
+designed, not a gap in this test. What IS fully testable this way:
 that the authorization itself (W1-W3) persists correctly and that no
 outcome is fabricated; and, by seeding a precedent's outcome directly
 through MemoryStore exactly as reset_demo.py already does for its own
@@ -24,12 +42,13 @@ seam — see finne/memory/schema.py's module-level note — so it is not
 tested here.
 
 Covers: A1, A3, A6, A14, invariant 6, and (via the seeded-outcome test)
-the session2.py logic underlying A4/A5, which cannot be exercised live
-by session1.py -> session2.py alone until seam (d) exists.
+the session2.py logic underlying A4/A5. test_base_adapter.py owns the
+fully-live proof of A4/A5 against real Base connectivity.
 """
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import tempfile
@@ -59,12 +78,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def run_script(script: str, db_path: Path, *extra_args: str) -> subprocess.CompletedProcess:
+    env = {**os.environ, "FINNE_BASE_DRY_RUN": "1"}
     return subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / script), "--db-path", str(db_path), *extra_args],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
         timeout=60,
+        env=env,
     )
 
 
@@ -221,12 +242,12 @@ def _seed_dv_001_v1_with_outcome(store: MemoryStore) -> None:
 
 
 def test_session2_constrains_and_cites_precedent_once_precedent_has_a_recorded_outcome(db_path):
-    # Proves A4/A5's underlying logic directly: once DV-001-V1 has the
-    # SUCCESS outcome a real seam (d) attempt will eventually produce,
-    # a genuinely fresh session2.py process retrieves it, constrains
-    # 25,000 -> 10,000, and names DV-001-V1 as the binding precedent on
-    # screen. PrecedentRelationship persistence is deferred (see module
-    # docstring) and not asserted here.
+    # Proves A4/A5's underlying logic directly: once DV-001-V1 has a
+    # SUCCESS outcome (seeded directly here; a live demo run has seam
+    # (d) produce it for real), a genuinely fresh session2.py process
+    # retrieves it, constrains 25,000 -> 10,000, and names DV-001-V1 as
+    # the binding precedent on screen. PrecedentRelationship persistence
+    # is deferred (see module docstring) and not asserted here.
     reset(db_path)
     store = MemoryStore.local(db_path, tenant_id=DEMO_TENANT_ID)
     _seed_dv_001_v1_with_outcome(store)
@@ -242,7 +263,7 @@ def test_session2_constrains_and_cites_precedent_once_precedent_has_a_recorded_o
     assert case.authorized_amount == Decimal("10000.00")
     assert store.read_owner_policy_snapshot("DV-002-V1") is not None
     assert store.fold_authority_state("DV-002-V1") == AuthorityState.DRAFT
-    assert store.read_outcome("DV-002-V1") is None  # W4 still pending seam (d)
+    assert store.read_outcome("DV-002-V1") is None  # W4 pending: this run is dry-run, no real attempt
 
 
 def test_no_memory_control_escalates_and_cannot_execute(db_path):
@@ -301,3 +322,33 @@ def test_demo_resets_and_rehearses_repeatably(db_path):
         second = run_script("session2.py", db_path)
         assert second.returncode == 0, second.stderr
         assert "Nothing authorized" in second.stdout
+
+
+def test_reconcile_outcome_refuses_for_a_decision_with_no_case_version(db_path):
+    # BLOCKER-adjacent (independent review asked for "absent
+    # submissions" coverage): reconcile_outcome.py must refuse cleanly,
+    # not crash, when asked to reconcile a decision_version_id that was
+    # never even proposed.
+    reset(db_path)
+    result = run_script("reconcile_outcome.py", db_path, "DV-NEVER-EXISTED", "--tx-hash", "0xabc")
+    assert result.returncode == 1
+    assert "nothing to reconcile" in result.stderr
+
+
+def test_reconcile_outcome_is_idempotent_when_already_recorded(db_path):
+    # Repeated reconciliation must not attempt a second write (which
+    # write_outcome's own write-once guard would reject anyway) and
+    # must not require live Base connectivity to notice there is
+    # nothing left to do.
+    reset(db_path)
+    first = run_script("session1.py", db_path)
+    assert first.returncode == 0, first.stderr
+
+    store = MemoryStore.local(db_path, tenant_id=DEMO_TENANT_ID)
+    store.write_outcome(
+        OutcomeRecord(decision_version_id="DV-001-V1", outcome=Outcome.SUCCESS, base_tx_hash="0xalready")
+    )
+
+    result = run_script("reconcile_outcome.py", db_path, "DV-001-V1", "--tx-hash", "0xabc")
+    assert result.returncode == 0
+    assert "already has a recorded outcome" in result.stdout

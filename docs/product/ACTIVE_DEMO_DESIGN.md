@@ -108,10 +108,10 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 3. Finné Memory finds no comparable active precedent. `learned_max_amount` falls back to `cold_start_autonomous_amount` = `0.00`.
 4. The intersection yields zero autonomous authority. The decision is `escalate` — **not** a silent 25,000 USDC allow.
 5. The owner approves a constrained authority of `10000.00` USDC under the `CASE-001` conditions.
-6. The agent executes the safe Base demonstration action within the bound. The authorization receipt records `10000.00` USDC as a policy value; the transaction carries zero value.
-7. Finné Memory writes the complete case to Sibyl Memory: owner ceiling, proposal, circumstances, material facts, constrained authority, decision, action, Base transaction reference, observed outcome, and supporting evidence. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-001-V1`. Per the retained `PREREQ-002` authority transitions, this confirmation is itself the initial `No prior state → draft` `AuthorityEvent` — not merely a data write.
-8. The Owner, acting separately as **Authority Steward** — a distinct timestamped action, even though it is the same person — confirms activation: a second `AuthorityEvent` records `draft → active`, promoting `DV-001-V1` to `active`.
-9. **The process terminates completely.**
+6. Finné Memory writes the immutable case version and owner-policy snapshot to Sibyl Memory. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-001-V1`. Per the retained `PREREQ-002` authority transitions, this confirmation is itself the initial `No prior state → draft` `AuthorityEvent` — not merely a data write. **CORRECTED 2026-09-05** (ordering only, fact-correction — independent review found this document, `PREREQ-003`, and `SPEC-001` all described these writes happening after Base execution rather than before it; the case version, snapshot, and authority events do not wait on Base, per `PREREQ-003` section 3's own W-table — only the outcome, W4, does).
+7. The Owner, acting separately as **Authority Steward** — a distinct timestamped action, even though it is the same person — confirms activation: a second `AuthorityEvent` records `draft → active`, promoting `DV-001-V1` to `active`.
+8. The agent executes the safe Base demonstration action within the bound. The authorization receipt records `10000.00` USDC as a policy value; the transaction carries zero value. If the transaction settles (confirmed success or confirmed revert), the outcome and Base transaction reference (W4) are written now. If the receipt wait times out or errors, the transaction may still be pending — W4 is deliberately left unwritten rather than recording a possibly-wrong immutable failure, and is completed later once the original transaction's own receipt can be checked directly.
+9. **The process terminates completely**, regardless of whether W4 completed or is left pending reconciliation.
 
 ### Session 2 — memory changes behaviour
 
@@ -123,8 +123,8 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 6. `learned_max_amount` = `10000.00`.
 7. The intersection binds on the learned constraint. The decision is `constrain` to `10000.00` USDC. The `AuthorizationDecision.cited_precedents` names `DV-001-V1` as the supporting precedent — this is the decision's own explanation citing a prior decision version, not yet a persisted `PrecedentRelationship`, since `CASE-002` has no decision version of its own until write-back.
 8. The action changes: **25,000 USDC proposed → 10,000 USDC authorized**.
-9. The agent executes the safe Base action within the bound. The receipt represents `10000.00` USDC; zero value moves.
-10. The new outcome is written back to Sibyl Memory. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-002-V1` for `CASE-002` — the initial `No prior state → draft` `AuthorityEvent`, exactly as in Session 1 step 7.
+9. Finné Memory writes the immutable case version and owner-policy snapshot. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-002-V1` for `CASE-002` — the initial `No prior state → draft` `AuthorityEvent`, exactly as in Session 1 step 6. **CORRECTED 2026-09-05** (ordering only, matching Session 1's correction above — these writes do not wait on Base).
+10. The agent executes the safe Base action within the bound. The receipt represents `10000.00` USDC; zero value moves. If the transaction settles, the new outcome (W4) is written back to Sibyl Memory now; a receipt-wait timeout leaves W4 pending, completed later once the original transaction's own receipt can be checked directly.
 11. Section 6 names the `follows` (`DV-002-V1` → `DV-001-V1`) and `distinguishes` (`DV-002-V1` → `DV-005-V1`) treatments; per section 6's 2026-09-04 deferral note, persisting these as canonical `PrecedentRelationship` records is out of scope for this slice — `DV-002-V1` already carries its citation live, in `AuthorizationDecision.cited_precedents`, shown on screen in step 8. `DV-002-V1` remains `draft` — promoting it to `active` is also out of scope for this slice.
 
 - CONFIRMED: The changed action must be visible on screen and attributable to the recalled memory, naming `DV-001-V1` as the binding precedent.
@@ -143,8 +143,9 @@ With the Sibyl Memory database removed or emptied, Session 2 retrieves nothing, 
 | `NEG-04` | Proposal of `40000.00` USDC, above the owner ceiling | `block`, regardless of any precedent |
 | `NEG-05` | No model API key, or model returns malformed output | Deterministic path produces the identical authorization; explanation degrades to a deterministic template |
 | `NEG-06` | Malformed or contradictory memory record | Treated as absent, not as permission; result constrains or escalates |
-| `NEG-07` | Base transaction reverts, times out, or fails | No false success; outcome recorded as `failure`; no fabricated transaction reference |
-| `NEG-08` | The same authorized action is executed twice | Idempotency key prevents a second execution and prevents an inconsistent outcome record |
+| `NEG-07` | Base transaction reverts or is rejected outright before broadcast | No false success; outcome recorded as `failure`; no fabricated transaction reference |
+| `NEG-08` | The same authorized action is executed twice | Idempotency key prevents a second execution and prevents an inconsistent outcome record; the deployed contract's own `authorizedSigner` restriction additionally prevents a third party from ever recording a competing entry for the same `decisionId` |
+| `NEG-09` | Base transaction is broadcast but the receipt wait times out or errors | **ADDED 2026-09-05** (independent review, seam (d)): distinct from `NEG-07` — the transaction may still be mined and may still succeed, and `Outcome` is write-once, so treating this identically to a confirmed revert (the original `NEG-07` wording, since corrected) could permanently misrepresent a still-pending, possibly-successful case. No outcome is written; `finne.base.adapter.reconcile_pending()` / `scripts/reconcile_outcome.py` resolve it later against the original transaction's own receipt. |
 
 ## 9. Reset Procedure
 
@@ -164,6 +165,6 @@ The demo must be resettable to a known starting state: clear the demo tenant's r
 | 8 | `NEG-04` |
 | 9 | `NEG-05` |
 | 10 | Session 1 step 6, Session 2 step 9 |
-| 11 | `NEG-07` |
+| 11 | `NEG-07`, `NEG-09` |
 | 12 | Reset procedure |
 | 13 | No fixture references payment, escrow, x402, settlement, or dispute behaviour |

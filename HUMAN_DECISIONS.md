@@ -86,3 +86,21 @@ This ledger records material human decisions, corrections, rejected AI suggestio
 - What Arko corrected along the way: caught that Claude's own earlier fix had introduced a NEW status conflict (claiming `DECISION-023` was approved when its canonical record still said otherwise) via the first Codex pass; caught a second-order gap (relationship persistence needing its own Authority Steward confirmation, distinct from draft creation) via the second Codex pass. Both required Claude to verify findings against the actual `PREREQ-002` contract text rather than take the review's description on trust.
 - Scope confirmed: this is a documentation and specification approval only. No application code, dependencies, scaffolding, contract deployment, or onchain transaction is authorized by this entry. The next action is creating `TASK-001`.
 - Approval boundary: "approve as-is" was read as approving both the accumulated review-cycle fixes and `SPEC-001` itself, given the turn's explicit framing throughout was moving `SPEC-001` toward approval. Arko has not yet authorized `TASK-001` creation as a separate act, or any implementation work under it.
+
+## 2026-09-05: Seam (d) Review Extended Beyond The Two-Pass Cap
+
+- Human decision-maker: Arko.
+- Decision reference: `DECISION-025`'s Review Pass Cap (see the 2026-09-03 entry above).
+- Context: Two independent Codex passes had already run against seam (d) — round 1 found three BLOCKER and two IMPORTANT findings, all fixed and re-verified; round 2's prompt was drafted and handed off, but Arko directed a further round before its findings were reported back.
+- Decision: Arko explicitly directed additional passes beyond the standing two-pass cap for seam (d) specifically — up to four rounds total this time, given the seam's complexity (real key material, real network calls, an immutability hazard already found once). This is exactly the mechanism the cap allows for ("a third pass requires Arko's explicit direction") rather than a reversal of the cap itself.
+- Effect: The cap remains the default for every other bounded change, and for seam (d) itself absent a similar explicit direction next time. This entry documents why seam (d) alone is running past two passes, so a future reader does not mistake it for the standing rule quietly eroding.
+- Approval boundary: This entry documents the extension only. No commit is authorized by it.
+
+## 2026-09-05: Seam (d) Review Extended To A Fifth Pass
+
+- Human decision-maker: Arko.
+- Decision reference: Extends the 2026-09-05 entry above, which authorized up to four rounds.
+- Context: All four previously-authorized rounds completed; round 3 found one genuinely exploitable security gap (no contract access control) and round 4 found one genuinely exploitable gap in the reconciliation workflow added to fix a round-1 finding — both fixed and re-verified against live data. Arko directed a fifth pass "for abundant caution."
+- Decision: A fifth independent Codex pass is authorized for seam (d), with an added instruction: findings should be explicitly triaged as deal-breakers (must fix before submission) versus nice-to-haves (safe to defer), to help prioritize any remaining time against the hackathon deadline.
+- Effect: Same as the prior extension — this is scoped to seam (d) only, does not change the standing two-pass cap for other bounded changes, and does not itself authorize a sixth pass.
+- Approval boundary: This entry documents the extension only. No commit is authorized by it.

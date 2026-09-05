@@ -122,8 +122,8 @@ derive_effective_authority(
 
 - **Decision:** `finne/base/adapter.py` using `web3.py`. It is the only module performing network I/O to Base and the only module aware of key material.
 - **Decision:** Network, RPC URL, contract address, and chain ID come from configuration (`config/base_deployment.json` and `.env`). Switching Base Sepolia to Base mainnet is a configuration change, not a code change. This keeps `ORG-Q1` cheap to resolve either way.
-- **Decision:** The adapter exposes two operations: `record_authorization(decision)` and `get_receipt(decision_id)`. It accepts an `AuthorizationDecision` and refuses to submit anything the decision did not authorize.
-- **Decision:** Failure is explicit. Revert, timeout, and insufficient gas all produce a recorded `failure` outcome with no transaction reference fabricated and no success path taken (`NEG-07`).
+- **Decision:** The adapter exposes four operations: `record_authorization(decision, proposal, decision_version_id)`, `get_receipt(decision_version_id)`, `reconcile_pending(decision_version_id, tx_hash)`, and `deploy_contract(force=False)`. It accepts an `AuthorizationDecision` and a `Proposal` (the material facts the contract's `factsHash` binds to) and refuses to submit anything the decision did not authorize. **CORRECTED 2026-09-05** (fact-correction — the original signature took two arguments and the original count was two operations; `factsHash` turned out to need the proposal's material facts, which live on `Proposal`, and seam (d) added `reconcile_pending` and `deploy_contract`, the latter moved here from `scripts/` to keep key material inside `finne/base/`).
+- **Decision:** Failure is explicit and comes in two distinguishable shapes, per `BaseExecutionResult.outcome_confirmed`. A confirmed revert or an outright pre-broadcast rejection produces a recorded `failure` outcome with no transaction reference fabricated and no success path taken (`NEG-07`). A receipt-wait **timeout** or RPC error after a successful broadcast is different: the transaction may still be mined and may still succeed, and `Outcome` is write-once, so recording `failure` for an unresolved case would permanently misrepresent it. A timeout therefore writes no outcome at all — `finne.base.adapter.reconcile_pending()` and `scripts/reconcile_outcome.py` resolve it later, once the original transaction's own receipt can be checked directly. **CORRECTED 2026-09-05** (independent review found the original "revert, timeout, and insufficient gas all produce a recorded failure outcome" wording — inherited from `ACTIVE_DEMO_DESIGN.md`'s original `NEG-07` row — unsafe once combined with write-once immutability; that row is corrected to match).
 
 ## 10. Key And Signing Boundary
 
@@ -147,6 +147,7 @@ function recordAuthorization(
 
 - **Decision:** The authorized amount is carried as a **policy value**, not a transfer. Representing a 10,000 USDC authorization does not require moving 10,000 USDC. Every demonstration transaction carries zero value.
 - **Decision:** `decisionId = keccak256(decision_version_id)`. The contract enforces `require(!recorded[decisionId])`, giving onchain duplicate-execution protection for `NEG-08` in addition to the application-level idempotency check.
+- **Decision, ADDED 2026-09-05 (independent review, seam (d) round 3):** `recordAuthorization` is restricted to the contract's own `authorizedSigner` (set once, at deployment, to the deploying wallet's address). Without this, `decisionId` being a deterministic hash of a fixed, public string (`decision_version_id` values like `"DV-001-V1"` appear in this repository's own source) meant any third party could permanently record a predictable `decisionId` with arbitrary data first — preempting a real authorization before this project's own session scripts ever run, or creating misleading "evidence." `finne.base.adapter.get_receipt()` additionally verifies the stored receipt's `submittedBy` against the connected wallet's own address before trusting it, as defense in depth against a differently-configured or older contract deployment.
 - **Decision:** `factsHash` binds the receipt to the exact facts and precedents relied upon, so the onchain record is verifiable evidence rather than a bare log line.
 - **Decision:** Compiled and deployed once by `scripts/deploy_contract.py` with `py-solc-x` and `web3.py`. The ABI and deployed address are checked into `config/base_deployment.json`. No Foundry or Hardhat toolchain is added.
 - **Why this is genuine work:** the contract is the evidence layer. Session 1's transaction hash is written into Sibyl Memory as outcome evidence, and Session 2 reads that outcome as an eligibility input to derivation. Remove Base and the outcome evidence disappears from the derivation policy.
@@ -178,7 +179,7 @@ function recordAuthorization(
 | `test_comparability.py` | Material-difference rules, including the directional risk-tier check |
 | `test_memory_roundtrip.py` | Structured write and read against a real temporary Sibyl Memory database; overwrite of an immutable record raises |
 | `test_fresh_session.py` | Session 1 and Session 2 run as **subprocesses**; Session 1 persists W1-W3 without a premature outcome; Session 2 escalates while no seam-(d) outcome exists for a precedent (NEG-07 holding, not a gap); with the tenant emptied it escalates; a seeded-outcome fixture proves Session 2's own constrain/cite logic is correct and ready |
-| `test_negative_cases.py` | `NEG-01` through `NEG-08` |
+| `test_negative_cases.py` | `NEG-01` through `NEG-09` |
 | `test_base_adapter.py` | Session 2 constrains 25,000 to 10,000 against a real recorded outcome (A4/A5); mocked revert, timeout, and duplicate submission produce no false success; one opt-in live test gated by `FINNE_LIVE_BASE_TEST=1` |
 
 - **Decision:** `test_fresh_session.py` uses subprocesses rather than function calls. Anything less does not prove cross-session behaviour, and this is the project's central claim.
@@ -239,14 +240,16 @@ finne/
     engine.py
     comparability.py
     derivation.py
+  demo_config.py
   base/
     __init__.py
     adapter.py
+    env.py
     contracts/AuthorizationReceipt.sol
 scripts/
   deploy_contract.py
-  seed_demo.py
   reset_demo.py
+  reconcile_outcome.py
   session1.py
   session2.py
 tests/
@@ -267,6 +270,8 @@ pyproject.toml
 
 This layout replaces the `UNRESOLVED` logical ownership areas in `AGENT_BUILD_INSTRUCTIONS.md` section 3 with concrete, non-overlapping paths.
 
+- **CORRECTED 2026-09-05** (independent review, seam (d) round 5): added `finne/demo_config.py` (added in seam (c)), `finne/base/env.py` and `scripts/reconcile_outcome.py` (both added in seam (d)); removed `scripts/seed_demo.py`, which was never created — `scripts/reset_demo.py` performs the seeding. This matters beyond tidiness: `SPEC-001` section 13 forbids application files outside this exact layout, so three real files sat outside the specification's authorized implementation boundary until this correction.
+
 ## 19. Failure Behaviour
 
 Every failure resolves to a narrower authority. None widens.
@@ -281,8 +286,9 @@ Every failure resolves to a narrower authority. None widens.
 | Material difference on every candidate | Cannot follow; result `escalate` with the difference named |
 | Requested amount above owner ceiling | `block`, regardless of precedent |
 | Model unavailable or malformed | Deterministic template; identical authorization result |
-| Base revert, timeout, or gas failure | Outcome recorded as `failure`; no transaction reference fabricated; no success path |
-| Duplicate execution | Application idempotency key plus contract-level `require` both reject it |
+| Base revert, or gas failure/rejection before broadcast | Outcome recorded as `failure`; no transaction reference fabricated; no success path |
+| Base broadcast accepted but receipt wait times out or errors (`NEG-09`) | No outcome recorded — the transaction may still be mined and succeed, and `Outcome` is write-once; resolved later via `reconcile_pending()` against the original transaction's own receipt |
+| Duplicate execution | Application idempotency key, the deployed contract's own `require`, and its `authorizedSigner` restriction (no third party can ever record a competing entry) all reject it |
 | Immutable-record overwrite attempted | Raises; recorded as an integrity failure; never silently accepted |
 
 ## 20. Open Items Carried Into SPEC-001
