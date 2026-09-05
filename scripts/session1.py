@@ -15,12 +15,13 @@ authority events) are written immediately once the owner approves —
 PREREQ-003 section 3 places all three "after the owner constrains
 authority" / "on owner confirmation," independent of Base. W4 (the
 outcome) is written only "after the Base transaction settles" — i.e.
-only when record_authorization() reports attempted=True. While
-finne/base/adapter.py remains seam (d)'s stub (attempted always
-False), this script persists a complete, genuine authorization record
-with no outcome yet, rather than fabricating one — DV-001-V1 is
-therefore not yet eligible as precedent (finne.authority.derivation
-requires outcome == SUCCESS) until a real Base attempt exists.
+only when record_authorization() reports attempted=True. If Base is
+ever unreachable, refuses the submission, or detects a NEG-08
+duplicate, this script still persists a complete, genuine authorization
+record with no outcome yet, rather than fabricating one — DV-001-V1 is
+correctly not eligible as precedent (finne.authority.derivation
+requires outcome == SUCCESS) until a real, successful Base attempt
+exists.
 
 Run: python scripts/session1.py [--db-path PATH] [--owner-approved-amount N]
 """
@@ -197,21 +198,39 @@ def run(db_path: Path, owner_approved_amount: Decimal) -> int:
     )
     print(f"[Session 1] Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft -> active).")
 
-    base_result = record_authorization(owner_decision, DECISION_VERSION_ID)
+    base_result = record_authorization(owner_decision, proposal, DECISION_VERSION_ID)
     if not base_result.attempted:
         # W4 has not happened yet — the outcome genuinely does not exist
         # (PREREQ-003 section 3: written "after the Base transaction
         # settles"). Recording SUCCESS here, with no transaction, would
         # be exactly the fabrication NEG-07 forbids. DV-001-V1 is
         # correctly not yet eligible as precedent until a real attempt
-        # exists — that is seam (d)'s job, not this script's.
+        # exists. base_result.detail states the actual reason (refused
+        # pre-flight, connection failure, or a detected NEG-08 duplicate)
+        # — never assumed here, since seam (d) now exists and "pending
+        # seam (d)" is no longer necessarily why nothing was attempted.
         print(f"[Session 1] {base_result.detail}")
-        print("[Session 1] No outcome recorded — Base execution is pending seam (d).")
+        print("[Session 1] No outcome recorded.")
         print("[Session 1] Process exiting completely.")
         return 0
 
     if not base_result.success:
-        # NEG-07: a real, attempted Base failure must never be reported
+        if not base_result.outcome_confirmed:
+            # The broadcast was accepted but its confirmation timed out
+            # or errored — genuinely unknown, not a confirmed failure.
+            # W4 is write-once; recording Outcome.FAILURE here could
+            # permanently misrepresent a transaction that is still
+            # pending and may yet succeed. The authorization above
+            # (W1-W3) is still a true, complete record; W4 stays
+            # genuinely pending until reconciled.
+            print(f"[Session 1] {base_result.detail}", file=sys.stderr)
+            print(
+                f"[Session 1] No outcome recorded. Once you know whether it landed, run:\n"
+                f"  python scripts/reconcile_outcome.py {DECISION_VERSION_ID} --tx-hash {base_result.tx_hash}",
+                file=sys.stderr,
+            )
+            return 1
+        # NEG-07: a real, CONFIRMED Base failure must never be reported
         # as a success. The authorization above is still a true,
         # complete record of what the owner approved; W4 now records
         # that the attempted execution failed.

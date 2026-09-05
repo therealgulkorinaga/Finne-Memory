@@ -160,13 +160,27 @@ def run(db_path: Path, *, no_memory: bool) -> int:
 
     print(f"[Session 2] Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft).")
 
-    base_result = record_authorization(decision, DECISION_VERSION_ID)
+    base_result = record_authorization(decision, proposal, DECISION_VERSION_ID)
     if not base_result.attempted:
+        # base_result.detail states the actual reason (refused
+        # pre-flight, connection failure, or a detected NEG-08
+        # duplicate) — never assumed here.
         print(f"[Session 2] {base_result.detail}")
-        print("[Session 2] No outcome recorded — Base execution is pending seam (d).")
+        print("[Session 2] No outcome recorded.")
         return 0
 
     if not base_result.success:
+        if not base_result.outcome_confirmed:
+            # Broadcast accepted, confirmation unknown — not a
+            # confirmed failure. See scripts/session1.py's matching
+            # branch for the full rationale (W4 is write-once).
+            print(f"[Session 2] {base_result.detail}", file=sys.stderr)
+            print(
+                f"[Session 2] No outcome recorded. Once you know whether it landed, run:\n"
+                f"  python scripts/reconcile_outcome.py {DECISION_VERSION_ID} --tx-hash {base_result.tx_hash}",
+                file=sys.stderr,
+            )
+            return 1
         store.write_outcome(
             OutcomeRecord(
                 decision_version_id=DECISION_VERSION_ID,
