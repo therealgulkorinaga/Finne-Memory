@@ -30,12 +30,15 @@ from __future__ import annotations
 
 import argparse
 import sys
+import traceback
 import uuid
 from decimal import Decimal
 from pathlib import Path
 
+from finne import cli
 from finne.authority.engine import derive_effective_authority
 from finne.base.adapter import record_authorization
+from finne.explain import explain
 from finne.demo_config import (
     DEMO_ACTION_CLASS,
     DEMO_ASSET,
@@ -44,7 +47,7 @@ from finne.demo_config import (
     DEMO_TARGET_CLASS,
     DEMO_TENANT_ID,
 )
-from finne.memory.client import MemoryStore
+from finne.memory.client import MemoryStore, is_memory_unavailable
 from finne.memory.schema import (
     AuthorityEventRecord,
     CaseVersionRecord,
@@ -77,22 +80,41 @@ def run(db_path: Path, *, no_memory: bool) -> int:
     # instead of touching the real demo data, reproducing the
     # organiser's deletion test without destroying Session 1's case.
     tenant_id = f"empty-{uuid.uuid4()}" if no_memory else DEMO_TENANT_ID
-    store = MemoryStore.local(db_path, tenant_id=tenant_id)
     owner_policy = load_owner_policy()
     hard_policy = default_hard_policy()
 
     proposal = build_proposal(owner_policy.max_amount)
-    print(f"[Session 2] Fresh process. Owner ceiling: {owner_policy.max_amount} {owner_policy.asset}")
-    print(f"[Session 2] Agent proposes: {proposal.amount} {proposal.asset}")
+    cli.session_header("Session 2", "memory changes behaviour — a genuinely fresh process")
+    cli.proposal_panel(proposal, owner_policy.max_amount)
 
-    candidates = find_candidates(proposal, store)
-    print(f"[Session 2] Retrieved {len(candidates)} candidate(s) from Sibyl Memory.")
-    for c in candidates:
-        tag = "eligible" if c.is_eligible() else f"excluded ({c.authority_state.value}/{c.outcome.value}/comparable={c.comparability.is_comparable})"
-        print(f"[Session 2]   {c.decision_version_id}: authorized={c.authorized_amount} [{tag}]")
+    # NEG-01 / PREREQ-003 section 19, same handling as session1.py: a
+    # memory failure is displayed as an escalation, never as the empty
+    # corpus --no-memory produces. The traceback goes to stderr, not to
+    # the frame the viewer reads.
+    # --no-memory is a real, readable, EMPTY tenant; this branch is the
+    # case where nothing could be read at all.
+    try:
+        store = MemoryStore.local(db_path, tenant_id=tenant_id)
+        candidates = find_candidates(proposal, store)
+    except Exception as exc:  # noqa: BLE001 — classified, not swallowed
+        # is_memory_unavailable() walks the __cause__ chain rather than
+        # type-testing the outermost exception: the memory client wraps
+        # a caller defect (SQL misuse) in its own StorageError, and a
+        # genuinely corrupt database file surfaces as a raw
+        # sqlite3.DatabaseError. No flat tuple of types separates those,
+        # which independent review demonstrated in both directions.
+        # A bug re-raises and stays visible; only a real outage becomes
+        # the displayed escalation.
+        if not is_memory_unavailable(exc):
+            raise
+        # The traceback goes to stderr so a real failure stays
+        # diagnosable; the screen shows the clean, safe outcome.
+        traceback.print_exc()
+        cli.memory_failure(f"{type(exc).__name__}: {exc}")
+        return 1
+    cli.candidates_table(candidates)
 
     decision = derive_effective_authority(proposal, owner_policy, hard_policy, candidates)
-    print(f"[Session 2] Deterministic result: {decision.result.value} — {decision.explanation}")
 
     if decision.authorized_amount <= 0:
         # Nothing was autonomously authorized. Session 2 has no "owner
@@ -103,14 +125,15 @@ def run(db_path: Path, *, no_memory: bool) -> int:
         # execution on non-authorizing decisions": persisting a case
         # with a zero-authority decision would misrepresent that
         # something was authorized when nothing was.
-        print("[Session 2] Nothing authorized; the agent cannot proceed autonomously.")
+        cli.decision_panel(decision, proposal, explain(decision))
+        cli.warn("Nothing authorized; the agent cannot proceed autonomously.")
         return 0
 
-    print(
-        f"[Session 2] Action changes: {proposal.amount} proposed -> "
-        f"{decision.authorized_amount} authorized "
-        f"(citing {', '.join(decision.cited_precedents) or 'no precedent'})"
-    )
+    # explain() is presentation only and cannot change `decision` — it
+    # is called after the decision is already final, and its output is
+    # never read back (A10/NEG-05: identical authorization with or
+    # without a model API key).
+    cli.decision_panel(decision, proposal, explain(decision))
 
     # W1 + W2 + W3: the authorization itself is written now — per
     # PREREQ-003 section 3, none of these wait on Base, only W4 does.
@@ -158,15 +181,15 @@ def run(db_path: Path, *, no_memory: bool) -> int:
     # of the fourteen acceptance criteria, and not part of PREREQ-003
     # section 3's load-bearing W1-W5/R1-R5 set. See finne/memory/schema.py.
 
-    print(f"[Session 2] Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft).")
+    cli.note(f"Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft).")
 
     base_result = record_authorization(decision, proposal, DECISION_VERSION_ID)
     if not base_result.attempted:
         # base_result.detail states the actual reason (refused
         # pre-flight, connection failure, or a detected NEG-08
         # duplicate) — never assumed here.
-        print(f"[Session 2] {base_result.detail}")
-        print("[Session 2] No outcome recorded.")
+        cli.note(base_result.detail)
+        cli.note("No outcome recorded.")
         return 0
 
     if not base_result.success:
@@ -198,8 +221,8 @@ def run(db_path: Path, *, no_memory: bool) -> int:
             base_tx_hash=base_result.tx_hash,
         )
     )
-    print(f"[Session 2] Base transaction: {base_result.tx_hash}")
-    print(f"[Session 2] Outcome persisted to Sibyl Memory as {DECISION_VERSION_ID}.")
+    cli.note(f"Base transaction: {base_result.tx_hash}")
+    cli.note(f"Outcome persisted to Sibyl Memory as {DECISION_VERSION_ID}.")
     return 0
 
 

@@ -922,6 +922,7 @@ def test_live_session1_then_session2_constrains_citing_precedent():
                 capture_output=True,
                 text=True,
                 timeout=120,
+                env={**os.environ, "FINNE_PLAIN_OUTPUT": "1"},
             )
 
         reset = run("reset_demo.py")

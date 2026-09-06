@@ -30,10 +30,12 @@ from __future__ import annotations
 
 import argparse
 import sys
+import traceback
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 
+from finne import cli
 from finne.authority.engine import derive_effective_authority
 from finne.base.adapter import record_authorization
 from finne.demo_config import (
@@ -44,7 +46,8 @@ from finne.demo_config import (
     DEMO_TARGET_CLASS,
     DEMO_TENANT_ID,
 )
-from finne.memory.client import MemoryStore
+from finne.explain import explain
+from finne.memory.client import MemoryStore, is_memory_unavailable
 from finne.memory.schema import (
     AuthorityEventRecord,
     CaseVersionRecord,
@@ -78,26 +81,55 @@ def build_proposal(amount: Decimal) -> Proposal:
 
 
 def run(db_path: Path, owner_approved_amount: Decimal) -> int:
-    store = MemoryStore.local(db_path, tenant_id=DEMO_TENANT_ID)
     owner_policy = load_owner_policy()
     hard_policy = default_hard_policy()
 
     proposal = build_proposal(owner_policy.max_amount)
-    print(f"[Session 1] Owner ceiling: {owner_policy.max_amount} {owner_policy.asset}")
-    print(f"[Session 1] Agent proposes: {proposal.amount} {proposal.asset}")
+    cli.session_header("Session 1", "establish experience — cold start, no precedent yet")
+    cli.proposal_panel(proposal, owner_policy.max_amount)
 
-    candidates = find_candidates(proposal, store)
-    print(f"[Session 1] Retrieved {len(candidates)} candidate(s) from Sibyl Memory.")
+    # NEG-01 / PREREQ-003 section 19: memory unavailable, uninitialised,
+    # or unauthenticated resolves to a visible `escalate` on screen,
+    # never an allow. The traceback still goes to stderr, where it stays
+    # available for diagnosis without displacing the outcome — it is the
+    # SCREEN that must not be a traceback. The library layer deliberately does
+    # NOT swallow this — finne.retrieval lets it propagate so a failed
+    # read can never be mistaken for an empty corpus — so the handling
+    # belongs here, at the session boundary, where it can be stated on
+    # screen. Broad by intent: any failure to read history at all is
+    # absence, so the exception type is displayed rather than
+    # discriminated on.
+    try:
+        store = MemoryStore.local(db_path, tenant_id=DEMO_TENANT_ID)
+        candidates = find_candidates(proposal, store)
+    except Exception as exc:  # noqa: BLE001 — classified, not swallowed
+        # is_memory_unavailable() walks the __cause__ chain rather than
+        # type-testing the outermost exception: the memory client wraps
+        # a caller defect (SQL misuse) in its own StorageError, and a
+        # genuinely corrupt database file surfaces as a raw
+        # sqlite3.DatabaseError. No flat tuple of types separates those,
+        # which independent review demonstrated in both directions.
+        # A bug re-raises and stays visible; only a real outage becomes
+        # the displayed escalation.
+        if not is_memory_unavailable(exc):
+            raise
+        # The traceback goes to stderr so a real failure stays
+        # diagnosable; the screen shows the clean, safe outcome.
+        traceback.print_exc()
+        cli.memory_failure(f"{type(exc).__name__}: {exc}")
+        return 1
+    cli.candidates_table(candidates)
 
     decision = derive_effective_authority(proposal, owner_policy, hard_policy, candidates)
-    print(f"[Session 1] Deterministic result: {decision.result.value} — {decision.explanation}")
+    # explain() is presentation only; the decision is already final.
+    cli.decision_panel(decision, proposal, explain(decision))
 
     if decision.result == AuthorizationResult.BLOCK:
         # A blocked decision means the raw proposal itself would violate
         # a hard boundary (e.g. NEG-04, above the owner ceiling) — there
         # is nothing for the owner to approve; overriding it would
         # violate invariant 1. Stop; nothing is submitted or persisted.
-        print("[Session 1] Proposal blocked outright; refusing to proceed.", file=sys.stderr)
+        cli.warn("Proposal blocked outright; refusing to proceed.")
         return 1
     if decision.result != AuthorizationResult.ESCALATE:
         print(
@@ -133,7 +165,7 @@ def run(db_path: Path, owner_approved_amount: Decimal) -> int:
             file=sys.stderr,
         )
         return 1
-    print(f"[Session 1] Owner approves constrained authority: {owner_approved_amount} {owner_policy.asset}")
+    cli.note(f"Owner approves constrained authority: {owner_approved_amount} {owner_policy.asset}")
 
     # The engine's own decision authorized nothing (escalate, amount 0)
     # — that decision must never be the thing submitted to Base or
@@ -196,7 +228,7 @@ def run(db_path: Path, owner_approved_amount: Decimal) -> int:
             reason="Owner activates the case as precedent.",
         )
     )
-    print(f"[Session 1] Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft -> active).")
+    cli.note(f"Authorization persisted to Sibyl Memory as {DECISION_VERSION_ID} (draft -> active).")
 
     base_result = record_authorization(owner_decision, proposal, DECISION_VERSION_ID)
     if not base_result.attempted:
@@ -209,9 +241,9 @@ def run(db_path: Path, owner_approved_amount: Decimal) -> int:
         # pre-flight, connection failure, or a detected NEG-08 duplicate)
         # — never assumed here, since seam (d) now exists and "pending
         # seam (d)" is no longer necessarily why nothing was attempted.
-        print(f"[Session 1] {base_result.detail}")
-        print("[Session 1] No outcome recorded.")
-        print("[Session 1] Process exiting completely.")
+        cli.note(base_result.detail)
+        cli.note("No outcome recorded.")
+        cli.note("Process exiting completely.")
         return 0
 
     if not base_result.success:
@@ -251,9 +283,9 @@ def run(db_path: Path, owner_approved_amount: Decimal) -> int:
             base_tx_hash=base_result.tx_hash,
         )
     )
-    print(f"[Session 1] Base transaction: {base_result.tx_hash}")
-    print(f"[Session 1] Complete case persisted to Sibyl Memory as {DECISION_VERSION_ID}.")
-    print("[Session 1] Process exiting completely.")
+    cli.note(f"Base transaction: {base_result.tx_hash}")
+    cli.note(f"Complete case persisted to Sibyl Memory as {DECISION_VERSION_ID}.")
+    cli.note("Process exiting completely.")
     return 0
 
 

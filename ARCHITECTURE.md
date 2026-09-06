@@ -74,7 +74,7 @@ Two encoding decisions make that model work on an overwritable key-value store:
 | --- | --- | --- |
 | Sibyl Memory | Mandatory persistent substrate | Load-bearing reads R1–R4 and writes W1, W3, W4 (`PREREQ-003` section 3). Remove them and the agent cannot derive learned authority. |
 | Base | Execution and evidence layer | `AuthorizationReceipt` contract records the authorized policy amount and a facts hash; the transaction result is the outcome evidence that feeds derivation eligibility. |
-| Anthropic model | Optional explanation only | Absent by default. Cannot affect any authorization result. |
+| ~~Anthropic model~~ | **REMOVED 2026-09-05** (independent review, seam (e) round 4) | Not an integration. No model participates at runtime; the explanation is deterministic in every case. See `docs/architecture/PREREQ-003_ARCHITECTURE.md` section 13. |
 
 UNRESOLVED: `ORG-Q1` in `HACKATHON_RULES.md` — Base mainnet versus Base Sepolia. The build targets Sepolia and the network is a single configuration value.
 

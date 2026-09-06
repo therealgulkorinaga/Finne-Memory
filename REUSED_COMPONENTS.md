@@ -33,7 +33,7 @@ Record every reused code component, dependency, asset, dataset, template, licens
 | `rich` | Terminal interface | MIT | Presentation only |
 | `pytest` | Tests | MIT | Dev only |
 | `hypothesis` | Property test for the owner-ceiling invariant | MPL-2.0 | Dev only; not distributed |
-| `anthropic` | Optional explanation | MIT | Never on the deterministic path |
+| ~~`anthropic`~~ | ~~Optional explanation~~ | MIT | **SUPERSEDED 2026-09-05**: declared during seam (e), removed the same day after independent review round 4. Never shipped as a dependency; the `explain` extra is gone from `pyproject.toml` and no module imports a model SDK. Retained here because this table is a historical record of what was declared |
 
 - Licensing impact of this change: None from reuse, because no code or dependency was added. **Separately, Arko resolved `ORG-Q2` on 2026-09-03 by selecting MIT**, and `LICENSE` was added at repository root under `DECISION-024`. The text is the standard unmodified OSI MIT template with copyright `2026 Arko Ganguli`. Every dependency specified above is MIT-compatible; `hypothesis` is MPL-2.0 but is dev-only and not distributed.
 - Datasets: The active demo corpus in `docs/product/ACTIVE_DEMO_DESIGN.md` is entirely synthetic and authored for this project. No external dataset was used.

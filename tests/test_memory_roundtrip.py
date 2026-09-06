@@ -251,9 +251,18 @@ def test_fold_excludes_non_authority_journal_entries(store):
     assert store.fold_authority_state("DV-001-V1") is None
 
 
-def test_fold_excludes_malformed_authority_events(store):
-    """A malformed authority event is treated as absent, not permission —
-    it must not crash the fold or silently count as a valid transition."""
+def test_fold_fails_closed_on_a_malformed_authority_event(store):
+    """A malformed authority event must not crash the fold or silently
+    count as a valid transition.
+
+    CHANGED 2026-09-05 (independent review, seam (e) round 2): it is no
+    longer merely EXCLUDED either. An entry that claims to be an
+    authority event for this decision and is not a valid one is evidence
+    the recorded history of this decision cannot be trusted, so the
+    whole chain fails closed. Excluding it made the fold's own
+    illegal-transition check unreachable, since
+    AuthorityEventRecord.__post_init__ rejects an illegal transition and
+    the rejection was being swallowed one layer below the check."""
     store._client.write_event(
         extra={
             "kind": "finne_authority_event",
@@ -372,10 +381,21 @@ def test_fold_stops_at_first_chain_inconsistency(store):
     assert store.fold_authority_state("DV-ORPHAN") is None
 
 
-def test_fold_uses_valid_prefix_before_a_chain_break(store):
+def test_fold_discards_the_whole_chain_at_a_break_not_just_the_tail(store):
     """Draft is correctly established, then a later event's claimed
-    previous_status doesn't match (a fork/duplicate). The fold must keep
-    `draft` — the valid prefix — not apply the inconsistent event."""
+    previous_status doesn't match (a fork/duplicate). The fold must
+    return None — not the `draft` prefix it had accumulated.
+
+    CHANGED 2026-09-05 (independent review, seam (e)): this previously
+    asserted the valid prefix was kept. Keeping it is safe here, where
+    the prefix is `draft`, and unsafe in general: the identical code
+    path keeps `active` when the contradiction lands after activation,
+    so a chain already known to be inconsistent would go on
+    authorizing. PREREQ-003 section 19 requires the most restrictive
+    interpretation to win. The narrower behaviour after activation is
+    covered by
+    tests/test_negative_cases.py::test_neg_06_contradictory_chain_after_activation_is_absent_not_permission.
+    """
     store.append_authority_event(
         AuthorityEventRecord(
             decision_version_id="DV-FORK",
@@ -398,7 +418,7 @@ def test_fold_uses_valid_prefix_before_a_chain_break(store):
             "reason": "inconsistent fork",
         }
     )
-    assert store.fold_authority_state("DV-FORK") == AuthorityState.DRAFT
+    assert store.fold_authority_state("DV-FORK") is None
 
 
 def test_non_dict_journal_body_does_not_crash_the_fold(store):

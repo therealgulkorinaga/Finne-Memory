@@ -1,5 +1,5 @@
 {
-  "contract_address": "0x4b05cEaF15B03461F939dAc594924217C90aA5F9",
+  "contract_address": "0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46",
   "abi": [
     {
       "inputs": [],
@@ -134,6 +134,6 @@
     }
   ],
   "chain_id": 84532,
-  "deployment_tx_hash": "0x4afb3e0fc5b9cbef7aa3e183d9be8df5869fe327536a1f1e60f94bfdb77da457",
-  "deployment_block": 46420029
+  "deployment_tx_hash": "0xb8426ba665dffe7f776aa90d3b8a54466f1b181d8adafa846f70191fa682178e",
+  "deployment_block": 46426773
 }

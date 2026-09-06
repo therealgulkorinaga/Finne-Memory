@@ -17,6 +17,11 @@ dev = [
     "pytest>=8.0",
     "hypothesis>=6.100",
 ]
+# There is deliberately no model-SDK extra. `finne/explain.py` is the
+# only module PERMITTED to call a model (PREREQ-003 section 13) and,
+# after four rounds of independent review, does not — so an `anthropic`
+# extra would install a dependency nothing imports. See that module's
+# docstring for the record.
 
 [build-system]
 requires = ["setuptools>=68"]
