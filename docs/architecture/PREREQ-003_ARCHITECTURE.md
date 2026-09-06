@@ -40,7 +40,7 @@ Verified 2026-09-03 from `https://pypi.org/pypi/sibyl-memory-client/json` and `h
 | `py-solc-x` | One-time contract compile | Avoids adding a second toolchain (Foundry/Hardhat) |
 | `rich` | Terminal interface | Makes the recall moment legible on video |
 | `pytest`, `hypothesis` | Tests | `hypothesis` proves the ceiling invariant over generated inputs rather than a handful of examples |
-| `anthropic` | Optional explanation only | Never imported on the deterministic path |
+| ~~`anthropic`~~ | **REMOVED 2026-09-05** (independent review, seam (e) round 4) | Not a dependency. No module imports a model SDK; the `explain` extra was deleted from `pyproject.toml`. Section 17's exclusive permission for `finne/explain.py` is retained and still enforced by `tests/test_import_boundaries.py` |
 
 ## 2. Sibyl Memory Integration Method
 
@@ -162,10 +162,13 @@ function recordAuthorization(
 
 ## 13. Model-Optional Behaviour
 
-- **Decision:** `finne/explain.py` is the only module permitted to call a model. Nothing else may import an AI SDK.
-- **Decision:** If `ANTHROPIC_API_KEY` is absent, or the call fails, or the response fails schema validation, explanation falls back to a deterministic template. The authorization result is byte-identical either way.
-- **Decision:** The model receives already-validated structured records and returns prose only. It cannot return a decision, an amount, an authority state, a citation, or a relationship that takes effect.
-- **Decision:** The full test suite runs with no API key present in CI and locally. This is how "the deterministic system must work without a model API key" is proven rather than asserted.
+- **Decision:** `finne/explain.py` is the only module permitted to call a model. Nothing else may import an AI SDK. Enforced by `tests/test_import_boundaries.py`, not by convention.
+- **Decision — REMOVED 2026-09-05** (independent review, seam (e) round 4, recommendation accepted): **no module calls a model at runtime.** `finne/explain.py` holds the permission and does not exercise it, so the explanation is `deterministic_explanation()` and nothing else.
+  - Four successive attempts to make model-influenced text safe were each broken by the next review round. (1) An allowlist of numbers appearing in the decision admitted "the agent was authorized 25,000.00" — a true number stating a false thing, since the proposed amount is in the decision too. (2) A ban on digits and scale words admitted "one zero zero zero zero", "ten grand", "twice the safe limit", and "the proposal was permitted in full", which needs no quantity at all. (3) Selecting among pre-written sentences keyed on `(result, cited)` offered "it held itself to a limit an earlier decision established" for a constraint bound by `current_hard_policy`. (4) Adding `binding_constraint` to the key still left a reachable tie: when the learned and hard ceilings are equal the engine labels it `learned_constraint`, so "rather than from a standing restriction" is false.
+  - Each fix was sound against the round before it. What was at stake was one sentence of prose beside an explanation that already states every fact, in a demo that runs with no API key by requirement. Deleting the mechanism deletes the whole class of failure.
+  - **This is a capability removal and requires Arko's ratification**, recorded in `HUMAN_DECISIONS.md`. The permission in section 17 is deliberately retained rather than revoked, but retaining a permission is not authorization to use it: **reinstating a model would require a newly approved specification change, not merely a code change**, because this section and `SPEC-001` now describe a deterministic-only implementation. If it is ever reinstated, the property to hold is not "the output passes validation" — three attempts at that failed — but that no model output is displayed unless something deterministic proves it true of THAT decision.
+- **Decision:** The authorization result is byte-identical with and without an API key. This is now true by construction rather than by fallback: there is no key to have, and nothing reads one.
+- **Decision:** The full test suite runs with no API key present in CI and locally.
 - **Decision:** The recorded demo runs with no API key present.
 
 ## 14. Testing Approach
@@ -179,8 +182,9 @@ function recordAuthorization(
 | `test_comparability.py` | Material-difference rules, including the directional risk-tier check |
 | `test_memory_roundtrip.py` | Structured write and read against a real temporary Sibyl Memory database; overwrite of an immutable record raises |
 | `test_fresh_session.py` | Session 1 and Session 2 run as **subprocesses**; Session 1 persists W1-W3 without a premature outcome; Session 2 escalates while no seam-(d) outcome exists for a precedent (NEG-07 holding, not a gap); with the tenant emptied it escalates; a seeded-outcome fixture proves Session 2's own constrain/cite logic is correct and ready |
-| `test_negative_cases.py` | `NEG-01` through `NEG-09` |
-| `test_base_adapter.py` | Session 2 constrains 25,000 to 10,000 against a real recorded outcome (A4/A5); mocked revert, timeout, and duplicate submission produce no false success; one opt-in live test gated by `FINNE_LIVE_BASE_TEST=1` |
+| `test_negative_cases.py` | `NEG-01` through `NEG-07` and `NEG-09` — **CORRECTED 2026-09-05**: `NEG-08` (duplicate execution) requires the Base adapter and the deployed contract, so it is owned by `test_base_adapter.py` at both the application and contract level, not here |
+| `test_base_adapter.py` | Session 2 constrains 25,000 to 10,000 against a real recorded outcome (A4/A5); mocked revert, timeout, and duplicate submission produce no false success; opt-in live tests gated by `FINNE_LIVE_BASE_TEST=1` |
+| `test_explain.py` | **ADDED 2026-09-05 (seam (e))**, **REWRITTEN 2026-09-05** (round 4): `explain()` is exactly `deterministic_explanation()`; the module imports nothing outside `__future__` and `finne`; no model client is constructed even with an API key present; the deterministic explanation's content, every result kind, and the excluded-candidate labelling are asserted directly. The sentence-selection tests were deleted with the mechanism they constrained — see section 13 |
 
 - **Decision:** `test_fresh_session.py` uses subprocesses rather than function calls. Anything less does not prove cross-session behaviour, and this is the project's central claim.
 - **Decision:** The memory-deleted control is an automated test, not only a demo step. The organiser's gate test runs in CI.
@@ -259,6 +263,7 @@ tests/
   test_memory_roundtrip.py
   test_fresh_session.py
   test_negative_cases.py
+  test_explain.py
   test_base_adapter.py
   test_import_boundaries.py
 config/
@@ -278,14 +283,14 @@ Every failure resolves to a narrower authority. None widens.
 
 | Failure | Behaviour |
 | --- | --- |
-| Sibyl Memory unavailable, uninitialised, or unauthenticated | `escalate`; stated on screen as a memory failure, never as an allow |
+| Sibyl Memory unavailable, uninitialised, or unauthenticated | `escalate`; stated on screen as a memory failure, never as an allow. Classified by `finne.memory.client.is_memory_unavailable()`, which walks the `__cause__` chain — **CORRECTED 2026-09-05** (round 4): a flat tuple of exception types cannot do this, because the memory client wraps a caller defect (SQL misuse) in its own `StorageError` while a corrupt database file surfaces as a raw `sqlite3.DatabaseError`. A defect anywhere in the chain re-raises and stays visible; the traceback goes to stderr either way |
 | Empty memory / cold start | `learned_max_amount = cold_start_autonomous_amount` = 0 → `escalate` |
 | Record fails schema validation on read | Treated as **absent**, not as permission; logged as an integrity event |
-| Contradictory authority events | Most restrictive interpretation wins; the conflict is surfaced |
+| Contradictory authority events | Most restrictive interpretation wins: the ENTIRE chain is discarded (not the valid prefix), authority state is absent, and the conflict is surfaced as a logged integrity warning. An entry that claims to be an authority event for that decision and fails validation — including an illegal transition — counts as a contradiction, not as an irrelevant record |
 | Only non-`active` precedents match | Displayed, excluded from derivation, result `escalate` |
 | Material difference on every candidate | Cannot follow; result `escalate` with the difference named |
 | Requested amount above owner ceiling | `block`, regardless of precedent |
-| Model unavailable or malformed | Deterministic template; identical authorization result |
+| Model unavailable | Not a failure mode any more: no module calls a model at runtime (section 13). The explanation is deterministic in every case |
 | Base revert, or gas failure/rejection before broadcast | Outcome recorded as `failure`; no transaction reference fabricated; no success path |
 | Base broadcast accepted but receipt wait times out or errors (`NEG-09`) | No outcome recorded — the transaction may still be mined and succeed, and `Outcome` is write-once; resolved later via `reconcile_pending()` against the original transaction's own receipt |
 | Duplicate execution | Application idempotency key, the deployed contract's own `require`, and its `authorizedSigner` restriction (no third party can ever record a competing entry) all reject it |

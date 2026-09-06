@@ -64,10 +64,22 @@ finne.memory.schema, and the write lock below.
 from __future__ import annotations
 
 import json
+import logging
+import sqlite3
 import threading
 from pathlib import Path
 
-from sibyl_memory_client import MemoryClient, NotFoundError
+from sibyl_memory_client import (
+    ConflictError,
+    MemoryClient,
+    NotFoundError,
+    SchemaError,
+    StorageError,
+    TenantError,
+    TierGateError,
+    TierVerificationError,
+)
+from sibyl_memory_client import ValidationError as SibylValidationError
 
 from finne.memory.schema import (
     AUTHORITY_EVENT_KIND,
@@ -78,6 +90,8 @@ from finne.memory.schema import (
     OwnerPolicySnapshot,
 )
 from finne.models import AuthorityState, ValidationError
+
+_LOGGER = logging.getLogger(__name__)
 
 CASE_VERSION_CATEGORY = "finne_case_version"
 OUTCOME_CATEGORY = "finne_outcome"
@@ -108,6 +122,114 @@ class MemoryTruncationError(Exception):
     this and fails safe to None — an authority state that cannot be
     fully verified is treated the same as one that does not exist,
     never as permission."""
+
+
+class AuthorityChainCorruptionError(Exception):
+    """Raised internally when a journal entry IS an authority event for
+    the decision under inspection but cannot be deserialized into a
+    valid one — a wrong schema version, an unparseable status, or a
+    transition AuthorityEventRecord itself rejects as illegal.
+
+    Distinct from an entry that is simply not an authority event, or is
+    an event for some other decision: those are irrelevant and skipped.
+    This one is relevant AND invalid, which is evidence the recorded
+    history of THIS decision cannot be trusted.
+
+    Added 2026-09-05 after independent review found the fold's
+    illegal-transition check was unreachable: every illegal event was
+    being silently discarded one layer below it, by the same
+    except-and-continue that discards irrelevant entries, so a valid
+    draft -> active chain followed by an illegal active -> draft event
+    folded to `active` with no warning at all.
+    """
+
+
+# Deliberately NOT a flat tuple of exception types.
+#
+# Independent review broke the tuple version twice, in both directions
+# at once. The installed client wraps a re-raised sqlite3.ProgrammingError
+# — SQL and parameter-binding misuse, a caller defect — in its own
+# StorageError, so catching StorageError reported that defect as an
+# outage; while opening a structurally corrupt file raises a raw
+# sqlite3.DatabaseError, which no admissible tuple could include without
+# also admitting ProgrammingError, its subclass. A type test on the
+# outermost exception cannot separate those cases, because the
+# distinction lives in the __cause__ chain.
+#
+# So: walk the chain. A defect ANYWHERE in it means the whole thing is a
+# defect, however it was wrapped on the way out.
+
+_CALLER_DEFECTS: tuple[type[BaseException], ...] = (
+    sqlite3.ProgrammingError,  # SQL / parameter-binding misuse
+    sqlite3.IntegrityError,  # a write-once violation: invariant 8 working
+    SibylValidationError,  # a malformed payload WE constructed
+    ConflictError,  # same as IntegrityError, one layer up
+    TypeError,
+    AttributeError,
+    NameError,
+)
+
+_UNAVAILABLE: tuple[type[BaseException], ...] = (
+    StorageError,
+    TenantError,
+    TierGateError,
+    TierVerificationError,
+    SchemaError,  # schema install/migration failed: the store is unusable
+    MemoryTruncationError,
+    AuthorityChainCorruptionError,
+    OSError,
+    sqlite3.OperationalError,
+    sqlite3.DatabaseError,  # includes "file is not a database" on a corrupt file
+)
+
+
+def _exception_chain(exc: BaseException) -> list[BaseException]:
+    """Every exception reachable from `exc`, following BOTH `__cause__`
+    and `__context__`.
+
+    Not `__cause__ or __context__`: an exception can carry both at once
+    — an explicit `raise X from cause` written inside an `except` block
+    also records the handled exception as `__context__` — and following
+    only the cause silently skips the other branch. Independent review
+    reproduced exactly that: a StorageError with an OSError cause and a
+    hidden TypeError context classified as an outage, though the
+    documented rule is "a defect anywhere in the chain".
+
+    A graph walk with an identity guard, so cycles and self-references
+    terminate.
+    """
+    chain: list[BaseException] = []
+    seen: set[int] = set()
+    frontier: list[BaseException] = [exc]
+    while frontier:
+        current = frontier.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        chain.append(current)
+        frontier.extend(link for link in (current.__cause__, current.__context__) if link is not None)
+    return chain
+
+
+def is_memory_unavailable(exc: BaseException) -> bool:
+    """True when `exc` means the STORE could not be read — unavailable,
+    uninitialised, or unauthenticated (NEG-01, PREREQ-003 section 19).
+    False when it means this code got something wrong, which must stay
+    visible rather than be displayed as an outage.
+
+    Cause-aware by necessity: a caller defect anywhere in the chain
+    disqualifies the whole exception, no matter what type it was wrapped
+    in before it reached the caller. "Anywhere" means both the
+    `__cause__` and `__context__` branches — see `_exception_chain`.
+
+    Deliberately asymmetric: when a chain contains both a defect and an
+    outage, the defect wins and the exception propagates. Displaying a
+    clean escalation over a real bug is the worse error of the two.
+    """
+    chain = _exception_chain(exc)
+    if any(isinstance(link, _CALLER_DEFECTS) for link in chain):
+        return False
+    return any(isinstance(link, _UNAVAILABLE) for link in chain)
 
 
 def _owner_policy_snapshot_key(decision_version_id: str) -> str:
@@ -239,11 +361,26 @@ class MemoryStore:
         both the transition matrix (PREREQ-002) and cross-event chain
         consistency. Returns None if no event exists yet, if the journal
         search result may be truncated (fails safe rather than trusting
-        an incomplete history), or if the very first event in the
-        sequence is already invalid — never a default/assumed status."""
+        an incomplete history), or if ANY event in the sequence
+        contradicts the chain — never a default/assumed status.
+
+        A contradiction discards the whole chain, not just the events
+        after it. PREREQ-003 section 19 requires the most restrictive
+        interpretation of contradictory authority events to win, and
+        NEG-06 requires a contradictory record to be treated as absent
+        rather than as permission. Keeping the valid prefix satisfied
+        neither: a chain that reached `active` before the contradiction
+        would keep authorizing, on evidence already known to be
+        inconsistent. Returning None narrows to zero authority instead,
+        and the conflict is surfaced as a logged integrity warning
+        rather than passing silently.
+        """
         try:
             events = self._authority_events_for(decision_version_id)
         except MemoryTruncationError:
+            return None
+        except AuthorityChainCorruptionError as exc:
+            self._log_chain_conflict(decision_version_id, str(exc))
             return None
         if not events:
             return None
@@ -254,18 +391,39 @@ class MemoryStore:
             # Cross-event consistency: this event's own claimed
             # previous_status must match what the sequence has actually
             # accumulated so far. A mismatch means a fork, gap, or
-            # inconsistency in the recorded history — trust only the
-            # valid prefix before it, not this event or anything after.
+            # inconsistency in the recorded history.
             if event.previous_status != current_state:
-                break
+                self._log_chain_conflict(
+                    decision_version_id,
+                    f"event claims previous_status={event.previous_status} but the chain "
+                    f"had accumulated {current_state}",
+                )
+                return None
             # Defense in depth: AuthorityEventRecord.__post_init__
             # already makes an illegal (previous, new) pair
             # unconstructable, but a future schema change or direct
             # storage tampering must not silently bypass this too.
             if (current_state, event.new_status) not in LEGAL_TRANSITIONS:
-                break
+                self._log_chain_conflict(
+                    decision_version_id,
+                    f"illegal transition {current_state} -> {event.new_status}",
+                )
+                return None
             current_state = event.new_status
         return current_state
+
+    @staticmethod
+    def _log_chain_conflict(decision_version_id: str, detail: str) -> None:
+        """Surfaces the conflict PREREQ-003 section 19 requires to be
+        surfaced. Logged rather than raised: one corrupt chain must
+        narrow that case to nothing, not abort retrieval of every other
+        case alongside it."""
+        _LOGGER.warning(
+            "authority chain integrity failure for %s: %s — treating authority "
+            "state as absent (no authority derives from a contradictory chain)",
+            decision_version_id,
+            detail,
+        )
 
     def _authority_events_for(
         self, decision_version_id: str
@@ -300,10 +458,21 @@ class MemoryStore:
             ts = item.get("ts", "")
             try:
                 events.append((ts, AuthorityEventRecord.from_extra(extra, ts)))
-            except (ValidationError, KeyError, ValueError, TypeError):
-                # A malformed event is treated as absent, not permission —
-                # it is simply excluded from the fold.
-                continue
+            except (ValidationError, KeyError, ValueError, TypeError) as exc:
+                # This entry claims to be an authority event for THIS
+                # decision and is not a valid one. It is not "absent":
+                # its presence is itself evidence that this decision's
+                # recorded history is untrustworthy, so the whole chain
+                # fails closed rather than folding the events around it.
+                # (Entries that are not authority events, or belong to
+                # another decision, were already skipped above and are
+                # genuinely irrelevant.)
+                raise AuthorityChainCorruptionError(
+                    f"journal entry for {decision_version_id!r} claims to be an "
+                    f"authority event but is not a valid one ({type(exc).__name__}: "
+                    f"{exc}) — the recorded history of this decision cannot be "
+                    f"trusted, so no authority is derived from it"
+                ) from exc
         return events
 
     # --- R1: candidate precedent generation -----------------------------

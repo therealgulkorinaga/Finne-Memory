@@ -78,7 +78,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 def run_script(script: str, db_path: Path, *extra_args: str) -> subprocess.CompletedProcess:
-    env = {**os.environ, "FINNE_BASE_DRY_RUN": "1"}
+    # FINNE_PLAIN_OUTPUT keeps finne/cli.py from drawing rich panels, so
+    # these assertions check the same strings a viewer sees rather than
+    # box-drawing characters and wrapped lines.
+    env = {**os.environ, "FINNE_BASE_DRY_RUN": "1", "FINNE_PLAIN_OUTPUT": "1"}
     return subprocess.run(
         [sys.executable, str(REPO_ROOT / "scripts" / script), "--db-path", str(db_path), *extra_args],
         cwd=REPO_ROOT,
@@ -135,7 +138,7 @@ def test_session1_escalates_and_persists_authorization_without_a_premature_outco
     reset(db_path)
     result = run_script("session1.py", db_path)
     assert result.returncode == 0, result.stderr
-    assert "escalate" in result.stdout
+    assert "RESULT: ESCALATE" in result.stdout
     assert "Owner approves constrained authority: 10000.00" in result.stdout
     assert "No outcome recorded" in result.stdout
     assert "Process exiting completely" in result.stdout
@@ -167,7 +170,7 @@ def test_session2_honestly_escalates_when_precedent_has_no_recorded_outcome(db_p
     second = run_script("session2.py", db_path)
     assert second.returncode == 0, second.stderr
     assert "DV-001-V1" not in second.stdout
-    assert "escalate" in second.stdout
+    assert "RESULT: ESCALATE" in second.stdout
     assert "Nothing authorized" in second.stdout
 
     store = MemoryStore.local(db_path, tenant_id=DEMO_TENANT_ID)
@@ -255,7 +258,7 @@ def test_session2_constrains_and_cites_precedent_once_precedent_has_a_recorded_o
     second = run_script("session2.py", db_path)
     assert second.returncode == 0, second.stderr
     assert "25000.00 proposed -> 10000.00 authorized" in second.stdout
-    assert "constrain" in second.stdout
+    assert "RESULT: CONSTRAIN" in second.stdout
     assert "citing DV-001-V1" in second.stdout
 
     case = store.read_case_version("DV-002-V1")
@@ -279,7 +282,7 @@ def test_no_memory_control_escalates_and_cannot_execute(db_path):
     second = run_script("session2.py", db_path, "--no-memory")
     assert second.returncode == 0, second.stderr
     assert "Retrieved 0 candidate(s)" in second.stdout
-    assert "escalate" in second.stdout
+    assert "RESULT: ESCALATE" in second.stdout
     assert "Nothing authorized" in second.stdout
     assert "DV-001-V1" not in second.stdout
 

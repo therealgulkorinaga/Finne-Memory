@@ -21,7 +21,7 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 | Finné Memory | Retrieves precedent, derives learned constraint, emits the binding `AuthorizationDecision` |
 | Sibyl Memory | Persists and recalls the case corpus across processes |
 | Base | Records the authorization onchain and returns outcome evidence |
-| Model | Optional prose explanation only; absent by default |
+| Model | **NONE — REMOVED 2026-09-05** (independent review, seam (e) round 4). No model participates at runtime; the explanation is deterministic in every case. `finne/explain.py` retains the exclusive PERMISSION to call one (`PREREQ-003` section 17) and does not exercise it. Reinstating one requires an approved specification change, not only a code change |
 
 ## 3. Inputs And Outputs
 
@@ -87,12 +87,12 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 - Only the owner confirmation path may promote a case to `active`.
 - Only `finne/base/adapter.py` holds key material or reaches the network.
 - Only `finne/explain.py` may call a model, and it has no import path to `finne/base/`.
-- Model output is untrusted until schema-validated, and can never affect an authorization result.
+- Model output can never affect an authorization result. **SUPERSEDED 2026-09-05**: this originally read "untrusted until schema-validated", which describes a validation step that no longer exists because there is no model output to validate. Three successive attempts at validating model-influenced text were each broken by independent review; the mechanism was removed rather than repaired a fourth time.
 - Records are validated on read; a malformed record is absent, not permission.
 
 ## 7. Interfaces Consumed And Exposed
 
-**Consumed:** `sibyl_memory_client.MemoryClient` (entities, journal, reference, state, `search_entities`); `web3.py`; `AuthorizationReceipt` ABI; optional `anthropic`.
+**Consumed:** `sibyl_memory_client.MemoryClient` (entities, journal, reference, state, `search_entities`); `web3.py`; `AuthorizationReceipt` ABI. (**Optional `anthropic` REMOVED 2026-09-05**, along with the `explain` extra in `pyproject.toml`.)
 
 **Exposed:**
 
@@ -170,9 +170,10 @@ The model may not expand authority, authorize an action, change an authority sta
 | `test_comparability.py` | A8 |
 | `test_memory_roundtrip.py` | A2, invariant 8 |
 | `test_fresh_session.py` | A1, A3, A6, A14, invariant 6, and the retrieval/derivation logic underlying A4/A5 (see corrections below) — A14 is proven by the test's own setup phase, which invokes `reset_demo.py` and asserts the pre-seeded (`CASE-003`..`008`) and not-seeded (`CASE-001`) state before each session run, then re-runs the full flow from that known state. **CORRECTED 2026-09-05**: previously claimed "relationship-persistence logic" coverage, which no test provides and no code implements — `PrecedentRelationship` persistence was deferred during seam (c) (see `ACTIVE_DEMO_DESIGN.md` section 6). |
-| `test_negative_cases.py` | A9, A10, A12, A13, invariant 7 |
+| `test_negative_cases.py` | A9, A10, A12, invariant 7 — **CORRECTED 2026-09-05**: A13 (duplicate execution rejected at both levels) needs the deployed contract and is owned by `test_base_adapter.py`, which already lists it |
 | `test_base_adapter.py` | A4, A5, A11, A12, A13, invariant 10 |
 | `test_import_boundaries.py` | Module constraints, invariant 9 |
+| `test_explain.py` | **ADDED 2026-09-05 (seam (e))**: A10/NEG-05 at the explanation layer. **UPDATED 2026-09-05** (independent review round 4 recommendation accepted): `explain()` is exactly `deterministic_explanation()`, the module imports no SDK and reads no environment, and no model client is constructed even with an API key present — the property is now structural rather than behavioural. See `PREREQ-003` section 13 for the four failed attempts at validating model-influenced text that preceded the removal |
 
 - CORRECTED 2026-09-04 (fact-correction, not a new architecture decision — the underlying design was already right; only this table's original assignment was wrong): A4/A5 were originally assigned to `test_fresh_session.py` alone. `PREREQ-003` section 3's own W4 row already required this — it was this table's original assignment that was inconsistent with it, caught by the first independent Codex review of seam (c). `finne.base.adapter`'s stub reports `attempted=False`, so `session1.py` cannot honestly write DV-001-V1's outcome yet — and without a recorded `SUCCESS` outcome, `finne.authority.derivation` correctly excludes it from eligibility (per invariant 4). This means `session1.py` -> `session2.py` alone, with no seam (d), cannot yet produce the A4/A5 observable (`constrain` citing `DV-001-V1`) — it honestly escalates twice, which is NEG-07 working correctly, not a defect. `test_fresh_session.py` now proves the retrieval/derivation/relationship-persistence logic underlying A4/A5 directly, by seeding a precedent's outcome the same way `reset_demo.py` already seeds `CASE-003`..`008`'s outcomes (a synthetic-but-honest stand-in for a real seam (d) result). Full end-to-end proof of A4/A5 — a live `session1.py` run producing a real, retrievable `SUCCESS` outcome with no seeding — requires seam (d) and is now `test_base_adapter.py`'s to close, alongside A11/A12.
 - CORRECTED 2026-09-05 (independent review, seam (d) round 3): the assignment above was itself unearned when written — `test_base_adapter.py` at that point had two live tests, both exercising `record_authorization`/`get_receipt` directly, neither running `session1.py`/`session2.py` at all. `test_live_session1_then_session2_constrains_citing_precedent` (new) closes this: an opt-in live test (`FINNE_LIVE_BASE_TEST=1`) that redeploys a fresh contract and runs `reset_demo.py` → `session1.py` → `session2.py` as real subprocesses with no seeding and no dry-run flag, asserting the live `constrain` result citing `DV-001-V1` with a real Base transaction. Run and passing as of this correction.
