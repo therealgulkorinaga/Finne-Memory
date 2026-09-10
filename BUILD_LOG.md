@@ -701,3 +701,14 @@ This chronological log records bounded planning and implementation work, validat
 - Manual product verification: partial. The default path was re-run end to end; the model path has not been run at all.
 - Git operation status: Not committed. Working tree also carries the uncommitted `web/` viewer (`DECISION-026`).
 - Rollback point: `origin/master` at commit `687b3fa`. Rollback is `rm finne/agent.py` plus the flag; the default path is untouched.
+
+## 2026-09-10: Model-Proposing Agent — Live Path Verified
+
+- The previous entry recorded that the live model path had never been exercised. It has now been run against OpenRouter with a real key.
+- First live call: the agent proposed **20,000.00** with `counterparty_risk_tier=low`, in 7.4s. It was given 25,000.00 of available capital and chose to commit 20,000 — a genuine autonomous decision to hold a reserve, not a hardcoded figure.
+- Variance across five consecutive calls: **identical every time** — 20,000.00, low risk, 5.2s to 7.8s. Stable enough to record against.
+- End to end with `--agent=model`: Session 1 escalated at cold start (`20000.00 proposed -> 0 authorized`, no precedent), the owner approved 10,000.00, and `DV-001-V1` was persisted `draft -> active`. A fresh Session 2 process then retrieved seven candidates, excluded six — `DV-003` withdrawn, `DV-006` superseded, `DV-007` questioned with a failed outcome, `DV-008` draft, `DV-004` and `DV-005` not comparable — and constrained to **10,000.00 citing DV-001-V1**, bound by `learned_constraint`.
+- The headline therefore changes from `25,000 -> 10,000` to **`20,000 -> 10,000`**. Arguably stronger: the agent had already exercised restraint of its own, and Finné still held it to half of what it asked for.
+- One defect found and fixed by running it: the first key supplied was truncated by one character (63 hex after `sk-or-v1-`, not 64), which OpenRouter answers with `HTTP 401 "User not found."`. `finne/agent.py` classified it correctly as `AgentUnavailableError` rather than crashing, and the `.env` reader was confirmed sound — no stray whitespace, no quotes. Worth recording because "user not found" is a misleading message for a malformed key.
+- Manual product verification: performed. The live agent path now works end to end.
+- Git operation status: committed on `feat/model-proposing-agent`.
