@@ -41,11 +41,11 @@ from finne.base.adapter import record_authorization
 from finne.explain import explain
 from finne.demo_config import (
     DEMO_ACTION_CLASS,
-    DEMO_AVAILABLE_CAPITAL,
+    DEMO_ASSESSED_VALUE,
     DEMO_ASSET,
     DEMO_FUNCTION,
     DEMO_NETWORK,
-    DEMO_OPPORTUNITY,
+    DEMO_CASE_SUMMARY,
     DEMO_TARGET_CLASS,
     DEMO_TENANT_ID,
 )
@@ -75,15 +75,15 @@ def build_proposal(amount: Decimal) -> Proposal:
         proposed_at="2026-09-02T00:00:00Z",
     )
 
-def obtain_proposal(agent_mode: str, available_capital: Decimal) -> Proposal:
+def obtain_proposal(agent_mode: str, assessed_value: Decimal) -> Proposal:
     """Where the proposal comes from.
 
     `fixed` is the default and is byte-identical to the behaviour before
     SPEC-002: a deterministic proposal, no key, no network. The suite and
     the organiser's deletion gate both run this path.
 
-    `model` calls the proposing agent. Note what is passed: the capital
-    the agent has available, never `owner_policy.max_amount`. The agent
+    `model` calls the assessing agent. Note what is passed: the loss
+    adjuster's assessed value, never `owner_policy.max_amount`. The agent
     cannot see the ceiling and cannot reach the policy module — that is
     SPEC-002 invariant 11, enforced structurally by
     tests/test_import_boundaries.py, and it is what makes the
@@ -91,13 +91,13 @@ def obtain_proposal(agent_mode: str, available_capital: Decimal) -> Proposal:
     the agent's restraint.
     """
     if agent_mode == "fixed":
-        return build_proposal(available_capital)
+        return build_proposal(assessed_value)
     from finne.agent import Opportunity, propose
 
     return propose(
         Opportunity(
-            description=DEMO_OPPORTUNITY,
-            available_capital=available_capital,
+            summary=DEMO_CASE_SUMMARY,
+            assessed_value=assessed_value,
             network=DEMO_NETWORK,
             asset=DEMO_ASSET,
             action_class=DEMO_ACTION_CLASS,
@@ -117,7 +117,7 @@ def run(db_path: Path, *, no_memory: bool, agent_mode: str = "fixed") -> int:
     hard_policy = default_hard_policy()
 
     try:
-        proposal = obtain_proposal(agent_mode, DEMO_AVAILABLE_CAPITAL)
+        proposal = obtain_proposal(agent_mode, DEMO_ASSESSED_VALUE)
     except Exception as exc:  # noqa: BLE001 — shown, never swallowed
         # SPEC-002 section 8: an agent failure is a visible failure.
         # There is deliberately no fallback to a fixed proposal — that

@@ -24,7 +24,7 @@ import pytest
 from finne.agent import (
     AgentResponseError,
     AgentUnavailableError,
-    Opportunity,
+    CaseUnderAssessment,
     propose,
 )
 from finne.authority.engine import derive_effective_authority
@@ -40,36 +40,36 @@ from finne.models import (
     RiskTier,
 )
 
-OPPORTUNITY = Opportunity(
-    description="A conservative single-asset USDC yield vault on Base.",
-    available_capital=Decimal("25000.00"),
-    network="base",
-    asset="USDC",
-    action_class="capital_deployment",
-    target_class="yield_vault_conservative",
-    function="deposit",
+CASE = CaseUnderAssessment(
+    summary="Residential buildings claim, in-panel. Burst pipe under the kitchen floor overnight; plumber reports an abrupt rupture and no pre-existing corrosion.",
+    assessed_value=Decimal("25000.00"),
+    network="uk_retail_direct",
+    asset="GBP",
+    action_class="claim_assessment",
+    target_class="escape_of_water_sudden",
+    function="approve_settlement",
 )
 
 VALID_PAYLOAD = {
-    "network": "base",
-    "asset": "USDC",
-    "action_class": "capital_deployment",
-    "target_class": "yield_vault_conservative",
-    "function": "deposit",
+    "network": "uk_retail_direct",
+    "asset": "GBP",
+    "action_class": "claim_assessment",
+    "target_class": "escape_of_water_sudden",
+    "function": "approve_settlement",
     "counterparty_risk_tier": "low",
     "amount": "25000.00",
-    "reasoning": "Conservative audited vault, deploy the full idle balance.",
+    "reasoning": "Sudden accidental escape of water, causation evidenced, settle the assessed value.",
 }
 
 
 def _owner_policy() -> OwnerPolicy:
     return OwnerPolicy(
         max_amount=Decimal("25000.00"),
-        network="base",
-        asset="USDC",
-        action_class="capital_deployment",
-        approved_target_classes=("demo_receipt", "yield_vault_conservative"),
-        approved_functions=("recordAuthorization", "deposit"),
+        network="uk_retail_direct",
+        asset="GBP",
+        action_class="claim_assessment",
+        approved_target_classes=("escape_of_water_sudden", "storm_damage"),
+        approved_functions=("approve_settlement", "decline"),
         unknown_situation_behaviour="escalate_to_owner",
         cold_start_autonomous_amount=Decimal("0.00"),
     )
@@ -110,24 +110,25 @@ def _key(monkeypatch):
 
 def test_a15_valid_response_becomes_a_proposal():
     with _fake_post(_envelope(VALID_PAYLOAD)):
-        proposal = propose(OPPORTUNITY)
+        proposal = propose(CASE)
     assert isinstance(proposal, Proposal)
     assert proposal.amount == Decimal("25000.00")
-    assert proposal.target_class == "yield_vault_conservative"
+    assert proposal.target_class == "escape_of_water_sudden"
     assert proposal.counterparty_risk_tier is RiskTier.LOW
 
 
-def test_the_agent_decides_the_amount_not_the_caller():
-    """The point of the whole change: the number comes from the model."""
+def test_the_agent_decides_the_settlement_not_the_caller():
+    """The point of the whole change: the settlement figure comes from
+    the model, not from a constant the script chose."""
     payload = dict(VALID_PAYLOAD, amount="18500.00")
     with _fake_post(_envelope(payload)):
-        assert propose(OPPORTUNITY).amount == Decimal("18500.00")
+        assert propose(CASE).amount == Decimal("18500.00")
 
 
 def test_the_agent_decides_the_risk_tier():
     payload = dict(VALID_PAYLOAD, counterparty_risk_tier="medium")
     with _fake_post(_envelope(payload)):
-        assert propose(OPPORTUNITY).counterparty_risk_tier is RiskTier.MEDIUM
+        assert propose(CASE).counterparty_risk_tier is RiskTier.MEDIUM
 
 
 # --- the request we actually send ---------------------------------------
@@ -139,7 +140,7 @@ def test_request_pins_the_schema_and_forces_a_conforming_provider():
     "treat it as a strong hint" — without this the demo can be routed to
     a provider that returns prose."""
     with _fake_post(_envelope(VALID_PAYLOAD)) as post:
-        propose(OPPORTUNITY)
+        propose(CASE)
     body = post.call_args.kwargs["json"]
     assert body["provider"]["require_parameters"] is True
     assert body["response_format"]["json_schema"]["strict"] is True
@@ -148,12 +149,12 @@ def test_request_pins_the_schema_and_forces_a_conforming_provider():
 
 def test_schema_pins_the_facts_and_leaves_the_decision_open():
     with _fake_post(_envelope(VALID_PAYLOAD)) as post:
-        propose(OPPORTUNITY)
+        propose(CASE)
     schema = post.call_args.kwargs["json"]["response_format"]["json_schema"]["schema"]
     props = schema["properties"]
     # identity of the opportunity: pinned
-    assert props["network"]["enum"] == ["base"]
-    assert props["target_class"]["enum"] == ["yield_vault_conservative"]
+    assert props["network"]["enum"] == ["uk_retail_direct"]
+    assert props["target_class"]["enum"] == ["escape_of_water_sudden"]
     # the agent's actual decisions: open
     assert "enum" not in props["amount"]
     assert set(props["counterparty_risk_tier"]["enum"]) == {"low", "medium", "high"}
@@ -164,7 +165,7 @@ def test_amount_is_requested_as_a_string_never_a_json_number():
     """A JSON number is an IEEE float, and float arithmetic is
     prohibited in the authority path. The schema must not invite one."""
     with _fake_post(_envelope(VALID_PAYLOAD)) as post:
-        propose(OPPORTUNITY)
+        propose(CASE)
     schema = post.call_args.kwargs["json"]["response_format"]["json_schema"]["schema"]
     assert schema["properties"]["amount"]["type"] == "string"
 
@@ -173,7 +174,7 @@ def test_the_prompt_never_mentions_a_ceiling_or_a_precedent():
     """Invariant 11 at the wire level: whatever the agent is told, it is
     not told what it is permitted to do."""
     with _fake_post(_envelope(VALID_PAYLOAD)) as post:
-        propose(OPPORTUNITY)
+        propose(CASE)
     sent = json.dumps(post.call_args.kwargs["json"]).lower()
     for leak in ("max_amount", "ceiling", "precedent", "learned", "authorized", "10000"):
         assert leak not in sent, f"the agent was told about {leak!r}"
@@ -183,74 +184,74 @@ def test_the_prompt_never_mentions_a_ceiling_or_a_precedent():
 
 
 def test_a16_non_json_content_raises():
-    with _fake_post(_envelope("I'd suggest depositing about twenty-five thousand.")):
+    with _fake_post(_envelope("I'd suggest settling at about twenty-five thousand.")):
         with pytest.raises(AgentResponseError, match="did not return JSON"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_missing_field_raises():
     payload = {k: v for k, v in VALID_PAYLOAD.items() if k != "amount"}
     with _fake_post(_envelope(payload)):
         with pytest.raises(AgentResponseError, match="missing"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_numeric_amount_is_refused_not_coerced():
     payload = dict(VALID_PAYLOAD, amount=25000.00)
     with _fake_post(_envelope(payload)):
         with pytest.raises(AgentResponseError, match="decimal string"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_unparseable_amount_raises():
     payload = dict(VALID_PAYLOAD, amount="twenty-five thousand")
     with _fake_post(_envelope(payload)):
         with pytest.raises(AgentResponseError, match="not a valid proposal"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_unknown_risk_tier_raises():
     payload = dict(VALID_PAYLOAD, counterparty_risk_tier="negligible")
     with _fake_post(_envelope(payload)):
         with pytest.raises(AgentResponseError, match="not a valid proposal"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_negative_amount_is_refused_by_the_type_layer():
     payload = dict(VALID_PAYLOAD, amount="-5000.00")
     with _fake_post(_envelope(payload)):
         with pytest.raises(AgentResponseError, match="not a valid proposal"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_empty_message_raises():
     with _fake_post(_envelope("")):
         with pytest.raises(AgentResponseError, match="empty message"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_json_array_instead_of_object_raises():
     with _fake_post(_envelope(json.dumps([VALID_PAYLOAD]))):
         with pytest.raises(AgentResponseError, match="expected a JSON object"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_a16_malformed_envelope_raises():
     with _fake_post({"not": "an envelope"}):
         with pytest.raises(AgentResponseError, match="envelope"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_provider_error_is_unavailable_not_a_bad_response():
     with _fake_post({"error": {"message": "no credits"}}):
         with pytest.raises(AgentUnavailableError, match="reported an error"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_http_error_is_unavailable():
     with _fake_post({}, status_code=502, text="bad gateway"):
         with pytest.raises(AgentUnavailableError, match="HTTP 502"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_network_failure_is_unavailable():
@@ -258,14 +259,14 @@ def test_network_failure_is_unavailable():
 
     with mock.patch("finne.agent.requests.post", side_effect=requests.ConnectionError("dns")):
         with pytest.raises(AgentUnavailableError, match="could not reach"):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_missing_key_names_the_variable_and_says_the_default_path_is_fine(monkeypatch):
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.setattr("finne.agent._ENV_FILE", __import__("pathlib").Path("/nonexistent"))
     with pytest.raises(RuntimeError, match="OPENROUTER_API_KEY"):
-        propose(OPPORTUNITY)
+        propose(CASE)
 
 
 def test_no_failure_path_ever_returns_a_fallback_proposal():
@@ -284,10 +285,10 @@ def test_no_failure_path_ever_returns_a_fallback_proposal():
     for payload in broken:
         with _fake_post(payload):
             with pytest.raises((AgentResponseError, AgentUnavailableError)):
-                propose(OPPORTUNITY)
+                propose(CASE)
     with mock.patch("finne.agent.requests.post", side_effect=requests.Timeout("slow")):
         with pytest.raises(AgentUnavailableError):
-            propose(OPPORTUNITY)
+            propose(CASE)
 
 
 def test_the_api_key_never_appears_in_an_exception():
@@ -305,7 +306,7 @@ def test_the_api_key_never_appears_in_an_exception():
     for ctx in cases:
         with ctx:
             with pytest.raises((AgentResponseError, AgentUnavailableError)) as caught:
-                propose(OPPORTUNITY)
+                propose(CASE)
         assert key not in str(caught.value)
 
 
@@ -315,7 +316,7 @@ def test_the_api_key_never_appears_in_an_exception():
 def test_inv12_authorization_is_identical_whichever_path_produced_the_proposal():
     """The model changes what is asked for, never what is granted."""
     with _fake_post(_envelope(VALID_PAYLOAD)):
-        from_model = propose(OPPORTUNITY)
+        from_model = propose(CASE)
     from_fixed = replace(from_model, proposed_at="2026-09-01T00:00:00Z")
 
     policy, hard = _owner_policy(), HardPolicy()
@@ -342,7 +343,7 @@ def test_a18_a_model_proposal_above_the_ceiling_is_blocked():
     and the engine refuses, which is the product working."""
     payload = dict(VALID_PAYLOAD, amount="40000.00")
     with _fake_post(_envelope(payload)):
-        proposal = propose(OPPORTUNITY)
+        proposal = propose(CASE)
     assert proposal.amount == Decimal("40000.00")
 
     decision = derive_effective_authority(proposal, _owner_policy(), HardPolicy(), ())
@@ -355,7 +356,7 @@ def test_a18_a_model_proposal_above_the_ceiling_is_blocked():
 def test_inv14_no_model_amount_ever_exceeds_the_ceiling(amount):
     payload = dict(VALID_PAYLOAD, amount=amount)
     with _fake_post(_envelope(payload)):
-        proposal = propose(OPPORTUNITY)
+        proposal = propose(CASE)
     policy = _owner_policy()
     decision = derive_effective_authority(proposal, policy, HardPolicy(), ())
     assert decision.authorized_amount <= policy.max_amount
@@ -373,7 +374,7 @@ def test_a_hostile_reasoning_field_is_never_executed_or_trusted():
         ),
     )
     with _fake_post(_envelope(payload)):
-        proposal = propose(OPPORTUNITY)
+        proposal = propose(CASE)
     decision = derive_effective_authority(proposal, _owner_policy(), HardPolicy(), ())
     assert decision.result is AuthorizationResult.BLOCK
     assert decision.authorized_amount == 0

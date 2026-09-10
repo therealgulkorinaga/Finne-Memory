@@ -1,34 +1,56 @@
-# Owner permission ceiling (OP-001) and learned-constraint derivation
-# policy (LCP-001), per docs/product/ACTIVE_DEMO_DESIGN.md sections 1 and 4.
+# Delegated settlement authority (OP-001) and learned-constraint
+# derivation policy (LCP-001), per docs/product/ACTIVE_DEMO_DESIGN.md
+# sections 1 and 4.
+#
+# This is what a claims handler is MECHANICALLY permitted to do: settle
+# up to 25,000 on in-panel residential buildings claims, for the perils
+# and decisions listed. It says nothing about what the institution's own
+# prior decisions show it has actually treated as settleable — that is
+# what Finné Memory derives, and it is always narrower.
 #
 # Finné Memory reads this file. No code path in this repository writes to
-# it — the agent cannot rewrite its own authority policy.
+# it — the handler cannot rewrite their own authority.
 
 [owner_policy]
 policy_id = "OP-001"
+
+# Delegated settlement ceiling. Above this, a human must sign off
+# regardless of precedent.
 max_amount = "25000.00"
-network = "base"
-asset = "USDC"
-action_class = "capital_deployment"
-# Exactly the two classes confirmed in ACTIVE_DEMO_DESIGN.md section 1
-# (OP-001). CASE-005's yield_vault_aggressive target class is a fact of
-# that historical case's record, not something the CURRENT owner policy
-# needs to authorize — finne.authority.comparability.compare() excludes
-# CASE-005 by direct fact matching against the current proposal, and
-# never consults this approved-scope list at all. Widening this list to
-# accommodate a historical fixture was an implementation-time error,
-# caught in Codex review, and reverted.
-approved_target_classes = ["demo_receipt", "yield_vault_conservative"]
-approved_functions = ["recordAuthorization", "deposit"]
+
+# The claims channel this authority applies to. In-panel work only;
+# out-of-panel claims are a different authority and escalate.
+network = "uk_retail_direct"
+
+# Settlement currency. Rendered beside every amount by finne/cli.py.
+asset = "GBP"
+
+action_class = "claim_assessment"
+
+# The perils this handler may settle. `escape_of_water_gradual` is
+# deliberately absent: the policy wording covers sudden and accidental
+# damage and excludes gradual leakage, so a gradual claim is not a
+# narrower version of a sudden one — it is a different question, and
+# CASE-005 in the corpus exists to prove the engine treats it that way.
+approved_target_classes = ["escape_of_water_sudden", "storm_damage"]
+
+# The decisions this handler may issue.
+approved_functions = ["approve_settlement", "decline"]
+
 unknown_situation_behaviour = "escalate_to_owner"
+
+# With no comparable, active, upheld precedent, the handler has earned
+# no autonomous settlement authority at all. This is what forces the
+# safe cold start in Session 1: a first-of-its-kind claim escalates
+# rather than being settled at the full delegated ceiling.
 cold_start_autonomous_amount = "0.00"
 
 [derivation_policy]
 policy_id = "LCP-001"
 description = """
-eligible = cases that are materially comparable
-           AND authority_state == "active"
-           AND outcome == "success"
+eligible = prior decisions that are materially comparable
+           AND authority_state == "active"     (still stands as precedent)
+           AND outcome == "success"            (settled and not reversed)
 
 learned_max_amount = max(authorized_amount of eligible)  if eligible is non-empty
                    = cold_start_autonomous_amount        if eligible is empty

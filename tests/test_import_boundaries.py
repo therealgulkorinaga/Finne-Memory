@@ -205,22 +205,23 @@ def test_agent_cannot_reach_authority_memory_or_policy():
     )
 
 
-def test_opportunity_carries_no_authority_field():
+def test_agent_input_carries_no_authority_field():
     """SPEC-002 invariant 11, at the type level: whatever else changes,
-    the agent's input must not grow a ceiling, a precedent, or an
-    authority value."""
+    the agent's input must not grow a delegated ceiling, a prior
+    decision, or an authority value."""
     import dataclasses
 
-    from finne.agent import Opportunity
+    from finne.agent import CaseUnderAssessment
 
-    fields = {f.name for f in dataclasses.fields(Opportunity)}
+    fields = {f.name for f in dataclasses.fields(CaseUnderAssessment)}
     forbidden = {
         "max_amount", "ceiling", "owner_policy", "policy", "precedent",
         "precedents", "authority", "authorized_amount", "learned_max_amount",
-        "cold_start_autonomous_amount", "candidates",
+        "cold_start_autonomous_amount", "candidates", "delegated_authority",
+        "settlement_ceiling", "prior_decisions",
     }
     leaked = fields & forbidden
-    assert not leaked, f"Opportunity exposes authority information to the agent: {leaked}"
+    assert not leaked, f"the agent's input exposes authority information: {leaked}"
 
 
 def test_explain_has_no_import_path_to_finne_base():
