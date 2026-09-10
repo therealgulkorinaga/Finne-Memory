@@ -336,3 +336,14 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Chose the deliverable and its scope. Ran the first independent Codex review. Authorized the commit and merge on 2026-09-09 with Q1-Q4 open and the round 2 review not run.
 - Product and implementation effect: None. No application code, test code, or dependency was changed at any point; the suite is unchanged at 229 passed, 4 skipped. The effect is on what is known about the product: `SPEC-001` is now known to contain a false invariant, `finne/authority/engine.py` is known to produce a self-contradicting explanation on one reachable path, and the fold is known to be order-dependent on tied timestamps.
 - Git operation status: Committed 2026-09-09. Round 2 independent review outstanding.
+
+## 2026-09-10: README Brought To Submission Readiness
+
+- AI tool: Claude Code (Anthropic), model Opus 5. Independent reviewer: none — the Codex pass for this change is prepared and outstanding.
+- Human director: Arko. Asked for the README to be fixed, then authorized the commit and merge.
+- Prompt record: `prompts/2026-09-10-readme-submission-readiness-codex-review-round-1.md` (prepared, not run).
+- Claude's assistance: Read the event's verified requirement register before writing, and mapped each new README section to the specific `HACKATHON_RULES.md` line requiring it rather than guessing at what a submission needs. Took the memory read/write table's call signatures from `finne/memory/client.py` rather than from the architecture document, on the basis that the code is what a judge can actually check. **Executed the documented run instructions instead of only writing them**, which surfaced two defects a reading pass would not have caught: that dry-run mode correctly escalates rather than producing the headline result, and that the committed contract deployment has both demo decision ids permanently consumed, making a fresh deploy mandatory rather than optional. The second was found by a read-only onchain query and applies to the demo recording as much as to the README. Removed a reference to an untracked local script that would have been a dangling instruction for anyone cloning.
+- Assisted files: `README.md`, `prompts/2026-09-10-readme-submission-readiness-codex-review-round-1.md` (new), `BUILD_LOG.md`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`.
+- Arko's decisions: Directed the change. Authorized commit and merge with the independent review outstanding, on submission-day timing.
+- Product and implementation effect: None on the product. The effect is on reproducibility — a judge following the README can now install, run the test suite including the deletion gate, and reproduce the demonstration, with the two prerequisites that were previously undocumented stated as prerequisites.
+- Git operation status: Committed 2026-09-10. Independent review outstanding.
