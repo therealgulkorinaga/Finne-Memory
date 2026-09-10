@@ -41,9 +41,11 @@ from finne.base.adapter import record_authorization
 from finne.explain import explain
 from finne.demo_config import (
     DEMO_ACTION_CLASS,
+    DEMO_AVAILABLE_CAPITAL,
     DEMO_ASSET,
     DEMO_FUNCTION,
     DEMO_NETWORK,
+    DEMO_OPPORTUNITY,
     DEMO_TARGET_CLASS,
     DEMO_TENANT_ID,
 )
@@ -73,8 +75,39 @@ def build_proposal(amount: Decimal) -> Proposal:
         proposed_at="2026-09-02T00:00:00Z",
     )
 
+def obtain_proposal(agent_mode: str, available_capital: Decimal) -> Proposal:
+    """Where the proposal comes from.
 
-def run(db_path: Path, *, no_memory: bool) -> int:
+    `fixed` is the default and is byte-identical to the behaviour before
+    SPEC-002: a deterministic proposal, no key, no network. The suite and
+    the organiser's deletion gate both run this path.
+
+    `model` calls the proposing agent. Note what is passed: the capital
+    the agent has available, never `owner_policy.max_amount`. The agent
+    cannot see the ceiling and cannot reach the policy module — that is
+    SPEC-002 invariant 11, enforced structurally by
+    tests/test_import_boundaries.py, and it is what makes the
+    demonstration honest. The bound comes from Finné Memory, not from
+    the agent's restraint.
+    """
+    if agent_mode == "fixed":
+        return build_proposal(available_capital)
+    from finne.agent import Opportunity, propose
+
+    return propose(
+        Opportunity(
+            description=DEMO_OPPORTUNITY,
+            available_capital=available_capital,
+            network=DEMO_NETWORK,
+            asset=DEMO_ASSET,
+            action_class=DEMO_ACTION_CLASS,
+            target_class=DEMO_TARGET_CLASS,
+            function=DEMO_FUNCTION,
+        )
+    )
+
+
+def run(db_path: Path, *, no_memory: bool, agent_mode: str = "fixed") -> int:
     # No in-process state is carried over from session1.py — this is a
     # separate OS process. no_memory uses a fresh, never-seeded tenant
     # instead of touching the real demo data, reproducing the
@@ -83,7 +116,17 @@ def run(db_path: Path, *, no_memory: bool) -> int:
     owner_policy = load_owner_policy()
     hard_policy = default_hard_policy()
 
-    proposal = build_proposal(owner_policy.max_amount)
+    try:
+        proposal = obtain_proposal(agent_mode, DEMO_AVAILABLE_CAPITAL)
+    except Exception as exc:  # noqa: BLE001 — shown, never swallowed
+        # SPEC-002 section 8: an agent failure is a visible failure.
+        # There is deliberately no fallback to a fixed proposal — that
+        # would make the demonstration appear to work while proving
+        # nothing about the agent.
+        cli.warn(f"Agent could not produce a proposal: {type(exc).__name__}: {exc}")
+        print(f"[Session 2] agent failure: {exc}", file=sys.stderr)
+        return 1
+
     cli.session_header("Session 2", "memory changes behaviour — a genuinely fresh process")
     cli.proposal_panel(proposal, owner_policy.max_amount)
 
@@ -230,8 +273,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--db-path", default="~/.sibyl-memory/memory.db")
     parser.add_argument("--no-memory", action="store_true")
+    parser.add_argument(
+        "--agent",
+        choices=("fixed", "model"),
+        default="fixed",
+        help="Where the proposal comes from. `fixed` (default) is deterministic and needs "
+             "no key or network. `model` asks the proposing agent (SPEC-002).",
+    )
     args = parser.parse_args()
-    sys.exit(run(Path(args.db_path).expanduser(), no_memory=args.no_memory))
+    sys.exit(run(Path(args.db_path).expanduser(), no_memory=args.no_memory, agent_mode=args.agent))
 
 
 if __name__ == "__main__":

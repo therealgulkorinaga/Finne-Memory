@@ -42,7 +42,8 @@ Finné derives the permitted action → the agent executes it on Base → the tr
 - CONFIRMED: `sibyl-memory-client` is the sole store of remembered agent experiences. No Supabase, PostgreSQL, pgvector, Pinecone, or other database may hold that state, and no second cache of case content exists.
 - CONFIRMED: No LangChain, no microservices, no agent-orchestration framework, no cloud infrastructure, no hosted service.
 - CONFIRMED: The authority engine is pure. No I/O, no clock, no network, and no imports from the memory or Base modules.
-- CONFIRMED: The deterministic path runs with no model API key present, and the test suite and recorded demo both run that way.
+- CONFIRMED: A model may participate in proposal generation only (`finne/agent.py`, `DECISION-027`). It may never authorize, widen, sign, submit, or explain. Model output is untrusted input, validated by `Proposal` before any other module sees it.
+- CONFIRMED: The deterministic path runs with no model API key present, and the test suite and the memory-deletion gate both run that way. The recorded demo may use `--agent=model`, which needs a key; every authorization in it is still derived deterministically.
 - CONFIRMED: Decimal amounts use `decimal.Decimal`. Float arithmetic is prohibited in the authority path.
 
 ## Application Boundaries
@@ -74,7 +75,8 @@ Two encoding decisions make that model work on an overwritable key-value store:
 | --- | --- | --- |
 | Sibyl Memory | Mandatory persistent substrate | Load-bearing reads R1–R4 and writes W1, W3, W4 (`PREREQ-003` section 3). Remove them and the agent cannot derive learned authority. |
 | Base | Execution and evidence layer | `AuthorizationReceipt` contract records the authorized policy amount and a facts hash; the transaction result is the outcome evidence that feeds derivation eligibility. |
-| ~~Anthropic model~~ | **REMOVED 2026-09-05** (independent review, seam (e) round 4) | Not an integration. No model participates at runtime; the explanation is deterministic in every case. See `docs/architecture/PREREQ-003_ARCHITECTURE.md` section 13. |
+| Model, via OpenRouter | **Proposing agent only** (`DECISION-027`, `SPEC-002`, 2026-09-10) | `finne/agent.py` is given an opportunity and its available capital, and produces a `Proposal`. It never sees the owner ceiling, any precedent, or any authority value, and has no import path to `finne/base/`. Opt-in via `--agent=model`; the default path, the test suite, and the deletion gate all run without a key. |
+| ~~Anthropic model in `explain.py`~~ | **REMOVED 2026-09-05** (independent review, seam (e) round 4) | The explanation is deterministic in every case. That removal stands: what was removed was model-written prose ASSERTING things about a decision, which is a different and more dangerous thing than a model stating what it WANTS. See `PREREQ-003` section 13 and `DECISION-027`. |
 
 UNRESOLVED: `ORG-Q1` in `HACKATHON_RULES.md` — Base mainnet versus Base Sepolia. The build targets Sepolia and the network is a single configuration value.
 

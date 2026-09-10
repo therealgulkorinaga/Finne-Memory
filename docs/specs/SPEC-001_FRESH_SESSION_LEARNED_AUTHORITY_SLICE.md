@@ -21,7 +21,7 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 | Finné Memory | Retrieves precedent, derives learned constraint, emits the binding `AuthorizationDecision` |
 | Sibyl Memory | Persists and recalls the case corpus across processes |
 | Base | Records the authorization onchain and returns outcome evidence |
-| Model | **NONE — REMOVED 2026-09-05** (independent review, seam (e) round 4). No model participates at runtime; the explanation is deterministic in every case. `finne/explain.py` retains the exclusive PERMISSION to call one (`PREREQ-003` section 17) and does not exercise it. Reinstating one requires an approved specification change, not only a code change |
+| Model | **PROPOSAL GENERATION ONLY — AMENDED 2026-09-10** (`SPEC-002`, `DECISION-027`). A model produces the `Proposal` via `finne/agent.py` when `--agent=model` is used. It never authorizes, widens, signs, submits, or explains, and cannot reach the owner policy, precedent, or authority state. The explanation remains deterministic — the 2026-09-05 removal from `finne/explain.py` stands. The default `--agent=fixed` path, the test suite, and the deletion gate all run with no model. |
 
 ## 3. Inputs And Outputs
 
@@ -118,6 +118,8 @@ finne.explain.explain(decision) -> str
 
 ## 9. Deterministic Versus Model-Driven Behavior
 
+**AMENDED 2026-09-10 by `SPEC-002` / `DECISION-027`:** a model now participates at runtime in **proposal generation only** (`finne/agent.py`). Everything this section says about the authorization path is unchanged and still holds — comparability, derivation, the intersection engine, persistence, signing, and explanation remain deterministic, and no model output can widen authority. The `--agent=fixed` default keeps this section literally true for the test suite and the deletion gate, which run with no key and no network.
+
 | Owned deterministically | May be model-assisted |
 | --- | --- |
 | Owner ceiling, effective authority, intersection, amount limits | Extracting proposed facts from natural language |
@@ -193,6 +195,8 @@ This restriction governs application code only. It does not, and cannot, overrid
 - **Build order, if Arko prefers smaller commits, split at these seams:** (a) models, policy, and the pure authority engine with its invariant tests; (b) the Sibyl Memory adapter and round-trip tests; (c) retrieval and the two session scripts; (d) the Base contract and adapter; (e) the terminal interface and explanation.
 
 ## 15. Explicit Exclusions
+
+**NARROWED 2026-09-10 by `SPEC-002` / `DECISION-027`:** the exclusion of a model at runtime now applies to the authorization path only. Proposal generation by a model is in scope, specified by `SPEC-002`, and excluded from nothing below.
 
 Web application or hosted service; Virtuals Protocol; real fund transfer; custody or portfolio logic; payments, escrow, x402, settlement, refunds, disputes, or service-delivery verification; multi-domain precedent support; authentication or multi-tenant production concerns; retrieval ranking quality work beyond deterministic candidate generation; any capability not required by the fourteen acceptance criteria.
 

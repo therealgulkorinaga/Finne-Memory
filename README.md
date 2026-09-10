@@ -10,7 +10,7 @@ Jump to: [memory read/write locations](#where-sibyl-memory-is-load-bearing) · [
 
 An agent with a 25,000 USDC ceiling and no memory of its own history will propose 25,000 USDC on its first day and on its hundredth. Mechanical permissions — spending limits, approved assets, approved contracts, permitted time windows — say what an agent is *technically allowed* to do. They say nothing about what it has *earned*: what happened last time, under what circumstances it was approved, what scope was considered safe, whether the outcome held up, and what is materially different now.
 
-Finné Memory sits between the agent and its ceiling. It turns persisted experiences into structured precedents and derives a narrower, explainable authority from them:
+An autonomous agent (`finne/agent.py`, a model) is shown an opportunity and the capital it has available — never its ceiling, never any precedent — and proposes what it wants to do. Finné Memory sits between that agent and its ceiling. It turns persisted experiences into structured precedents and derives a narrower, explainable authority from them:
 
 ```
 eligible = cases that are materially comparable
@@ -89,6 +89,25 @@ Two encoding decisions make the `PREREQ-002` object model work on an overwritabl
 
 Withdrawn and superseded cases stay retrievable and displayable while being ineligible to authorize, so `archive_entity` is deliberately never called.
 
+## The Agent, And What It Is Not Allowed To Do
+
+`finne/agent.py` is the only module that calls a model. It is given an opportunity and its available capital, and it decides two things: how much to commit, and how it rates the counterparty. It returns a `Proposal` and nothing else.
+
+It is never given the owner ceiling, any precedent, or any authority value — and it cannot go looking. The module has no import path to `finne/authority/`, `finne/memory/`, `finne/policy.py`, or `finne/base/`, enforced over the transitive closure by `tests/test_import_boundaries.py`. That boundary is what makes the demonstration honest: the bound comes from Finné Memory, not from the agent's restraint.
+
+| Concern | Decided by |
+| --- | --- |
+| What is proposed | **The model** |
+| Whether it is comparable to precedent | Deterministic |
+| What authority has been earned | Deterministic |
+| What is authorized | Deterministic |
+| What is signed and submitted | Deterministic |
+| What is explained | Deterministic |
+
+Model output is untrusted input. It is parsed into a `Proposal`, whose validation rejects anything malformed, and the engine then bounds whatever survives. If the agent proposes 40,000 against a 25,000 ceiling it is blocked — that is the product working, not an error path, and `tests/test_agent.py` asserts it. There is deliberately no fallback to a fixed proposal on model failure: a silent fallback would make the demo appear to work while proving nothing.
+
+Specified by `docs/specs/SPEC-002_MODEL_PROPOSING_AGENT.md`, recorded as `DECISION-027`.
+
 ## Setup And Run
 
 Requires Python 3.11+ and a Base Sepolia wallet holding testnet gas only.
@@ -135,6 +154,8 @@ DB=~/.sibyl-memory/demo-$(date +%H%M%S).db
 .venv/bin/python scripts/session2.py --db-path $DB --no-memory  # the control: escalates, cannot act
 ```
 
+Add `--agent=model` to either session to have the proposal produced by a real agent rather than a fixed value. It needs `OPENROUTER_API_KEY`; the default `--agent=fixed`, the test suite, and the deletion gate all run without one.
+
 `--no-memory` points at a fresh, never-seeded tenant, so it reproduces the deletion test without destroying Session 1's case.
 
 ### Environment flags
@@ -144,6 +165,8 @@ DB=~/.sibyl-memory/demo-$(date +%H%M%S).db
 | `FINNE_BASE_DRY_RUN=1` | Skips every network call. **Session 2 will escalate rather than constrain** — with no Base attempt there is no recorded outcome, so `DV-001-V1` is correctly ineligible as precedent. This is the specified behaviour, not a failure; `tests/test_fresh_session.py::test_session2_honestly_escalates_when_precedent_has_no_recorded_outcome` asserts it. Use it to exercise orchestration, not to see the headline result |
 | `FINNE_PLAIN_OUTPUT=1` | Unstyled text, fixed width, for piping or capture |
 | `FINNE_LIVE_BASE_TEST=1` | Enables the 4 opt-in live-Base tests, which deploy a fresh contract and spend testnet gas |
+| `OPENROUTER_API_KEY` | Required only for `--agent=model`. Read solely inside `finne/agent.py`; never logged, never persisted, never written to Sibyl Memory |
+| `FINNE_AGENT_MODEL` | Optional OpenRouter model slug for the agent. Defaults to `anthropic/claude-opus-5` |
 
 ## Partner Stacks Used
 

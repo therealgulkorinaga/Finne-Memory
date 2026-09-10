@@ -10,6 +10,11 @@ dependencies = [
     "web3>=6.0",
     "py-solc-x>=2.0",
     "rich>=13.0",
+    # Already installed in every environment as a transitive dependency of
+    # web3 and py-solc-x. Declared explicitly under DECISION-027 so
+    # finne/agent.py does not rely on a dependency edge this project does
+    # not control. Adds nothing to the install footprint.
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
