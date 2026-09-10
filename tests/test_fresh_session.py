@@ -139,7 +139,7 @@ def test_session1_escalates_and_persists_authorization_without_a_premature_outco
     result = run_script("session1.py", db_path)
     assert result.returncode == 0, result.stderr
     assert "RESULT: ESCALATE" in result.stdout
-    assert "Owner approves constrained authority: 10000.00" in result.stdout
+    assert "Senior handler approves a settlement of 10000.00" in result.stdout
     assert "No outcome recorded" in result.stdout
     assert "Process exiting completely" in result.stdout
 
@@ -281,7 +281,7 @@ def test_no_memory_control_escalates_and_cannot_execute(db_path):
 
     second = run_script("session2.py", db_path, "--no-memory")
     assert second.returncode == 0, second.stderr
-    assert "Retrieved 0 candidate(s)" in second.stdout
+    assert "Retrieved 0 prior decisions" in second.stdout
     assert "RESULT: ESCALATE" in second.stdout
     assert "Nothing authorized" in second.stdout
     assert "DV-001-V1" not in second.stdout
@@ -321,7 +321,7 @@ def test_demo_resets_and_rehearses_repeatably(db_path):
         reset(db_path)
         first = run_script("session1.py", db_path)
         assert first.returncode == 0, first.stderr
-        assert "Owner approves constrained authority: 10000.00" in first.stdout
+        assert "Senior handler approves a settlement of 10000.00" in first.stdout
         second = run_script("session2.py", db_path)
         assert second.returncode == 0, second.stderr
         assert "Nothing authorized" in second.stdout

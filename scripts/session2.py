@@ -127,7 +127,7 @@ def run(db_path: Path, *, no_memory: bool, agent_mode: str = "fixed") -> int:
         print(f"[Session 2] agent failure: {exc}", file=sys.stderr)
         return 1
 
-    cli.session_header("Session 2", "memory changes behaviour — a genuinely fresh process")
+    cli.session_header("Session 2", "a materially similar claim — a genuinely fresh process")
     cli.proposal_panel(proposal, owner_policy.max_amount)
 
     # NEG-01 / PREREQ-003 section 19, same handling as session1.py: a
@@ -169,7 +169,7 @@ def run(db_path: Path, *, no_memory: bool, agent_mode: str = "fixed") -> int:
         # with a zero-authority decision would misrepresent that
         # something was authorized when nothing was.
         cli.decision_panel(decision, proposal, explain(decision))
-        cli.warn("Nothing authorized; the agent cannot proceed autonomously.")
+        cli.warn("Nothing authorized. The handler cannot proceed without sign-off.")
         return 0
 
     # explain() is presentation only and cannot change `decision` — it

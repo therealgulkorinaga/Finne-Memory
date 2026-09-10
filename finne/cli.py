@@ -160,8 +160,8 @@ def proposal_panel(proposal: Proposal, owner_ceiling) -> None:
     body = (
         f"Proposed: {proposal.amount} {proposal.asset} "
         f"({proposal.action_class} / {proposal.target_class} / {proposal.function})\n"
-        f"Owner ceiling: {owner_ceiling} {proposal.asset}\n"
-        f"Network: {proposal.network}   Counterparty risk: {proposal.counterparty_risk_tier.value}"
+        f"Delegated authority: {owner_ceiling} {proposal.asset}\n"
+        f"Channel: {proposal.network}   Claim risk: {proposal.counterparty_risk_tier.value}"
     )
     if _plain():
         _emit(out, _text(body), body)
@@ -176,11 +176,11 @@ def candidates_table(candidates: list[EvaluatedCandidate]) -> None:
     separate columns, all displayed, exactly as the engine saw them."""
     out = console()
     if not candidates:
-        empty = "Retrieved 0 candidate(s) from Sibyl Memory."
+        empty = "Retrieved 0 prior decisions from Sibyl Memory."
         _emit(out, _text(empty), empty)
         return
 
-    lines = [f"Retrieved {len(candidates)} candidate(s) from Sibyl Memory:"]
+    lines = [f"Retrieved {len(candidates)} prior decision(s) from Sibyl Memory:"]
     for candidate in candidates:
         verdict = "ELIGIBLE" if candidate.is_eligible() else "excluded"
         lines.append(
@@ -194,10 +194,10 @@ def candidates_table(candidates: list[EvaluatedCandidate]) -> None:
         _emit(out, _text(fallback), fallback)
         return
 
-    table = Table(title=f"Retrieved {len(candidates)} candidate(s) from Sibyl Memory")
-    table.add_column("Decision version")
-    table.add_column("Authorized", justify="right")
-    table.add_column("Authority state")
+    table = Table(title=f"Retrieved {len(candidates)} prior decision(s) from Sibyl Memory")
+    table.add_column("Prior decision")
+    table.add_column("Settled", justify="right")
+    table.add_column("Status")
     table.add_column("Outcome")
     table.add_column("Comparable")
     table.add_column("Eligible")
@@ -257,7 +257,7 @@ def memory_failure(detail: str) -> None:
     memory failure, never as an allow".
 
     Deliberately distinct from `candidates_table([])`, which says
-    "Retrieved 0 candidate(s)". An empty corpus is a fact about history;
+    "Retrieved 0 prior decisions". An empty record is a fact about history;
     a failed read is the absence of any fact at all. Conflating them is
     the one way an outage could be mistaken for a clean cold start.
     """

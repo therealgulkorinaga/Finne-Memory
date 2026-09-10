@@ -128,7 +128,7 @@ def run(db_path: Path, owner_approved_amount: Decimal, agent_mode: str = "fixed"
         print(f"[Session 1] agent failure: {exc}", file=sys.stderr)
         return 1
 
-    cli.session_header("Session 1", "establish experience — cold start, no precedent yet")
+    cli.session_header("Session 1", "a first-of-its-kind claim — no comparable precedent yet")
     cli.proposal_panel(proposal, owner_policy.max_amount)
 
     # NEG-01 / PREREQ-003 section 19: memory unavailable, uninitialised,
@@ -208,7 +208,7 @@ def run(db_path: Path, owner_approved_amount: Decimal, agent_mode: str = "fixed"
             file=sys.stderr,
         )
         return 1
-    cli.note(f"Owner approves constrained authority: {owner_approved_amount} {owner_policy.asset}")
+    cli.note(f"Senior handler approves a settlement of {owner_approved_amount} {owner_policy.asset}")
 
     # The engine's own decision authorized nothing (escalate, amount 0)
     # — that decision must never be the thing submitted to Base or
