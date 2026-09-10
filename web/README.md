@@ -1,6 +1,8 @@
 # Demonstration viewer
 
-A single static page that shows the Finné Memory recall moment: **25,000.00 USDC proposed → 10,000.00 USDC authorized**, citing precedent `DV-001-V1`.
+A single static page that shows the Finné Memory consistency check: **25,000.00 GBP proposed → 10,000.00 GBP authorized**, citing precedent `DV-001-V1`.
+
+The corpus is synthetic and the run is recorded; see `DECISION-028`.
 
 ## Run it
 
@@ -19,13 +21,13 @@ It renders a **recorded run**. The page says so in its own header, and the disti
 
 - **It computes no authority.** The deterministic engine lives in `finne/authority/` and is deliberately not reimplemented here. Every decision value on the page is fixed output from a real run.
 - **It is not a simulator.** Letting a visitor change inputs and watch authority recalculate would mean shipping a JavaScript reimplementation of the engine — a reimplementation is what a judge would then be looking at, not the real thing.
-- **It connects no wallet.** The agent signs with its own key, server-side. A browser wallet cannot write to the contract at all: `AuthorizationReceipt.sol` has an immutable `authorizedSigner` set to the deployer, and `test_live_contract_rejects_an_unauthorized_signer` asserts that any other sender reverts.
+- **It connects no wallet.** The system signs with its own key, server-side. A browser wallet cannot write to the contract at all: `AuthorizationReceipt.sol` has an immutable `authorizedSigner` set to the deployer, and `test_live_contract_rejects_an_unauthorized_signer` asserts that any other sender reverts.
 
 The one live thing on the page is the **onchain verification panel**, which reads the deployed contract directly from a public Base Sepolia RPC:
 
 ```
 recorded(keccak256("DV-001-V1"))   -> true
-getReceipt(keccak256("DV-001-V1")) -> authorizedAmount 10000000000  (10,000.00 USDC)
+getReceipt(keccak256("DV-001-V1")) -> authorizedAmount 10000000000  (10,000.00 GBP)
                                       factsHash, submittedBy, recordedAt
 ```
 

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Finné Memory — the recall moment</title>
-<meta name="description" content="An autonomous agent is permitted 25,000 USDC. Finné Memory holds that it has earned 10,000, and names the prior decision the figure comes from.">
+<title>Finné Memory — the consistency check</title>
+<meta name="description" content="A claims handler is permitted to settle 25,000. Finné Memory holds that the institution has consistently settled 10,000 for this claim type, and names the decision the figure comes from.">
 <link rel="stylesheet" href="quay-tokens.css">
 <style>
 /* ------------------------------------------------------------------
@@ -12,7 +12,7 @@
 
    Renders a RECORDED run. Nothing on this page computes authority: the
    deterministic engine lives in finne/authority/ and is not reimplemented
-   here, deliberately. The only live thing on the page is the onchain
+   here, deliberately. The corpus is synthetic (DECISION-028). The only live thing on the page is the onchain
    verification panel, which reads the deployed AuthorizationReceipt
    contract directly from a public Base Sepolia RPC.
 
@@ -276,7 +276,7 @@ td.id { color: var(--fg-2); }
   <header class="head">
     <div class="head-brand">
       <span class="name">Finné Memory</span>
-      <span class="kicker">AUTHORITY&nbsp;·&nbsp;RECALL</span>
+      <span class="kicker">PRECEDENT&nbsp;·&nbsp;CONSISTENCY</span>
     </div>
     <div class="head-note">
       <span class="dot"></span>
@@ -286,37 +286,37 @@ td.id { color: var(--fg-2); }
 
   <!-- ============ the recall moment ============ -->
   <section class="hero">
-    <div class="hero-eyebrow">The recall moment</div>
+    <div class="hero-eyebrow">The consistency check</div>
     <div class="hero-row">
       <div class="anim-proposed">
-        <div class="hero-label">Agent proposed</div>
+        <div class="hero-label">Assessed &amp; proposed</div>
         <div class="hero-struck">
           <span class="hero-proposed">25,000.00</span>
           <span class="hero-strike anim-strike"></span>
         </div>
-        <div class="hero-unit">USDC</div>
+        <div class="hero-unit">GBP</div>
       </div>
 
       <div class="hero-arrow anim-arrow" aria-hidden="true">&#8594;</div>
 
       <div class="anim-auth">
-        <div class="hero-label is-accent">Authorized by memory</div>
+        <div class="hero-label is-accent">Consistent with precedent</div>
         <div class="hero-authorized">10,000.00</div>
-        <div class="hero-cite">USDC&nbsp;&nbsp;·&nbsp;&nbsp;precedent <span class="accent">DV-001-V1</span></div>
+        <div class="hero-cite">GBP&nbsp;&nbsp;·&nbsp;&nbsp;precedent <span class="accent">DV-001-V1</span></div>
       </div>
     </div>
-    <p class="hero-copy">The agent is permitted 25,000.00. Finné Memory holds that it has earned 10,000.00, and names the prior decision the figure comes from.</p>
+    <p class="hero-copy">The handler is permitted to settle 25,000.00. Finné Memory holds that this institution has consistently settled 10,000.00 for materially identical claims, and names the decision that figure comes from.</p>
   </section>
 
   <!-- ============ owner ceiling ============ -->
   <section class="ceiling">
-    <div class="eyebrow" style="margin-bottom:14px">Owner ceiling — what the agent is allowed to do</div>
+    <div class="eyebrow" style="margin-bottom:14px">Delegated authority — what the handler is permitted to do</div>
     <div class="ceiling-grid">
-      <div><div class="ceiling-k">max_amount</div><div class="ceiling-v">25,000.00 USDC</div></div>
-      <div><div class="ceiling-k">network</div><div class="ceiling-v">base</div></div>
-      <div><div class="ceiling-k">asset</div><div class="ceiling-v">USDC</div></div>
-      <div><div class="ceiling-k">action_class</div><div class="ceiling-v">capital_deployment</div></div>
-      <div><div class="ceiling-k">cold_start_autonomous_amount</div><div class="ceiling-v">0.00 USDC</div></div>
+      <div><div class="ceiling-k">max_amount</div><div class="ceiling-v">25,000.00 GBP</div></div>
+      <div><div class="ceiling-k">network</div><div class="ceiling-v">uk_retail_direct</div></div>
+      <div><div class="ceiling-k">asset</div><div class="ceiling-v">GBP</div></div>
+      <div><div class="ceiling-k">action_class</div><div class="ceiling-v">claim_assessment</div></div>
+      <div><div class="ceiling-k">cold_start_autonomous_amount</div><div class="ceiling-v">0.00 GBP</div></div>
     </div>
   </section>
 
@@ -325,17 +325,17 @@ td.id { color: var(--fg-2); }
 
     <section class="card session">
       <div class="session-head">
-        <span class="card-title">Session 1 — establish experience</span>
+        <span class="card-title">Session 1 — a first-of-its-kind claim</span>
         <span class="session-tag">PROCESS A</span>
       </div>
       <div class="session-body">
-        <div class="step"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div></div></div>
-        <div class="step"><span class="step-n">02</span><div><div class="step-main">Memory searched</div><div class="step-sub">0 comparable active precedents</div></div></div>
-        <div class="step"><span class="step-n">03</span><div><div class="step-main">learned_max_amount falls back to cold_start</div><div class="step-mono">0.00 USDC</div></div></div>
-        <div class="step"><span class="step-n">04</span><div class="step-inline"><span class="pill pill-escalate">RESULT: ESCALATE</span><span class="step-sub" style="margin:0">no silent approval of 25,000.00</span></div></div>
-        <div class="step"><span class="step-n">05</span><div><div class="step-main">Owner approves a constrained <span class="mono">10,000.00</span></div></div></div>
+        <div class="step"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div><div class="step-sub">The adjuster's full assessed value</div></div></div>
+        <div class="step"><span class="step-n">02</span><div><div class="step-main">Institutional record searched</div><div class="step-sub">0 comparable, active, upheld decisions</div></div></div>
+        <div class="step"><span class="step-n">03</span><div><div class="step-main">learned_max_amount falls back to cold_start</div><div class="step-mono">0.00 GBP</div></div></div>
+        <div class="step"><span class="step-n">04</span><div class="step-inline"><span class="pill pill-escalate">RESULT: ESCALATE</span><span class="step-sub" style="margin:0">no silent settlement at the delegated ceiling</span></div></div>
+        <div class="step"><span class="step-n">05</span><div><div class="step-main">Senior handler approves <span class="mono">10,000.00</span></div></div></div>
         <div class="step"><span class="step-n">06</span><div><div class="step-main">Written to memory as <span class="mono accent">DV-001-V1</span></div><div class="step-mono" style="font-size:12.5px;color:var(--fg-3)">draft &#8594; active</div></div></div>
-        <div class="step"><span class="step-n">07</span><div><div class="step-main">Zero-value Base transaction recorded</div></div></div>
+        <div class="step"><span class="step-n">07</span><div><div class="step-main">Decision record anchored on Base</div></div></div>
         <div class="spacer"></div>
         <div class="exited">
           <span class="exited-strong">Process exited.</span>
@@ -352,13 +352,13 @@ td.id { color: var(--fg-2); }
 
     <section class="card card-lift session" style="border-color:var(--line-strong);background:var(--surface)">
       <div class="session-head">
-        <span class="card-title">Session 2 — memory changes behaviour</span>
+        <span class="card-title">Session 2 — a materially similar claim</span>
         <span class="session-tag">PROCESS B</span>
       </div>
       <div class="session-body" style="padding:16px 20px 18px">
         <div class="fresh">Fresh process. No carried-over state.</div>
-        <div class="step" style="padding-top:16px"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div><div class="step-sub">Identical request to Session 1</div></div></div>
-        <div class="step"><span class="step-n">02</span><div><div class="step-main">Memory retrieval returns 7 candidates</div><div class="step-sub">Filtered below — one survives</div></div></div>
+        <div class="step" style="padding-top:16px"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div><div class="step-sub">Same claim profile as Session 1</div></div></div>
+        <div class="step"><span class="step-n">02</span><div><div class="step-main">Retrieval returns 7 prior decisions</div><div class="step-sub">Filtered below — one survives</div></div></div>
         <div class="step"><span class="step-n">03</span><div class="step-inline"><span class="pill pill-constrain">RESULT: CONSTRAIN</span><span style="font-size:13px;color:var(--fg-2)">to <span class="mono accent">10,000.00</span>, citing <span class="mono accent">DV-001-V1</span></span></div></div>
         <div class="spacer"></div>
       </div>
@@ -368,17 +368,17 @@ td.id { color: var(--fg-2); }
   <!-- ============ retrieved candidates ============ -->
   <section class="card">
     <div class="card-head">
-      <div class="card-title">Retrieved candidates</div>
-      <div class="card-sub">Four excluded rows carry amounts above 10,000.00. If authority filtering broke, the authorized figure would rise.</div>
+      <div class="card-title">Prior decisions retrieved</div>
+      <div class="card-sub">Every excluded row is excluded for a different reason. Four carry settled amounts above 10,000.00, so a broken authority filter would raise the figure and fail loudly.</div>
     </div>
     <div class="tablewrap">
       <table>
-        <caption class="visually-hidden" hidden>Candidates retrieved from Sibyl Memory and why each was included or excluded</caption>
+        <caption class="visually-hidden" hidden>Prior decisions retrieved from Sibyl Memory and why each was or was not followable</caption>
         <thead>
           <tr>
-            <th scope="col">Decision version</th>
-            <th scope="col" class="num">Authorized</th>
-            <th scope="col">Authority state</th>
+            <th scope="col">Prior decision</th>
+            <th scope="col" class="num">Settled</th>
+            <th scope="col">Status</th>
             <th scope="col">Outcome</th>
             <th scope="col">Comparable</th>
             <th scope="col">Eligible</th>
@@ -387,61 +387,63 @@ td.id { color: var(--fg-2); }
         <tbody>
           <tr class="eligible">
             <td>DV-001-V1</td><td class="num">10,000.00</td>
-            <td>active</td><td>success</td><td>yes</td>
+            <td>active</td><td>upheld</td><td>yes</td>
             <td><span class="badge-eligible">ELIGIBLE</span></td>
           </tr>
           <tr>
             <td class="id">DV-003-V1</td><td class="num">20,000.00</td>
-            <td class="disq">withdrawn</td><td>success</td><td>yes</td>
-            <td class="why">excluded &nbsp;<span>state</span></td>
+            <td class="disq">withdrawn</td><td>upheld</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>overturned on appeal</span></td>
           </tr>
           <tr>
             <td class="id">DV-004-V1</td><td class="num">5,000.00</td>
-            <td>active</td><td>success</td><td class="disq">no</td>
-            <td class="why">excluded &nbsp;<span>comparability</span></td>
+            <td>active</td><td>upheld</td><td class="disq">no</td>
+            <td class="why">excluded &nbsp;<span>different peril</span></td>
           </tr>
           <tr>
             <td class="id">DV-005-V1</td><td class="num">10,000.00</td>
-            <td>active</td><td>success</td><td class="disq">no</td>
-            <td class="why">excluded &nbsp;<span>comparability</span></td>
+            <td>active</td><td>upheld</td><td class="disq">no</td>
+            <td class="why">excluded &nbsp;<span>gradual, not sudden</span></td>
           </tr>
           <tr>
             <td class="id">DV-006-V1</td><td class="num">15,000.00</td>
-            <td class="disq">superseded</td><td>success</td><td>yes</td>
-            <td class="why">excluded &nbsp;<span>state</span></td>
+            <td class="disq">superseded</td><td>upheld</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>policy wording v2</span></td>
           </tr>
           <tr>
             <td class="id">DV-007-V1</td><td class="num">12,000.00</td>
-            <td class="disq">questioned</td><td class="disq">failure</td><td>yes</td>
-            <td class="why">excluded &nbsp;<span>state + outcome</span></td>
+            <td class="disq">questioned</td><td class="disq">reversed</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>under complaint</span></td>
           </tr>
           <tr>
             <td class="id">DV-008-V1</td><td class="num">18,000.00</td>
-            <td class="disq">draft</td><td>success</td><td>yes</td>
-            <td class="why">excluded &nbsp;<span>state</span></td>
+            <td class="disq">draft</td><td>upheld</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>never signed off</span></td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="legend">
-      <span>Underlined cell = the field that disqualified the row.</span>
-      <span>Three separate reasons: authority state, outcome, comparability.</span>
+      <span>Underlined cell = the field that disqualified the decision.</span>
+      <span>Overturned on appeal · superseded wording · reversed and under complaint · never signed off · different peril · gradual not sudden.</span>
     </div>
   </section>
 
   <!-- ============ derivation rule ============ -->
   <section class="rule">
     <div class="eyebrow" style="margin-bottom:14px">Derivation rule</div>
-<pre>eligible    = comparable AND active AND success
-learned_max = max(authorized of eligible)  if any
-            = cold_start (0.00)            if none</pre>
+<pre>eligible    = materially comparable
+              AND active    (still stands as precedent)
+              AND upheld    (settled and not reversed)
+learned_max = max(settled of eligible)   if any
+            = cold_start (0.00)          if none</pre>
   </section>
 
   <!-- ============ the control ============ -->
   <section class="card" style="border-color:var(--line-strong)">
     <div class="control-head">
       <div>
-        <div class="card-title">The control — is memory load-bearing?</div>
+        <div class="card-title">The control — is the record load-bearing?</div>
         <div class="card-sub">Two recorded runs of the same Session 2 request. Switch between them.</div>
       </div>
       <div class="toggle" role="group" aria-label="Which recorded run to show">
@@ -454,14 +456,14 @@ learned_max = max(authorized of eligible)  if any
       <div><div class="run-k">Retrieved</div><div class="run-v">7 candidates</div></div>
       <div><div class="run-k">learned_max</div><div class="run-v is-accent">10,000.00</div></div>
       <div><div class="run-k">Result</div><span class="pill pill-constrain" style="font-size:12px;padding:5px 11px">CONSTRAIN</span></div>
-      <div class="run-copy">The agent proceeds, at the amount it earned.</div>
+      <div class="run-copy">The handler proceeds, consistent with the institution's own record.</div>
     </div>
 
     <div class="run is-deleted" id="run-deleted" hidden>
       <div><div class="run-k">Retrieved</div><div class="run-v">0 candidates</div></div>
       <div><div class="run-k">learned_max</div><div class="run-v is-zero">0.00</div></div>
       <div><div class="run-k">Result</div><span class="pill pill-escalate" style="font-size:12px;padding:5px 11px">ESCALATE</span></div>
-      <div class="run-copy is-strong">The agent cannot proceed.</div>
+      <div class="run-copy is-strong">The handler cannot proceed autonomously.</div>
     </div>
   </section>
 
@@ -470,7 +472,7 @@ learned_max = max(authorized of eligible)  if any
     <div class="chain-head">
       <div>
         <div class="card-title">Onchain verification</div>
-        <div class="card-sub">Read live from a public Base Sepolia RPC. No wallet connection, no signing — the contract's immutable signer rejects any other sender.</div>
+        <div class="card-sub">Read live from a public Base Sepolia RPC. No wallet, no signing, no confidential claim data onchain — only proof the decision record existed in this form and was not rewritten.</div>
       </div>
       <div class="chain-meta">chain 84532 · sepolia.base.org</div>
     </div>
@@ -495,8 +497,8 @@ learned_max = max(authorized of eligible)  if any
         </div>
         <div>
           <div class="run-k" style="color:var(--accent-bright)">Authorized amount</div>
-          <div class="chain-amount"><span id="chain-amount-value"></span> <span>USDC</span></div>
-          <div class="chain-raw">raw <span id="chain-raw"></span> · 6-decimal USDC units</div>
+          <div class="chain-amount"><span id="chain-amount-value"></span> <span>GBP</span></div>
+          <div class="chain-raw">raw <span id="chain-raw"></span> · policy value at 6 decimal places</div>
         </div>
       </div>
       <div class="chain-grid">
@@ -508,7 +510,7 @@ learned_max = max(authorized of eligible)  if any
     </div>
 
     <div class="chain-foot">
-      <span>Verified onchain. Zero value transferred — the receipt records an authorization, it does not move funds.</span>
+      <span>Verified onchain. Zero value transferred — the receipt anchors a decision record, it does not move money.</span>
       <a href="https://sepolia.basescan.org/address/0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46" target="_blank" rel="noopener" class="mono" style="font-size:12px">Verify on BaseScan &#8599;</a>
     </div>
   </section>
