@@ -347,3 +347,14 @@ This is the repository-wide attribution record for material AI assistance. Entri
 - Arko's decisions: Directed the change. Authorized commit and merge with the independent review outstanding, on submission-day timing.
 - Product and implementation effect: None on the product. The effect is on reproducibility — a judge following the README can now install, run the test suite including the deletion gate, and reproduce the demonstration, with the two prerequisites that were previously undocumented stated as prerequisites.
 - Git operation status: Committed 2026-09-10. Independent review outstanding.
+
+## 2026-09-10: Static Demonstration Viewer
+
+- AI tool: Claude Code (Anthropic), model Opus 5. Independent reviewer: none — the Codex pass is prepared and outstanding.
+- Human director: Arko. Designed the artboard in Claude Design, directed its implementation, and reopened the governance question when Claude's initial framing of the conflict was overstated.
+- Prompt record: `prompts/2026-09-10-web-viewer-codex-review-round-1.md` (prepared, not run). The design itself was authored by Arko in Claude Design and imported via the `claude_design` MCP.
+- Claude's assistance: Read the artboard, the design-system bundle, and the canvas runtime before implementing, and established that the bundle exposes no components and the runtime need not be reproduced. Replaced the artboard's value-range decoder with positional ABI decoding after identifying that the original could misattribute fields. Removed a CDN dependency by computing its only outputs as constants. Verified every displayed onchain value against an independent Python query before trusting the page's own read. **Corrected its own overstatement**: the first framing presented the web surface as conflicting with `PREREQ-003` section 16, when `SPEC-001` section 15 explicitly permits one "if pursued" — Arko pushed back and the framing was fixed rather than defended.
+- Assisted files: `web/index.html`, `web/quay-tokens.css`, `web/README.md`, `prompts/2026-09-10-web-viewer-codex-review-round-1.md` (all new), `DECISIONS.md`, `REUSED_COMPONENTS.md`, `BUILD_LOG.md`, `AI_USAGE.md`, `HUMAN_DECISIONS.md`.
+- Arko's decisions: Directed the change, designed the artboard, challenged the governance framing, authorized the commit.
+- Product and implementation effect: None on the product. A judge can now see the recall moment and the authority-state filtering at a glance, and verify the onchain receipt without a wallet.
+- Git operation status: Committed 2026-09-10. Independent review outstanding.

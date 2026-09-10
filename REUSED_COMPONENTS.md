@@ -38,3 +38,15 @@ Record every reused code component, dependency, asset, dataset, template, licens
 - Licensing impact of this change: None from reuse, because no code or dependency was added. **Separately, Arko resolved `ORG-Q2` on 2026-09-03 by selecting MIT**, and `LICENSE` was added at repository root under `DECISION-024`. The text is the standard unmodified OSI MIT template with copyright `2026 Arko Ganguli`. Every dependency specified above is MIT-compatible; `hypothesis` is MPL-2.0 but is dev-only and not distributed.
 - Datasets: The active demo corpus in `docs/product/ACTIVE_DEMO_DESIGN.md` is entirely synthetic and authored for this project. No external dataset was used.
 - Templates and assets: None.
+
+## 2026-09-10: Vendored Quay Design Tokens For The Demonstration Viewer
+
+- Reused component: Quay design-system tokens — colour, typography, motion, and elevation custom properties.
+- Source: Claude Design project "Viewer for control run comparison" (`51086be5-d2b8-412c-ac5a-9eaf4a11b298`), file `_ds/quay-design-system-1b60adac-6edc-473e-b609-5779c5d0ce46/colors_and_type.css`. Authored by Arko in Claude Design; imported 2026-09-10 via the `claude_design` MCP.
+- Where it now lives: `web/quay-tokens.css`, with a provenance header naming the source file and import date.
+- Modification: **Reduced, not copied wholesale.** Only the tokens `web/index.html` actually consumes were carried over. The upstream file's light-mode block, spacing/radii scales, deprecated `--copper-*` aliases, and its entire `.quay` component layer were omitted, so the vendored file stays auditable at a glance rather than shipping several hundred lines of unused CSS.
+- Licensing impact: None. The tokens are the project owner's own design work, produced in the owner's Claude Design account, and are used in the owner's repository under the same MIT licence (`DECISION-024`).
+- External code: The artboard `Finne Memory Demo.dc.html` was also read and implemented from, but **no code was copied from it.** It is a `.dc.html` canvas document whose runtime (`support.js`, ~70KB of generated React-based `dc-runtime`) and design-system bundle (`_ds_bundle.js`, whose manifest declares `"components":[]`) were both read and deliberately NOT reproduced. `web/index.html` is an independent vanilla-JS implementation of the design.
+- Dependencies introduced: **None.** The artboard loaded `ethers@5.7.2` from jsdelivr purely to compute `keccak256("DV-001-V1")` and two 4-byte function selectors. All three are fixed constants, so they are embedded in `web/index.html` with the command that reproduces them — removing a ~250KB CDN dependency and the "keccak library failed to load" failure path with it. The page has no build step and no runtime dependency beyond the Google Fonts stylesheet the tokens import, which degrades to system fallbacks.
+- Datasets: None. Every decision value on the page is fixed output from this project's own recorded demonstration run; the onchain values are read live from this project's own deployed contract.
+- Templates and assets: None.

@@ -1,0 +1,59 @@
+/* ============================================================
+   Quay design tokens — VENDORED, not authored here.
+
+   Source: Claude Design project "Viewer for control run comparison"
+           (51086be5-d2b8-412c-ac5a-9eaf4a11b298), file
+           _ds/quay-design-system-1b60adac-6edc-473e-b609-5779c5d0ce46/
+           colors_and_type.css
+   Imported 2026-09-10 via the claude_design MCP.
+
+   Reduced to the tokens web/index.html actually consumes. The upstream
+   file also carries light-mode tokens, spacing/radii/elevation scales,
+   and a .quay component layer; none of that is used here and none of it
+   is reproduced, so this file stays auditable at a glance.
+
+   Recorded in REUSED_COMPONENTS.md.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Ink — deep aubergine-black, the signature canvas */
+  --ink:           #1A1320;
+  --ink-deep:      #120D17;
+  --surface:       #241B2E;
+
+  /* Accent — Harbour verdigris */
+  --accent:        #1C8C7D;
+  --accent-bright: #2AA897;
+  --accent-tint:   rgba(28, 140, 125, 0.14);
+
+  /* Foreground on ink */
+  --fg:            #F5F0E8;
+  --fg-2:          #BDB2B8;
+  --fg-3:          #8C8190;
+  --fg-4:          #5E5566;
+
+  /* Lines */
+  --line:          rgba(245, 240, 232, 0.10);
+  --line-strong:   rgba(245, 240, 232, 0.18);
+  --hairline:      rgba(245, 240, 232, 0.06);
+
+  /* Semantic — muted, earthy. Never neon. */
+  --negative:      #A83E2E;
+  --info:          #6E7E8C;
+  --warning:       #C99A3F;
+  --warning-tint:  rgba(201, 154, 63, 0.16);
+
+  /* Type */
+  --font-serif: 'Spectral', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --dur:  220ms;
+
+  /* Elevation */
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
