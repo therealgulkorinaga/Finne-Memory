@@ -49,27 +49,35 @@ from finne.models import AuthorityState, Outcome, Proposal, RiskTier
 # be cleared by this script (see module docstring).
 _LIVE_CREATED_DECISION_VERSION_IDS = ("DV-001-V1", "DV-002-V1")
 
+# The claim profile the demonstration turns on: an in-panel residential
+# buildings claim for SUDDEN escape of water, where the handler is
+# deciding whether to settle.
 BASELINE_FACTS = Proposal(
-    network="base",
-    asset="USDC",
-    action_class="capital_deployment",
-    target_class="yield_vault_conservative",
-    function="deposit",
+    network="uk_retail_direct",
+    asset="GBP",
+    action_class="claim_assessment",
+    target_class="escape_of_water_sudden",
+    function="approve_settlement",
     counterparty_risk_tier=RiskTier.LOW,
     amount=Decimal("0.00"),  # facts-only fixture; amount is not a comparability dimension
     proposed_at="2026-09-01T00:00:00Z",
 )
 
-DEMO_RECEIPT_FACTS = Proposal(
-    **{
-        **BASELINE_FACTS.__dict__,
-        "target_class": "demo_receipt",
-        "function": "recordAuthorization",
-    }
+# A different peril entirely. Still in scope, still active precedent —
+# but not comparable to an escape-of-water claim, which is the point of
+# CASE-004: similarity and authority are separate questions.
+STORM_FACTS = Proposal(
+    **{**BASELINE_FACTS.__dict__, "target_class": "storm_damage"}
 )
 
-AGGRESSIVE_TARGET_FACTS = Proposal(
-    **{**BASELINE_FACTS.__dict__, "target_class": "yield_vault_aggressive"}
+# The claim that looks the same and is not. GRADUAL escape of water is
+# excluded by the policy wording, which covers sudden and accidental
+# damage only. This is CASE-005, and it is the fixture that proves the
+# engine distinguishes on causation rather than on surface similarity —
+# the exact failure that produces a complaint when a handler classifies
+# by appearance.
+GRADUAL_FACTS = Proposal(
+    **{**BASELINE_FACTS.__dict__, "target_class": "escape_of_water_gradual"}
 )
 
 
@@ -80,7 +88,7 @@ def _confirm_then_activate(store: MemoryStore, decision_version_id: str) -> None
             previous_status=None,
             new_status=AuthorityState.DRAFT,
             changed_by="owner_as_decision_reviewer",
-            reason="seed: confirmation creates the draft",
+            reason="seed: reviewer confirms the decision record",
         )
     )
     store.append_authority_event(
@@ -89,13 +97,14 @@ def _confirm_then_activate(store: MemoryStore, decision_version_id: str) -> None
             previous_status=AuthorityState.DRAFT,
             new_status=AuthorityState.ACTIVE,
             changed_by="owner_as_authority_steward",
-            reason="seed: activation",
+            reason="seed: authority steward signs it off as precedent",
         )
     )
 
 
 def seed(store: MemoryStore) -> None:
-    # CASE-003: identical facts, authorized 20000, withdrawn.
+    # CASE-003: identical claim profile, settled at 20000, later
+    # OVERTURNED by the ombudsman. Retrievable, never authorizing.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-003-V1",
@@ -113,15 +122,16 @@ def seed(store: MemoryStore) -> None:
             previous_status=AuthorityState.ACTIVE,
             new_status=AuthorityState.WITHDRAWN,
             changed_by="owner_as_authority_steward",
-            reason="seed: withdrawn",
+            reason="seed: overturned by the ombudsman on appeal",
         )
     )
 
-    # CASE-004: demo_receipt/recordAuthorization, less similar, active.
+    # CASE-004: storm damage. A different peril, so not comparable,
+    # but a perfectly good active precedent for storm claims.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-004-V1",
-            facts=DEMO_RECEIPT_FACTS,
+            facts=STORM_FACTS,
             authorized_amount=Decimal("5000.00"),
         )
     )
@@ -130,11 +140,13 @@ def seed(store: MemoryStore) -> None:
     )
     _confirm_then_activate(store, "DV-004-V1")
 
-    # CASE-005: yield_vault_aggressive target_class, material-difference fixture, active.
+    # CASE-005: GRADUAL escape of water. Same peril family, same
+    # everything else, excluded by the wording. The material-difference
+    # fixture.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-005-V1",
-            facts=AGGRESSIVE_TARGET_FACTS,
+            facts=GRADUAL_FACTS,
             authorized_amount=Decimal("10000.00"),
         )
     )
@@ -143,7 +155,8 @@ def seed(store: MemoryStore) -> None:
     )
     _confirm_then_activate(store, "DV-005-V1")
 
-    # CASE-006: identical facts, authorized 15000, superseded.
+    # CASE-006: identical claim profile, settled at 15000 under policy
+    # wording v2, which has since been replaced by v4.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-006-V1",
@@ -161,11 +174,12 @@ def seed(store: MemoryStore) -> None:
             previous_status=AuthorityState.ACTIVE,
             new_status=AuthorityState.SUPERSEDED,
             changed_by="owner_as_authority_steward",
-            reason="seed: superseded by DV-001-V1",
+            reason="seed: decided under policy wording v2, superseded by v4",
         )
     )
 
-    # CASE-007: identical facts, authorized 12000, failed outcome, questioned.
+    # CASE-007: identical claim profile, settled at 12000, settlement
+    # subsequently reversed, and now under complaint.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-007-V1",
@@ -183,11 +197,12 @@ def seed(store: MemoryStore) -> None:
             previous_status=AuthorityState.ACTIVE,
             new_status=AuthorityState.QUESTIONED,
             changed_by="owner_as_authority_steward",
-            reason="seed: questioned after failed outcome",
+            reason="seed: under complaint after the settlement was reversed",
         )
     )
 
-    # CASE-008: identical facts, authorized 18000, never activated (draft).
+    # CASE-008: identical claim profile, settled at 18000, recorded but
+    # never signed off by the authority steward.
     store.write_case_version(
         CaseVersionRecord(
             decision_version_id="DV-008-V1",
@@ -204,7 +219,7 @@ def seed(store: MemoryStore) -> None:
             previous_status=None,
             new_status=AuthorityState.DRAFT,
             changed_by="owner_as_decision_reviewer",
-            reason="seed: confirmed as draft, never activated",
+            reason="seed: recorded as draft, never signed off",
         )
     )
 

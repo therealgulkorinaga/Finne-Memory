@@ -2,6 +2,16 @@
 
 ## Status
 
+- ⚠️ **PREDATES THE DOMAIN PIVOT — parts of this document are now out of date.** It was written on 2026-09-08/09 against the Base agent-spending domain. `DECISION-028` re-instantiated the demonstration domain as insurance claims on 2026-09-10, after this catalogue was committed.
+
+  **What is still valid:** every case about the engine, the memory layer, the authority state machine, the Base adapter, the import boundaries, and the property sweeps. Those modules were not touched by the pivot — that is the pivot's central claim and the reason it was cheap. The ten findings (`F-1` to `F-10`) and the four open questions (`Q1`-`Q4`) are all unaffected and all still outstanding.
+
+  **What is now wrong:** every case that names a concrete fact value. The corpus fixtures, `config/owner_policy.toml`'s values, and the demo-script cases now read `uk_retail_direct` / `GBP` / `claim_assessment` / `escape_of_water_sudden` / `approve_settlement` rather than `base` / `USDC` / `capital_deployment` / `yield_vault_conservative` / `deposit`. The amounts, authority states, outcomes and comparability results are unchanged, so the SHAPE of every case holds; only the strings moved.
+
+  **Also missing:** `finne/agent.py` (`SPEC-002`, `DECISION-027`) postdates this catalogue entirely and has no cases here. Its own 36 tests live in `tests/test_agent.py`.
+
+  Not corrected in place, deliberately: rewriting 479 rows on submission day would be a large unreviewed change to a document whose whole point is that it was reviewed. Recorded here instead so a reader is not misled.
+
 - DRAFT, COMMITTED 2026-09-09 on Arko's authorization. Committing it does not approve it: **four questions remain open and nine cases are blocked on them.** The catalogue must not be implemented until Q1-Q4 are answered, because two of the answers change what the expected result ought to be. See "Open Questions" below.
 - Round 2 independent review is prepared at `prompts/2026-09-08-test-catalogue-codex-review-round-2.md` and **has not been run.** Arko authorized the commit with that pass outstanding.
 - This document is a **specification of test cases**, not test code. It does not change behaviour and does not add a dependency.

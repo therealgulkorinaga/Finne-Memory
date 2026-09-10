@@ -12,7 +12,7 @@
 
 **Goal.** Prove that remembered operating history changes what an autonomous agent is permitted to do in a genuinely fresh session, and that the change is deterministic, bounded by owner authority, and auditable.
 
-One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is bound to 10,000 USDC by a precedent it retrieved from Sibyl Memory, and cannot do so when that memory is removed.*
+One sentence of observable outcome: *a fresh process proposes 25,000 GBP and is bound to 10,000 GBP by a precedent it retrieved from Sibyl Memory, and cannot do so when that memory is removed.*
 
 | Actor | Capability in this slice |
 | --- | --- |
@@ -44,11 +44,11 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 
 ### Session 1 — establish experience
 
-1. Load `OP-001`. Ceiling is 25,000 USDC on Base.
-2. Agent proposes `CASE-001` at 25,000 USDC.
+1. Load `OP-001`. Delegated settlement authority is 25,000 GBP, in-panel.
+2. The assessing agent proposes `CASE-001` at 25,000 GBP — the loss adjuster's assessed value.
 3. Retrieval finds no comparable `active` precedent. `learned_max_amount` falls back to `cold_start_autonomous_amount` = 0.
 4. Intersection yields zero autonomous authority → `escalate`. **Not** a silent 25,000 allow.
-5. Owner approves constrained authority of 10,000 USDC.
+5. A senior handler approves a constrained settlement of 10,000 GBP.
 6. Write W1 (case version) and W2 (policy snapshot). This write is performed as the Owner, acting as Decision Reviewer, confirming creation of immutable draft `DV-001-V1` — per the retained `PREREQ-002` transitions, this confirmation **is** the initial `No prior state → draft` authority event (W3), not a separate step.
 7. The Owner, acting separately as Authority Steward, appends a second, distinct authority event W3: `draft` → `active`. **CORRECTED 2026-09-05** (fact-correction, ordering only — W1-W3 happen here, independent of Base, per `PREREQ-003` section 3's own W-table; the original text listed W4 before this step, which seam (c) implementation corrected without this document being updated to match).
 8. Base adapter calls `recordAuthorization` with the 10,000 policy value and the facts hash. Zero value moves.
@@ -58,7 +58,7 @@ One sentence of observable outcome: *a fresh process proposes 25,000 USDC and is
 ### Session 2 — memory changes behaviour
 
 1. Fresh process. Load `OP-001`. No in-process state carried over.
-2. Agent proposes `CASE-002` at 25,000 USDC.
+2. The assessing agent proposes `CASE-002` at 25,000 GBP.
 3. R1 generates candidates; R2 reads each exactly; R3 folds authority state; R4 reads outcomes.
 4. `CASE-001` is comparable, `active`, `success` → eligible. `CASE-003` (withdrawn), `CASE-006` (superseded), `CASE-007` (questioned), `CASE-008` (draft) are retrieved and displayed but excluded.
 5. `learned_max_amount` = 10,000.

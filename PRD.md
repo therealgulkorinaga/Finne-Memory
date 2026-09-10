@@ -12,28 +12,33 @@
 
 ## Product Summary
 
-Finné Memory converts an autonomous agent's remembered operating history into bounded authority for its next action.
+**AMENDED 2026-09-10 by `DECISION-028`.** Finné Memory is a pre-dispute decision-control layer for AI-assisted institutional workflows. It sits in front of an externally consequential decision and checks it against current policy and the institution's own valid precedent, before the decision leaves the building.
 
-> Sibyl lets agents remember. Finné determines what that memory authorizes them to do next.
+> Policy defines the rule. Precedent captures how the institution has actually interpreted it. Finné checks both.
 
-Finné Memory is not generic agent memory. Sibyl Memory provides the persistent memory. Finné Memory operates above it, turning persisted experiences into structured precedents and using those precedents to derive a narrower, explainable action authority.
+Finné Memory is not generic memory and not a case-management tool. Sibyl Memory provides the persistent substrate. Finné operates above it, turning confirmed decisions into structured precedent and using that precedent to determine what the institution has consistently treated as decidable — which is always narrower than what policy mechanically permits.
+
+The earlier framing — bounded authority for autonomous onchain agents — is retained as the previous domain instantiation under `DECISION-022`. The engine is unchanged; see `DECISION-028` for why the domain moved.
 
 ## Problem Statement
 
-Autonomous agents can be given mechanical permissions: maximum spending limits, approved assets, approved contracts, approved protocols, approved functions, and permitted time windows. Those rules define what an agent is technically allowed to do. They do not capture the institutional meaning of the agent's previous performance.
+Disputes rarely begin with a decision that was simply wrong. They begin with one that was **inconsistent**. Four causes account for most of them:
 
-Mechanical permissions do not answer:
+- Two materially similar cases were treated differently.
+- A decision rested on policy wording that had since been replaced.
+- The institution cannot reconstruct why it decided what it did.
+- An exception was applied unevenly.
 
-- What happened when the agent exercised a similar permission before?
-- Under what circumstances was the earlier action approved?
-- What amount or scope was considered safe?
-- Did the action succeed or fail?
-- Was the earlier decision later questioned or withdrawn?
-- What conditions made the earlier case safe?
-- What is materially different now?
-- What narrower authority has the agent earned from experience?
+Mechanical rules — delegated authority limits, approved products, approved decisions — define what a handler or an AI is *permitted* to do. They do not capture how the institution has actually interpreted those rules in practice, and they answer none of:
 
-An agent with a 25,000 USDC ceiling and no memory of its own history will propose 25,000 USDC on its first day and on its hundredth. Finné Memory closes that gap.
+- How were materially similar cases decided before?
+- Under what evidence and what policy version was that decision approved?
+- Was it upheld, or reversed on appeal?
+- Is it still authoritative, or superseded, or under complaint?
+- What is materially different about this case?
+- What has this institution consistently treated as decidable here?
+
+A handler with a £25,000 delegated authority and no access to the institution's own record will treat every claim as if it were the first. Finné Memory closes that gap — and each of the four causes above is a dispute it prevents.
 
 ## Product Principle
 
@@ -45,9 +50,9 @@ The owner defines the hard permission ceiling. A representative ceiling is:
 
 | Dimension | Owner ceiling |
 | --- | --- |
-| Maximum amount | 25,000 USDC |
+| Maximum amount | 25,000 GBP (delegated settlement authority) |
 | Approved network | Base |
-| Approved asset | USDC |
+| Settlement currency | GBP |
 | Approved action class | Capital deployment |
 | Approved protocol or contract classes | Explicitly enumerated |
 | Unknown situations | Constrained action or owner review |
@@ -97,16 +102,19 @@ Finné derives the permitted action, the agent executes that permitted action on
 
 ## Target Users
 
-- CONFIRMED: The primary user is the owner or operator of an autonomous onchain treasury agent who must delegate spending authority without granting unbounded discretion.
-- CONFIRMED: The primary buyer is the treasury, risk, or operations function accountable for what a delegated agent is permitted to do.
-- CONFIRMED: The consumer of the authorization output is the agent runtime itself, which is bounded by the result.
+**AMENDED 2026-09-10 by `DECISION-028`.**
+
+- CONFIRMED: The primary user is a claims handler, adjudicator, or the AI system assisting them, making an externally consequential decision under delegated authority.
+- CONFIRMED: The primary buyer is the function accountable for decision quality and complaint volume — claims operations, compliance, or risk — where the cost of inaction is measurable in complaint handling, ombudsman fees, remediation, regulatory scrutiny, and churn.
+- CONFIRMED: The consumer of the output is the decisioning workflow itself, which is bounded, or escalated, by the result.
 - UNRESOLVED: Buyer organization size, deployment environment, decision volume, regulated-industry requirements, and production role structure.
+- **NOT CLAIMED:** no pilot, design partner, or insurer engagement exists. The insurance corpus in this repository is synthetic and illustrative. `HACKATHON_RULES.md` line 62 requires PMF evidence to be publicly verifiable and states that fabricated evidence disqualifies.
 
 ## Active V1 Use Case
 
-- CONFIRMED: An autonomous treasury agent uses remembered operating history to determine its bounded authority for a materially similar Base action in a fresh session.
-- CONFIRMED: The representative matter is whether a proposed Base capital-deployment action, made against a 25,000 USDC owner ceiling, is authorized in full, narrowed, blocked, or escalated on the evidence of the agent's own recorded history.
-- CONFIRMED: Finné Memory determines the authority bound. It does not select the business action within that bound.
+- CONFIRMED: A claims handler, or an AI assessing on their behalf, uses the institution's remembered decision history to determine the bounded authority for a materially similar claim in a fresh session.
+- CONFIRMED: The representative matter is whether a proposed settlement, made against a 25,000 GBP delegated authority, is authorized in full, narrowed, blocked, or escalated on the evidence of the institution's own recorded decisions.
+- CONFIRMED: Finné Memory determines the authority bound and surfaces the precedent being relied on or departed from. It does not decide the claim.
 
 ## V1 Product Journey
 
@@ -228,9 +236,9 @@ The V1 must define observable behavior for:
 
 V1 is product-complete for the demo when:
 
-1. Session 1 establishes a constrained 10,000 USDC authority under a 25,000 USDC owner ceiling and persists the complete case to Sibyl Memory.
+1. Session 1 establishes a constrained 10,000 GBP settlement under a 25,000 GBP delegated authority and persists the complete decision record to Sibyl Memory.
 2. Session 1's process terminates completely, with no carried-over in-process state.
-3. Session 2 starts fresh, proposes the broader 25,000 USDC action, and is bounded to 10,000 USDC by precedent retrieved from Sibyl Memory.
+3. Session 2 starts fresh, proposes the full 25,000 GBP assessed value, and is bounded to 10,000 GBP by precedent retrieved from Sibyl Memory.
 4. The changed action is visible and attributable to the recalled memory, naming the precedent relied upon.
 5. With Sibyl Memory removed or emptied, Session 2 cannot derive the learned authority and falls back to constrain, block, or require owner approval.
 6. A withdrawn precedent is retrievable and displayable but cannot authorize an action.
@@ -252,7 +260,7 @@ The demo must make the following legible to judges within 2 to 5 minutes:
 - Session 1 establishing constrained authority and persisting it.
 - A genuine process termination between sessions.
 - The fresh-session recall moment, shown as one continuous unedited segment.
-- The action changing from 25,000 USDC proposed to 10,000 USDC authorized, attributed to the recalled precedent.
+- The decision changing from 25,000 GBP proposed to 10,000 GBP authorized, attributed to the recalled precedent.
 - A genuine Base transaction executed within the bound.
 - The memory-deleted control showing safe degradation.
 - The boundary between deterministic authority and model assistance.

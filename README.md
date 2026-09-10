@@ -1,29 +1,31 @@
 # Finné Memory
 
-**Finné Memory converts an autonomous agent's remembered operating history into bounded authority for its next action.**
+**Finné Memory catches inconsistent institutional decisions before customers do.**
 
-> Sibyl lets agents remember. Finné determines what that memory authorizes them to do next.
+> Policy defines the rule. Precedent captures how the institution has actually interpreted it. Finné checks both before a decision leaves the building.
 
 Jump to: [memory read/write locations](#where-sibyl-memory-is-load-bearing) · [setup and run](#setup-and-run) · [prior work](#prior-work) · [builders](#builders-and-ai-tools)
 
 ## What It Does
 
-An agent with a 25,000 USDC ceiling and no memory of its own history will propose 25,000 USDC on its first day and on its hundredth. Mechanical permissions — spending limits, approved assets, approved contracts, permitted time windows — say what an agent is *technically allowed* to do. They say nothing about what it has *earned*: what happened last time, under what circumstances it was approved, what scope was considered safe, whether the outcome held up, and what is materially different now.
+Disputes rarely start with a bad decision. They start with an **inconsistent** one — two similar cases treated differently, a decision resting on superseded policy, an exception applied unevenly, or an institution that cannot reconstruct why it decided what it did.
 
-An autonomous agent (`finne/agent.py`, a model) is shown an opportunity and the capital it has available — never its ceiling, never any precedent — and proposes what it wants to do. Finné Memory sits between that agent and its ceiling. It turns persisted experiences into structured precedents and derives a narrower, explainable authority from them:
+Finné Memory sits in front of an externally consequential decision and asks one question: *is this consistent with current policy and with this institution's own valid precedent?*
+
+The demonstration domain is insurance claims. A handler has delegated authority to settle up to £25,000. An assessing agent (`finne/agent.py`, a model) is shown a claim and the loss adjuster's figure — never its own limits — and proposes a settlement. Finné then retrieves how the institution has actually decided materially similar claims, and derives what it has *earned* the authority to do:
 
 ```
-eligible = cases that are materially comparable
-           AND authority_state == "active"
-           AND outcome == "success"
+eligible = prior decisions that are materially comparable
+           AND authority_state == "active"     (still stands as precedent)
+           AND outcome == "success"            (settled and not reversed)
 
-learned_max_amount = max(authorized_amount of eligible)  if eligible is non-empty
-                   = cold_start_autonomous_amount        if eligible is empty
+learned_max = max(settled amount of eligible)  if any
+            = cold_start (0.00)                if none
 ```
 
-The authorized amount is the strict intersection of five constraints — owner ceiling, current hard policy, active precedent constraints, learned constraint, and current action scope. It can only narrow. No model participates at runtime; every value is deterministic.
+"Materially comparable" is a strict, deterministic rule — same channel, currency, assessment type, peril and decision, and the current claim can't be *riskier* than the precedent. **No model participates in that judgement anywhere.** The authorized figure is the strict intersection of five constraints and can only ever narrow.
 
-Finné Memory is **not** generic agent memory. Sibyl Memory provides the persistent memory. Finné Memory operates above it and converts remembered operating history into bounded, auditable authority.
+The point is not to force consistency blindly. It is to force **explainable** consistency: when a decision departs from precedent, the departure is surfaced, attributed, and recorded before the letter goes out.
 
 ## Status
 
@@ -31,25 +33,41 @@ Implemented and merged. The two-session demonstration runs end to end against Ba
 
 | | |
 | --- | --- |
-| Build | All five `SPEC-001` seams merged (PRs #7–#11) |
+| Build | All five `SPEC-001` seams merged (PRs #7–#11), plus the assessing agent (`SPEC-002`) |
 | Tests | **229 passed, 4 skipped** — the 4 are live-Base tests, opt-in via `FINNE_LIVE_BASE_TEST=1` |
 | Contract | [`0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46`](https://sepolia.basescan.org/address/0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46) on Base Sepolia (chain `84532`). Its `DV-001-V1` and `DV-002-V1` receipts are already recorded from earlier rehearsals, so a fresh run needs `deploy_contract.py --force` — see [Run the full demonstration](#run-the-full-demonstration) |
 | Deletion gate | Automated — `tests/test_fresh_session.py::test_no_memory_control_escalates_and_cannot_execute` |
+| Domain | Insurance claims (`DECISION-028`). The engine is domain-agnostic and has now carried two instantiations |
 | Open | `ORG-Q1` (Sepolia vs mainnet for the partner multiplier); four test-catalogue questions in `docs/testing/TEST-CATALOGUE.md` |
 
 ## The Demonstration
 
 Two genuinely separate OS processes.
 
-**Session 1.** Owner ceiling is 25,000 USDC on Base. The agent proposes 25,000. No comparable precedent exists, so `learned_max_amount` falls back to `cold_start_autonomous_amount` of `0.00` and Finné Memory escalates rather than silently authorizing the full amount. The owner approves a constrained authority of 10,000 USDC. The agent executes a zero-value Base action recording that authorization. The complete case — proposal, facts, ceiling, constrained authority, decision, action, transaction reference, outcome, precedent status — is written into Sibyl Memory. **The process exits.**
+**Session 1 — a first-of-its-kind claim.** Delegated authority is £25,000. A burst pipe claim comes in; the adjuster values the reinstatement at £25,000 and the agent proposes settling in full. Finné finds no comparable, active, upheld precedent, so `learned_max_amount` falls back to `cold_start_autonomous_amount` of `0.00` and the decision **escalates to a human** rather than settling at the delegated ceiling. A senior handler approves £10,000. That decision — facts, evidence, policy version in force, the approval, the outcome — is written into Sibyl Memory and anchored on Base. **The process exits.**
 
-**Session 2.** A fresh process. Same 25,000 ceiling, a materially similar opportunity, no carried-over state. The agent proposes the broader action. Finné Memory retrieves the earlier case from Sibyl Memory, confirms it is materially comparable and still `active`, and derives learned authority of 10,000 USDC.
+**Session 2 — a materially similar claim.** A fresh process, no carried-over state. Same authority, same claim profile, adjuster again at £25,000, agent again proposes £25,000. This time Finné retrieves the institution's own history and derives **£10,000**, naming `DV-001-V1` as the decision it is consistent with.
 
-**25,000 USDC proposed → 10,000 USDC authorized**, attributable on screen to the precedent it recalled.
+**25,000 GBP proposed → 10,000 GBP authorized**, attributable on screen to the precedent recalled. The handler may settle up to £10,000 on their own authority; going beyond it isn't forbidden, it requires sign-off — and the precedent being departed from is named.
 
-**Control.** Empty the memory and Session 2 retrieves nothing, derives zero autonomous authority, and escalates. It cannot proceed.
+**Control.** Empty the memory and Session 2 retrieves nothing, derives zero, and escalates. It cannot proceed.
 
-The corpus deliberately contains four comparable cases authorized **above** 10,000 — withdrawn at 20,000, superseded at 15,000, questioned-with-failed-outcome at 12,000, and never-activated draft at 18,000. If authority-state filtering breaks, the derived maximum rises above 10,000 and the demo fails loudly instead of passing quietly.
+### Why the corpus is the real test
+
+Six other prior decisions are retrieved and displayed. Every one is excluded, and each for a different reason:
+
+| Prior decision | Settled | Why it cannot authorise |
+| --- | --- | --- |
+| `DV-003-V1` | £20,000 | **Overturned by the ombudsman** on appeal |
+| `DV-006-V1` | £15,000 | Decided under **policy wording v2**, since replaced by v4 |
+| `DV-007-V1` | £12,000 | Settlement **reversed**, now under complaint |
+| `DV-008-V1` | £18,000 | Recorded but **never signed off** |
+| `DV-004-V1` | £5,000 | Storm damage — a **different peril** |
+| `DV-005-V1` | £10,000 | **Gradual** leakage, not sudden — excluded by the wording |
+
+Four carry amounts **above** £10,000. If authority filtering broke, the derived figure would rise and the demo would fail loudly instead of passing quietly.
+
+`DV-005-V1` is the one worth pausing on. The wording covers *sudden and accidental* escape of water and excludes gradual leakage. That decision is active, upheld, and superficially identical — and still cannot be followed. A handler classifying on surface similarity is exactly what produces a complaint, an ombudsman referral, and a remediation bill.
 
 ## Where Sibyl Memory Is Load-Bearing
 
@@ -57,54 +75,63 @@ Every critical-path read and write, with the exact call and the module that make
 
 | # | Operation | Call | Mode | When |
 | --- | --- | --- | --- | --- |
-| W1 | Immutable case version | `set_entity("finne_case_version", "<id>", {...})` | Write-once | Session 1, after the owner constrains authority |
-| W2 | Owner-policy snapshot in force | `set_reference("owner_policy_snapshot/<id>", {...})` | Write-once | Session 1, with W1 |
+| W1 | Immutable decision record | `set_entity("finne_case_version", "<id>", {...})` | Write-once | Session 1, after the senior handler approves |
+| W2 | Delegated-authority policy in force | `set_reference("owner_policy_snapshot/<id>", {...})` | Write-once | Session 1, with W1 |
 | W3 | Authority event (`draft` → `active` → …) | `write_event(extra={...})` | Append-only | On owner confirmation and every later treatment |
-| W4 | Execution outcome and Base transaction reference | `set_entity("finne_outcome", "<id>", {...})` | Write-once | After the Base transaction settles |
-| W5 | In-flight proposal working state | `set_state("current_proposal", {...})` | Overwritable | During a session; **never** read across sessions |
-| **R1** | **Candidate precedent generation** | `search_entities(<query>, category="finne_case_version")` | Read | Session 2, before any authorization |
-| **R2** | **Exact case retrieval** | `get_entity("finne_case_version", "<id>")` | Read | Session 2, for every candidate |
+| W4 | Outcome and the onchain anchor reference | `set_entity("finne_outcome", "<id>", {...})` | Write-once | After the Base transaction settles |
+| W5 | In-flight assessment working state | `set_state("current_proposal", {...})` | Overwritable | During a session; **never** read across sessions |
+| **R1** | **Candidate prior-decision generation** | `search_entities(<query>, category="finne_case_version")` | Read | Session 2, before any decision |
+| **R2** | **Exact decision-record retrieval** | `get_entity("finne_case_version", "<id>")` | Read | Session 2, for every candidate |
 | **R3** | **Authority-state fold** | `search(<id>, tiers=("journal",))` over authority events | Read | Session 2, to derive current authority state |
 | **R4** | **Outcome lookup for derivation eligibility** | `get_entity("finne_outcome", "<id>")` | Read | Session 2, during derivation |
-| R5 | Audit display of the policy in force | `get_reference("owner_policy_snapshot/<id>")` | Read | Session 2, for the explanation |
+| R5 | Audit display of the policy version in force | `get_reference("owner_policy_snapshot/<id>")` | Read | Session 2, for the explanation |
 
-**R1–R4 are the load-bearing reads.** Remove any one of them and Session 2 assembles no usable candidate, derives `learned_max_amount = 0`, and must escalate. It cannot execute autonomously.
+**R1–R4 are the load-bearing reads.** Remove any one of them and Session 2 assembles no usable prior decision, derives `learned_max_amount = 0`, and must escalate. It cannot decide autonomously.
 
-**W1, W3, and W4 are the load-bearing writes.** Remove them and Session 1 produces nothing for Session 2 to find.
+**W1, W3, and W4 are the load-bearing writes.** Remove them and Session 1 leaves no institutional record for Session 2 to be consistent with.
 
-This is not a stored preference or a cache. The learned number does not exist anywhere else and cannot be recomputed without these reads.
+This is not a stored preference or a cache. The institution's earned position does not exist anywhere else and cannot be recomputed without these reads.
 
 ## Memory Implementation Note
 
-**What the agent persists.** An immutable case version per decision (facts, authorized amount), the owner-policy snapshot in force at decision time, an append-only journal of authority transitions, and the execution outcome with its Base transaction hash.
+**What the institution persists.** An immutable decision record per claim (the material facts, the amount settled), the delegated-authority policy in force at the time, an append-only journal of what happened to that decision afterwards, and the outcome with its onchain anchor.
 
-**What it recalls.** In a fresh process with no carried-over state: candidate prior cases matching network, asset and action class; each candidate's exact record; each candidate's current authority state, folded from its journal; and each candidate's recorded outcome.
+**What it recalls.** In a fresh process with no carried-over state: candidate prior decisions matching channel, currency and assessment type; each one's exact record; each one's current authority state, folded from its journal; and whether the settlement was upheld or reversed.
 
-**What it uses to decide.** A candidate becomes eligible only if it is materially comparable (same network, asset, action class, target class and function, and the current proposal is no riskier than the precedent), its folded authority state is `active`, and its recorded outcome is `success`. The learned ceiling is the maximum authorized amount across eligible candidates. That ceiling enters a five-way intersection that can only narrow, and the resulting decision names the precedent it relied on.
+**What it uses to decide.** A prior decision becomes usable only if it is materially comparable (same channel, currency, assessment type, peril and decision, and the current claim is no riskier), its folded state is `active`, and its outcome is `success`. The learned ceiling is the largest amount across those. That enters a five-way intersection that can only narrow, and the resulting decision names what it relied on.
 
-Two encoding decisions make the `PREREQ-002` object model work on an overwritable key-value store:
+**The authority lifecycle is the institution's, not an abstraction:**
 
-- **Immutability is enforced above the store.** `set_entity` silently overwrites by default; `finne/memory/client.py` refuses to overwrite an existing case version or outcome and raises instead. Correction creates a new version identifier, never a mutation.
-- **Current authority state is derived, never stored.** It is folded from the append-only journal on every read, enforcing both the transition matrix and cross-event chain consistency. A contradictory chain yields no authority at all rather than its last good value.
+| State | Means |
+| --- | --- |
+| `active` | Stands as precedent |
+| `questioned` | Under complaint or appeal |
+| `superseded` | Decided under policy wording since replaced |
+| `withdrawn` | Overturned |
 
-Withdrawn and superseded cases stay retrievable and displayable while being ineligible to authorize, so `archive_entity` is deliberately never called.
+Two encoding decisions make this work on an overwritable key-value store:
+
+- **Immutability is enforced above the store.** `set_entity` silently overwrites by default; `finne/memory/client.py` refuses to overwrite an existing decision record or outcome and raises instead. A correction creates a new version, never a mutation. That is the property a dispute turns on — you cannot quietly rewrite what you decided once a complaint arrives.
+- **Current authority state is derived, never stored.** It is folded from the append-only journal on every read, enforcing both the transition matrix and cross-event consistency. A contradictory chain yields no authority at all rather than its last good value.
+
+Overturned and superseded decisions stay retrievable while being ineligible to authorise, so `archive_entity` is deliberately never called. An insurer needs to see the decision that was overturned; it just must not lean on it.
 
 ## The Agent, And What It Is Not Allowed To Do
 
-`finne/agent.py` is the only module that calls a model. It is given an opportunity and its available capital, and it decides two things: how much to commit, and how it rates the counterparty. It returns a `Proposal` and nothing else.
+`finne/agent.py` is the only module that calls a model. It is shown a claim and the loss adjuster's assessed value, and decides two things: the settlement figure to propose, and how it rates the claim's risk. It returns a proposal and nothing else.
 
-It is never given the owner ceiling, any precedent, or any authority value — and it cannot go looking. The module has no import path to `finne/authority/`, `finne/memory/`, `finne/policy.py`, or `finne/base/`, enforced over the transitive closure by `tests/test_import_boundaries.py`. That boundary is what makes the demonstration honest: the bound comes from Finné Memory, not from the agent's restraint.
+**It is never shown the delegated ceiling, any prior decision, or any authority value — and it cannot go looking.** The module has no import path to `finne/authority/`, `finne/memory/`, `finne/policy.py`, or `finne/base/`, enforced over the transitive closure by `tests/test_import_boundaries.py`. That boundary is what makes the demonstration honest: the bound comes from the institution's own record, not from the agent's restraint.
 
 | Concern | Decided by |
 | --- | --- |
-| What is proposed | **The model** |
+| What settlement is proposed | **The model** |
 | Whether it is comparable to precedent | Deterministic |
 | What authority has been earned | Deterministic |
-| What is authorized | Deterministic |
-| What is signed and submitted | Deterministic |
+| What is authorised | Deterministic |
+| What is anchored onchain | Deterministic |
 | What is explained | Deterministic |
 
-Model output is untrusted input. It is parsed into a `Proposal`, whose validation rejects anything malformed, and the engine then bounds whatever survives. If the agent proposes 40,000 against a 25,000 ceiling it is blocked — that is the product working, not an error path, and `tests/test_agent.py` asserts it. There is deliberately no fallback to a fixed proposal on model failure: a silent fallback would make the demo appear to work while proving nothing.
+Model output is untrusted input. It is parsed into a `Proposal`, whose validation rejects anything malformed, and the engine bounds whatever survives. If the agent proposes £40,000 against a £25,000 delegated ceiling it is blocked — that is the product working, and `tests/test_agent.py` asserts it. There is deliberately no fallback to a fixed proposal on model failure: a silent fallback would make the demo appear to work while proving nothing.
 
 Specified by `docs/specs/SPEC-002_MODEL_PROPOSING_AGENT.md`, recorded as `DECISION-027`.
 
@@ -147,14 +174,14 @@ This needs a funded Sepolia wallet, because **the headline result depends on a r
 DB=~/.sibyl-memory/demo-$(date +%H%M%S).db
 
 .venv/bin/python scripts/deploy_contract.py --force     # required: frees DV-001-V1 / DV-002-V1
-.venv/bin/python scripts/reset_demo.py --db-path $DB    # seeds CASE-003..008; CASE-001 is not seeded
+.venv/bin/python scripts/reset_demo.py --db-path $DB    # seeds the six prior decisions; CASE-001 is created live
 
-.venv/bin/python scripts/session1.py --db-path $DB              # escalates; owner approves 10,000
-.venv/bin/python scripts/session2.py --db-path $DB              # constrains 25,000 -> 10,000
+.venv/bin/python scripts/session1.py --db-path $DB              # escalates; senior handler approves 10,000
+.venv/bin/python scripts/session2.py --db-path $DB              # constrains 25,000 -> 10,000, citing DV-001-V1
 .venv/bin/python scripts/session2.py --db-path $DB --no-memory  # the control: escalates, cannot act
 ```
 
-Add `--agent=model` to either session to have the proposal produced by a real agent rather than a fixed value. It needs `OPENROUTER_API_KEY`; the default `--agent=fixed`, the test suite, and the deletion gate all run without one.
+Add `--agent=model` to either session to have the settlement proposed by a real assessing agent rather than a fixed value. It needs `OPENROUTER_API_KEY`; the default `--agent=fixed`, the test suite, and the deletion gate all run without one.
 
 `--no-memory` points at a fresh, never-seeded tenant, so it reproduces the deletion test without destroying Session 1's case.
 
@@ -173,7 +200,7 @@ Add `--agent=model` to either session to have the proposal produced by a real ag
 | Stack | Use | Evidence |
 | --- | --- | --- |
 | **Sibyl Memory** (`sibyl-memory-client` 0.8.0) | Mandatory persistent substrate. Entity, reference, journal and state tiers. Local SQLite with FTS5 under `~/.sibyl-memory/` | `finne/memory/client.py`, `finne/memory/schema.py` |
-| **Base** (Sepolia, chain `84532`) | Execution and outcome evidence. `AuthorizationReceipt` contract deployed and called with a real onchain transaction per authorization | `finne/base/adapter.py`, `finne/base/contracts/AuthorizationReceipt.sol`, contract [`0xcC01…9f46`](https://sepolia.basescan.org/address/0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46) |
+| **Base** (Sepolia, chain `84532`) | Tamper-evident attestation. `AuthorizationReceipt` deployed and called with a real onchain transaction per confirmed decision, anchoring the authorised amount and a hash of the facts and precedents relied on | `finne/base/adapter.py`, `finne/base/contracts/AuthorizationReceipt.sol`, contract [`0xcC01…9f46`](https://sepolia.basescan.org/address/0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46) |
 
 Virtuals Protocol is not used.
 
@@ -181,15 +208,23 @@ Virtuals Protocol is not used.
 
 ## How Base Performs Genuine Work
 
-Finné derives the permitted action → the agent executes it on Base → the transaction result becomes outcome evidence → the outcome is written into Sibyl Memory → a future fresh session recalls and uses it.
+Base is a **tamper-evident attestation layer**, not a payment rail. No confidential claim file goes onchain and no money moves.
 
-The `AuthorizationReceipt` contract records the authorized policy amount and a keccak hash of the material facts and cited precedents, keyed by `keccak256(decision_version_id)`. Every demonstration transaction carries **zero value** — representing a 10,000 USDC authorization does not require moving 10,000 USDC — and the function is non-payable, so the contract enforces that itself.
+When a decision is confirmed, the `AuthorizationReceipt` contract records the authorised amount as a policy value and a keccak hash of the material facts and the precedents relied upon, keyed by `keccak256(decision_version_id)`. Every transaction carries **zero value** and the function is non-payable, so the contract enforces that itself.
 
-The outcome is what closes the loop: `finne/authority/derivation.py` requires `outcome == "success"` for eligibility, so a case with no recorded Base result cannot authorize anything in a later session. Duplicate execution is rejected at both the application level and by the contract's own `require(!recorded[decisionId])`, and an `authorizedSigner` restriction prevents a third party recording a competing entry for a predictable decision id.
+The question this answers is the ugly one that surfaces six months later, after a complaint:
+
+> *Was this really the policy and the reasoning at the time, or was the record reconstructed after the fact?*
+
+**Sibyl Memory remembers the decision. Base proves the record wasn't rewritten.**
+
+The outcome closes the loop: `finne/authority/derivation.py` requires `outcome == "success"`, so a decision with no recorded, anchored result cannot be leaned on in a later session. Duplicate anchoring is rejected at both the application level and by the contract's own `require(!recorded[decisionId])`, and an `authorizedSigner` restriction prevents a third party recording a competing entry for a predictable decision id.
 
 ## Boundaries
 
-Finné Memory is not a payment, escrow, x402, refund, settlement, transaction-dispute, or service-delivery verification product. Base is used here for authorized execution and outcome evidence only.
+Finné Memory is a pre-decision consistency check. It is **not** a claims management system, a policy administration system, a dispute-resolution or adjudication engine, a payments or settlement rail, or generic agent memory. It does not decide claims; it tells an institution when it is about to decide one inconsistently with its own record.
+
+The insurance corpus in this repository is **entirely synthetic** and authored for this demonstration. No real claim, policyholder, insurer, or claims data is represented, and none is claimed.
 
 ## Prior Work
 
@@ -198,9 +233,9 @@ Finné Memory is not a payment, escrow, x402, refund, settlement, transaction-di
 | Category | Declaration |
 | --- | --- |
 | External code, templates, assets | None |
-| Datasets | None. The demo corpus in `docs/product/ACTIVE_DEMO_DESIGN.md` is entirely synthetic and authored for this project |
+| Datasets | None. The insurance corpus in `docs/product/ACTIVE_DEMO_DESIGN.md` is entirely synthetic and authored for this project. No real claim, policyholder, insurer, or claims dataset is used or represented |
 | Dependencies | `sibyl-memory-client` (MIT), `web3` (MIT), `py-solc-x` (MIT), `rich` (MIT); dev-only `pytest` (MIT) and `hypothesis` (MPL-2.0, not distributed). All used as published, unmodified |
-| Prior work by this builder | The `PREREQ-002` decision-record and precedent object model — matter and decision versions, authority states and transitions, citation rules, and invariants — was designed earlier in this repository for a supplier-onboarding domain and is carried forward unchanged. Its supplier instantiation is retained as historical under `docs/product/PREREQ-001_*` and `PREREQ-002_*` |
+| Prior work by this builder | The `PREREQ-002` decision-record and precedent object model — matter and decision versions, authority states and transitions, citation rules, and invariants — was designed earlier in this repository and is carried forward unchanged. It has now carried three domain instantiations: supplier onboarding, agent authority (`DECISION-022`), and insurance claims (`DECISION-028`). The earlier instantiations are retained as historical under `docs/product/PREREQ-001_*` and `PREREQ-002_*` |
 | Third-party content | Short factual requirements and API names from `hack.sibyllabs.org`, `docs.sibyllabs.org`, and the PyPI JSON API, cited with verification dates in `HACKATHON_RULES.md` |
 
 Full record, including licences and per-change provenance: [`REUSED_COMPONENTS.md`](REUSED_COMPONENTS.md).

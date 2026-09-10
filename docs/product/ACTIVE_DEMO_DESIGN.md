@@ -1,4 +1,4 @@
-# Active Demo Design: Base Agent-Permission Precedent
+# Active Demo Design: Insurance Claims Precedent
 
 ## Status
 
@@ -14,16 +14,16 @@ The owner ceiling is owner-controlled configuration. Finné Memory reads it and 
 
 | Dimension | Owner ceiling `OP-001` |
 | --- | --- |
-| `max_amount` | `25000.00 USDC` |
-| `network` | `base` |
-| `asset` | `USDC` |
-| `action_class` | `capital_deployment` |
-| `approved_target_classes` | `demo_receipt`, `yield_vault_conservative` |
-| `approved_functions` | `recordAuthorization`, `deposit` |
+| `max_amount` | `25000.00 GBP` — delegated settlement ceiling |
+| `network` | `uk_retail_direct` — the claims channel this authority covers |
+| `asset` | `GBP` — settlement currency |
+| `action_class` | `claim_assessment` |
+| `approved_target_classes` | `escape_of_water_sudden`, `storm_damage` — note `escape_of_water_gradual` is absent; the wording excludes it |
+| `approved_functions` | `approve_settlement`, `decline` |
 | `unknown_situation_behaviour` | `escalate_to_owner` |
-| `cold_start_autonomous_amount` | `0.00 USDC` |
+| `cold_start_autonomous_amount` | `0.00 GBP` |
 
-- CONFIRMED: `cold_start_autonomous_amount` of zero is what forces the safe cold-start path in Session 1. With no precedent, the intersection yields zero autonomous authority, so the outcome is `escalate`, never a silent 25,000 USDC allow.
+- CONFIRMED: `cold_start_autonomous_amount` of zero is what forces the safe cold-start path in Session 1. On a first-of-its-kind claim the intersection yields zero autonomous authority, so the outcome is `escalate` to a human — never a silent settlement at the full delegated ceiling.
 
 ## 2. Material Fact Dimensions
 
@@ -36,8 +36,8 @@ Every proposal and every recorded case carries these structured facts.
 | `action_class` | Enum | Comparability dimension |
 | `target_class` | Enum | Comparability dimension |
 | `function` | Enum | Comparability dimension |
-| `counterparty_risk_tier` | `low` / `medium` / `high` | Comparability dimension, directional |
-| `amount` | Decimal | Constrained output, **not** a comparability dimension |
+| `counterparty_risk_tier` | `low` / `medium` / `high` | How the claim itself rates — causation clarity, evidence quality, claims history. Comparability dimension, directional |
+| `amount` | Decimal | The settlement figure. Constrained output, **not** a comparability dimension |
 | `proposed_at` | Timestamp | Provenance |
 
 ## 3. Deterministic Comparability Rule
@@ -49,7 +49,7 @@ A prior case is **materially comparable** to a current proposal if and only if:
 
 Any mismatch is a **material difference**. A materially different case may be retrieved and displayed, and a model may explain the difference, but it cannot be followed. Amount never affects comparability; it is the value being constrained.
 
-- CONFIRMED: The directional risk-tier check specifically stops a current proposal that is *riskier* than its precedent from inheriting that precedent's authority — e.g. a `high`-risk current proposal could not follow a `low`-risk precedent even if every other dimension matched exactly. A precedent that is riskier than the current proposal remains comparable (a successful high-risk case is at least as strong grounds for a lower-risk one). Every proposal in this corpus is fixed at `low` risk, so this exclusion direction is never exercised by a corpus fixture; it is proven by `test_comparability.py` against a synthetic higher-risk-current-vs-lower-risk-precedent input instead.
+- CONFIRMED: The directional risk-tier check specifically stops a claim that is *riskier* than its precedent — weaker causation evidence, a worse claims history — from inheriting that precedent's authority — e.g. a `high`-risk current proposal could not follow a `low`-risk precedent even if every other dimension matched exactly. A precedent that is riskier than the current proposal remains comparable (a successful high-risk case is at least as strong grounds for a lower-risk one). Every proposal in this corpus is fixed at `low` risk, so this exclusion direction is never exercised by a corpus fixture; it is proven by `test_comparability.py` against a synthetic higher-risk-current-vs-lower-risk-precedent input instead.
 
 ## 4. Learned-Constraint Derivation Policy
 
@@ -72,19 +72,19 @@ learned_max_amount = max(authorized_amount of eligible)  if eligible is non-empt
 
 Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immutable `MV-nnn-Vk` matter versions and `DV-nnn-Vk` decision versions.
 
-| Case | Matter / Decision version | Facts | Authorized | Outcome | Authority state | Role in demo |
+| Case | Matter / Decision version | Claim | Settled | Outcome | Authority state | Role in demo |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CASE-001` | `MV-001-V1` / `DV-001-V1` | base, USDC, capital_deployment, yield_vault_conservative, deposit, risk `low` | `10000.00` | `success` | `active` | Session 1 baseline; the precedent Session 2 must find |
-| `CASE-002` | `MV-002-V1` / `DV-002-V1` (created at write-back) | Identical fact profile to `CASE-001`, proposed `25000.00` | `10000.00` | `success` | `draft` | Session 2 current proposal; expects constrain to `10000.00`; its own resulting decision version stays `draft` — promoting it to `active` is out of this slice's scope |
-| `CASE-003` | `MV-003-V1` / `DV-003-V1` | Identical fact profile, authorized `20000.00` | `20000.00` | `success` | `withdrawn` | Highly similar but **withdrawn**; must not raise authority to 20,000 |
-| `CASE-004` | `MV-004-V1` / `DV-004-V1` | base, USDC, capital_deployment, `demo_receipt`, `recordAuthorization`, risk `low` | `5000.00` | `success` | `active` | Less similar but active; proves similarity and authority are separate |
-| `CASE-005` | `MV-005-V1` / `DV-005-V1` | Same as `CASE-001` except `target_class` = `yield_vault_aggressive` | `10000.00` | `success` | `active` | Material-difference fixture: `target_class` mismatch excludes it from derivation even though authority state and outcome match `CASE-001` exactly |
-| `CASE-006` | `MV-006-V1` / `DV-006-V1` | Identical fact profile, authorized `15000.00` | `15000.00` | `success` | `superseded` | Superseded by `DV-001-V1`; retrievable, not authorizing |
-| `CASE-007` | `MV-007-V1` / `DV-007-V1` | Identical fact profile, authorized `12000.00` | `12000.00` | `failure` | `questioned` | Failed outcome later questioned; excluded from derivation |
-| `CASE-008` | `MV-008-V1` / `DV-008-V1` | Identical fact profile, authorized `18000.00` | `18000.00` | `success` | `draft` | Recorded but never owner-confirmed; cannot authorize |
+| `CASE-001` | `MV-001-V1` / `DV-001-V1` | In-panel, GBP, claim_assessment, sudden escape of water, approve_settlement, risk `low` | `10000.00` | `success` | `active` | Session 1 baseline; the precedent Session 2 must find |
+| `CASE-002` | `MV-002-V1` / `DV-002-V1` (created at write-back) | Identical claim profile, adjuster valued at `25000.00` | `10000.00` | `success` | `draft` | Session 2's own case; expects constrain to `10000.00`. Stays `draft` — sign-off is out of this slice's scope |
+| `CASE-003` | `MV-003-V1` / `DV-003-V1` | Identical claim profile, settled at `20000.00` | `20000.00` | `success` | `withdrawn` | **Overturned by the ombudsman on appeal.** Still retrievable; must never raise authority to 20,000 |
+| `CASE-004` | `MV-004-V1` / `DV-004-V1` | In-panel, GBP, claim_assessment, `storm_damage`, approve_settlement, risk `low` | `5000.00` | `success` | `active` | A different peril. Perfectly good active precedent for storm claims, and irrelevant to this one — similarity and authority are separate questions |
+| `CASE-005` | `MV-005-V1` / `DV-005-V1` | Same as `CASE-001` except `target_class` = `escape_of_water_gradual` | `10000.00` | `success` | `active` | **The claim that looks the same and is not.** Gradual leakage is excluded by the wording. Active, upheld, and still not followable — this is the fixture that proves the engine distinguishes on causation rather than appearance |
+| `CASE-006` | `MV-006-V1` / `DV-006-V1` | Identical claim profile, settled at `15000.00` | `15000.00` | `success` | `superseded` | Decided under policy wording v2, since replaced by v4. Retrievable, not authorizing |
+| `CASE-007` | `MV-007-V1` / `DV-007-V1` | Identical claim profile, settled at `12000.00` | `12000.00` | `failure` | `questioned` | Settlement subsequently reversed; now under complaint. Excluded on both outcome and state |
+| `CASE-008` | `MV-008-V1` / `DV-008-V1` | Identical claim profile, settled at `18000.00` | `18000.00` | `success` | `draft` | Recorded but never signed off by the authority steward. Cannot authorize |
 
-- CONFIRMED: `CASE-003`, `CASE-006`, `CASE-007`, and `CASE-008` all carry authorized amounts **above** 10,000 USDC. This is deliberate. If authority-state filtering is broken, the derived learned maximum rises above 10,000 and the demo assertion fails loudly.
-- CONFIRMED: `CASE-001` is the only `active`, comparable, successful case at the 10,000 level, so `learned_max_amount` for Session 2 is exactly `10000.00`.
+- CONFIRMED: `CASE-003`, `CASE-006`, `CASE-007`, and `CASE-008` all carry settled amounts **above** 10,000 GBP. This is deliberate. If authority-state filtering is broken, the derived learned maximum rises above 10,000 and the demo assertion fails loudly.
+- CONFIRMED: `CASE-001` is the only comparable case that is simultaneously `active` and upheld, so `learned_max_amount` for Session 2 is exactly `10000.00`. Every other route to a larger figure is closed by a different mechanism — appeal, policy version, complaint, or missing sign-off — which is what makes the corpus a real test rather than a demonstration of one rule.
 
 ## 6. Precedent Relationships
 
@@ -103,28 +103,28 @@ Identifiers follow the `PREREQ-002` convention: stable `CASE-nnn` identity, immu
 
 ### Session 1 — establish experience
 
-1. Owner ceiling `OP-001` is loaded: 25,000 USDC on Base.
-2. The agent proposes `CASE-001` at `25000.00` USDC.
-3. Finné Memory finds no comparable active precedent. `learned_max_amount` falls back to `cold_start_autonomous_amount` = `0.00`.
-4. The intersection yields zero autonomous authority. The decision is `escalate` — **not** a silent 25,000 USDC allow.
-5. The owner approves a constrained authority of `10000.00` USDC under the `CASE-001` conditions.
+1. Delegated authority `OP-001` is loaded: settle up to 25,000 GBP, in-panel.
+2. The assessing agent proposes `CASE-001` at `25000.00` GBP — the loss adjuster's full assessed value.
+3. Finné Memory finds no comparable, active, upheld prior decision. This is a first-of-its-kind claim, so `learned_max_amount` falls back to `cold_start_autonomous_amount` = `0.00`.
+4. The intersection yields zero autonomous authority. The decision is `escalate` to a human — **not** a silent settlement at the full delegated ceiling.
+5. A senior handler reviews the escalation and approves a settlement of `10000.00` GBP under the `CASE-001` conditions. That decision is now the institution's position on this kind of claim.
 6. Finné Memory writes the immutable case version and owner-policy snapshot to Sibyl Memory. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-001-V1`. Per the retained `PREREQ-002` authority transitions, this confirmation is itself the initial `No prior state → draft` `AuthorityEvent` — not merely a data write. **CORRECTED 2026-09-05** (ordering only, fact-correction — independent review found this document, `PREREQ-003`, and `SPEC-001` all described these writes happening after Base execution rather than before it; the case version, snapshot, and authority events do not wait on Base, per `PREREQ-003` section 3's own W-table — only the outcome, W4, does).
 7. The Owner, acting separately as **Authority Steward** — a distinct timestamped action, even though it is the same person — confirms activation: a second `AuthorityEvent` records `draft → active`, promoting `DV-001-V1` to `active`.
-8. The agent executes the safe Base demonstration action within the bound. The authorization receipt records `10000.00` USDC as a policy value; the transaction carries zero value. If the transaction settles (confirmed success or confirmed revert), the outcome and Base transaction reference (W4) are written now. If the receipt wait times out or errors, the transaction may still be pending — W4 is deliberately left unwritten rather than recording a possibly-wrong immutable failure, and is completed later once the original transaction's own receipt can be checked directly.
+8. The decision record is anchored on Base within the bound. The authorization receipt records `10000.00` GBP as a policy value and a hash of the facts and precedents relied on; the transaction carries zero value and moves no money. If the transaction settles (confirmed success or confirmed revert), the outcome and Base transaction reference (W4) are written now. If the receipt wait times out or errors, the transaction may still be pending — W4 is deliberately left unwritten rather than recording a possibly-wrong immutable failure, and is completed later once the original transaction's own receipt can be checked directly.
 9. **The process terminates completely**, regardless of whether W4 completed or is left pending reconciliation.
 
 ### Session 2 — memory changes behaviour
 
 1. A genuinely fresh process starts. No in-process state is carried over.
-2. The same owner ceiling `OP-001` is loaded: 25,000 USDC.
-3. The agent proposes `CASE-002` at `25000.00` USDC — the broader action.
+2. The same delegated authority `OP-001` is loaded: 25,000 GBP.
+3. The agent proposes `CASE-002` at `25000.00` GBP — the adjuster's assessed value again, as it should on the evidence alone.
 4. Finné Memory retrieves prior cases from Sibyl Memory.
 5. Deterministic checks: `CASE-001` is materially comparable; its authority state is `active`; the current facts satisfy its conditions. `CASE-003`, `CASE-006`, `CASE-007`, and `CASE-008` are retrieved and displayed but excluded from derivation by authority state or outcome.
 6. `learned_max_amount` = `10000.00`.
-7. The intersection binds on the learned constraint. The decision is `constrain` to `10000.00` USDC. The `AuthorizationDecision.cited_precedents` names `DV-001-V1` as the supporting precedent — this is the decision's own explanation citing a prior decision version, not yet a persisted `PrecedentRelationship`, since `CASE-002` has no decision version of its own until write-back.
-8. The action changes: **25,000 USDC proposed → 10,000 USDC authorized**.
+7. The intersection binds on the learned constraint. The decision is `constrain` to `10000.00` GBP. The `AuthorizationDecision.cited_precedents` names `DV-001-V1` as the supporting precedent — this is the decision's own explanation citing a prior decision version, not yet a persisted `PrecedentRelationship`, since `CASE-002` has no decision version of its own until write-back.
+8. The decision changes: **25,000 GBP proposed → 10,000 GBP authorized**. The handler may settle up to 10,000 on their own authority, because that is what the institution has consistently done for materially identical claims. Going beyond it is not forbidden — it requires sign-off, and the precedent being departed from is named.
 9. Finné Memory writes the immutable case version and owner-policy snapshot. The Owner, acting as **Decision Reviewer**, confirms creation of the immutable draft decision version `DV-002-V1` for `CASE-002` — the initial `No prior state → draft` `AuthorityEvent`, exactly as in Session 1 step 6. **CORRECTED 2026-09-05** (ordering only, matching Session 1's correction above — these writes do not wait on Base).
-10. The agent executes the safe Base action within the bound. The receipt represents `10000.00` USDC; zero value moves. If the transaction settles, the new outcome (W4) is written back to Sibyl Memory now; a receipt-wait timeout leaves W4 pending, completed later once the original transaction's own receipt can be checked directly.
+10. The decision record is anchored on Base within the bound. The receipt represents `10000.00` GBP; zero value moves. If the transaction settles, the new outcome (W4) is written back to Sibyl Memory now; a receipt-wait timeout leaves W4 pending, completed later once the original transaction's own receipt can be checked directly.
 11. Section 6 names the `follows` (`DV-002-V1` → `DV-001-V1`) and `distinguishes` (`DV-002-V1` → `DV-005-V1`) treatments; per section 6's 2026-09-04 deferral note, persisting these as canonical `PrecedentRelationship` records is out of scope for this slice — `DV-002-V1` already carries its citation live, in `AuthorizationDecision.cited_precedents`, shown on screen in step 8. `DV-002-V1` remains `draft` — promoting it to `active` is also out of scope for this slice.
 
 - CONFIRMED: The changed action must be visible on screen and attributable to the recalled memory, naming `DV-001-V1` as the binding precedent.
@@ -138,9 +138,9 @@ With the Sibyl Memory database removed or emptied, Session 2 retrieves nothing, 
 | ID | Scenario | Required behaviour |
 | --- | --- | --- |
 | `NEG-01` | Sibyl Memory absent, empty, or unauthenticated | Safe fallback: `escalate`. Never a silent allow. |
-| `NEG-02` | Only `CASE-003` (withdrawn) matches | Retrieved and displayed; excluded from derivation; result `escalate`, never `20000.00` |
-| `NEG-03` | Proposal is materially different from every active case | Cannot silently follow; result `escalate` with the difference stated |
-| `NEG-04` | Proposal of `40000.00` USDC, above the owner ceiling | `block`, regardless of any precedent |
+| `NEG-02` | Only `CASE-003` (overturned on appeal) matches | Retrieved and displayed; excluded from derivation; result `escalate`, never `20000.00` |
+| `NEG-03` | The claim is materially different from every active precedent — a gradual-leakage case against a sudden-rupture record | Cannot silently follow; result `escalate` with the difference stated. This is the dispute-prevention case: a handler classifying on surface similarity is exactly what produces a complaint |
+| `NEG-04` | Proposed settlement of `40000.00` GBP, above the delegated ceiling | `block`, regardless of any precedent |
 | `NEG-05` | No model API key, or model returns malformed output | Deterministic path produces the identical authorization; the explanation is the deterministic template. **CORRECTED 2026-09-05** (independent review, seam (e) round 4): this originally read "degrades to a deterministic template", which implied a non-deterministic path existed to degrade FROM. No module calls a model at runtime any more, so the required behaviour holds by construction — there is no key to be absent and no response to be malformed. See `PREREQ-003` section 13 |
 | `NEG-06` | Malformed or contradictory memory record | Treated as absent, not as permission; result constrains or escalates |
 | `NEG-07` | Base transaction reverts or is rejected outright before broadcast | No false success; outcome recorded as `failure`; no fabricated transaction reference |

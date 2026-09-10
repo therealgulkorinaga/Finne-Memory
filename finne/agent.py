@@ -1,8 +1,8 @@
-"""The proposing agent — the only module in this repository that calls a
+"""The assessing agent — the only module in this repository that calls a
 model, per PREREQ-003 section 17 as amended by DECISION-027.
 
-It is given an opportunity and the capital it has available. It is NOT
-given the owner ceiling, any precedent, or any authority value, and it
+It is given a claim and the loss adjuster's assessed value. It is NOT
+given the delegated settlement ceiling, any precedent, or any authority value, and it
 has no way to reach them: this module imports nothing from
 finne.authority, finne.memory, finne.policy, or finne.base, and
 tests/test_import_boundaries.py enforces that over the transitive
@@ -75,18 +75,20 @@ class AgentResponseError(Exception):
 
 
 @dataclass(frozen=True)
-class Opportunity:
-    """What the agent is told.
+class CaseUnderAssessment:
+    """What the assessing agent is told: the claim, and the loss
+    adjuster's figure for it.
 
-    Note what is absent and stays absent: there is no max_amount, no
-    precedent, no authority state, and no learned constraint. The agent
-    cannot reason about limits it has never been shown, which is what
-    makes the demonstration honest — the bound comes from Finné Memory,
-    not from the agent's restraint.
+    Note what is absent and stays absent: there is no delegated
+    settlement ceiling, no prior decision, no authority state, and no
+    learned constraint. The agent cannot reason about limits it has
+    never been shown, which is what makes the demonstration honest —
+    the bound comes from the institution's own record of how it has
+    decided before, not from the agent's restraint.
     """
 
-    description: str
-    available_capital: Decimal
+    summary: str
+    assessed_value: Decimal
     network: str
     asset: str
     action_class: str
@@ -95,17 +97,18 @@ class Opportunity:
 
 
 _SYSTEM_PROMPT = (
-    "You are an autonomous treasury deployment agent. You are shown one "
-    "opportunity and the capital you currently have available, and you "
-    "decide what action to propose.\n\n"
-    "Decide two things: how much of your available capital to commit, and "
-    "how you rate the counterparty risk of this opportunity. Propose the "
-    "allocation you actually think is right for the opportunity as "
-    "described.\n\n"
-    "Your proposal is reviewed by a separate authority system before "
-    "anything executes. Do not try to guess what that system will permit, "
-    "and do not hedge to seem cautious — propose what the opportunity "
-    "merits."
+    "You are a claims assessor at a general insurer. You are shown one "
+    "claim and the loss adjuster's assessed value for it, and you decide "
+    "what settlement to propose.\n\n"
+    "Decide two things: the settlement amount to propose, and how you rate "
+    "the risk profile of this claim — `low` for a straightforward claim with "
+    "clear causation and supporting evidence, `medium` or `high` where "
+    "causation, evidence, or the policyholder's history give you pause.\n\n"
+    "Propose the settlement the claim actually merits on the evidence "
+    "described. Your proposal is reviewed against the institution's own "
+    "prior decisions before anything is issued to the policyholder. Do not "
+    "try to guess what that review will permit, and do not hedge low to seem "
+    "cautious — assess the claim."
 )
 
 
@@ -138,7 +141,7 @@ def _read_env_var(name: str) -> str:
     )
 
 
-def _proposal_schema(opportunity: Opportunity) -> dict[str, Any]:
+def _proposal_schema(case: CaseUnderAssessment) -> dict[str, Any]:
     """A strict JSON schema for the response.
 
     The fact dimensions are pinned to the opportunity's own values —
@@ -160,11 +163,11 @@ def _proposal_schema(opportunity: Opportunity) -> dict[str, Any]:
             "function", "counterparty_risk_tier", "amount", "reasoning",
         ],
         "properties": {
-            "network": {"type": "string", "enum": [opportunity.network]},
-            "asset": {"type": "string", "enum": [opportunity.asset]},
-            "action_class": {"type": "string", "enum": [opportunity.action_class]},
-            "target_class": {"type": "string", "enum": [opportunity.target_class]},
-            "function": {"type": "string", "enum": [opportunity.function]},
+            "network": {"type": "string", "enum": [case.network]},
+            "asset": {"type": "string", "enum": [case.asset]},
+            "action_class": {"type": "string", "enum": [case.action_class]},
+            "target_class": {"type": "string", "enum": [case.target_class]},
+            "function": {"type": "string", "enum": [case.function]},
             "counterparty_risk_tier": {
                 "type": "string",
                 "enum": [tier.value for tier in RiskTier],
@@ -172,28 +175,29 @@ def _proposal_schema(opportunity: Opportunity) -> dict[str, Any]:
             "amount": {
                 "type": "string",
                 "description": (
-                    "Amount to commit, as a decimal string with exactly two "
-                    "decimal places, e.g. \"25000.00\". Not a number."
+                    "Settlement amount to propose, as a decimal string with exactly "
+                    "two decimal places — format example only, carries no "
+                    "suggestion about size: \"1234.56\". Not a JSON number."
                 ),
             },
             "reasoning": {
                 "type": "string",
-                "description": "One sentence on why this allocation.",
+                "description": "One sentence on why this settlement figure.",
             },
         },
     }
 
 
-def _build_request(opportunity: Opportunity, model: str) -> dict[str, Any]:
+def _build_request(case: CaseUnderAssessment, model: str) -> dict[str, Any]:
     user_message = (
-        f"Opportunity: {opportunity.description}\n"
-        f"Network: {opportunity.network}\n"
-        f"Asset: {opportunity.asset}\n"
-        f"Action class: {opportunity.action_class}\n"
-        f"Target: {opportunity.target_class}\n"
-        f"Function: {opportunity.function}\n"
-        f"Capital available to you: {opportunity.available_capital} {opportunity.asset}\n\n"
-        "Propose your action."
+        f"Claim: {case.summary}\n"
+        f"Channel: {case.network}\n"
+        f"Settlement currency: {case.asset}\n"
+        f"Assessment type: {case.action_class}\n"
+        f"Peril: {case.target_class}\n"
+        f"Decision under consideration: {case.function}\n"
+        f"Loss adjuster's assessed value: {case.assessed_value} {case.asset}\n\n"
+        "Propose your settlement."
     )
     return {
         "model": model,
@@ -204,9 +208,9 @@ def _build_request(opportunity: Opportunity, model: str) -> dict[str, Any]:
         "response_format": {
             "type": "json_schema",
             "json_schema": {
-                "name": "capital_deployment_proposal",
+                "name": "claim_settlement_proposal",
                 "strict": True,
-                "schema": _proposal_schema(opportunity),
+                "schema": _proposal_schema(case),
             },
         },
         # NOT optional. OpenRouter serves the same model through several
@@ -265,7 +269,7 @@ def _to_proposal(payload: dict[str, Any]) -> Proposal:
         raise AgentResponseError(f"model response is not a valid proposal: {exc}") from exc
 
 
-def propose(opportunity: Opportunity, *, model: str | None = None) -> Proposal:
+def propose(case: CaseUnderAssessment, *, model: str | None = None) -> Proposal:
     """Ask the model what it wants to do.
 
     Raises rather than returning a default on every failure path. The
@@ -283,7 +287,7 @@ def propose(opportunity: Opportunity, *, model: str | None = None) -> Proposal:
                 # Identifies this project to OpenRouter. Not a secret.
                 "X-Title": "Finne Memory",
             },
-            json=_build_request(opportunity, chosen_model),
+            json=_build_request(case, chosen_model),
             timeout=_TIMEOUT_SECONDS,
         )
     except requests.RequestException as exc:

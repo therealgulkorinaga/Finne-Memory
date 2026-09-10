@@ -140,12 +140,12 @@ derive_effective_authority(
 ```solidity
 function recordAuthorization(
     bytes32 decisionId,
-    uint256 authorizedAmount,   // policy value, 6-decimal USDC units; NOT a transfer
+    uint256 authorizedAmount,   // policy value at 6 decimal places; NOT a transfer
     bytes32 factsHash           // hash of the material facts and cited precedents
 ) external;                     // non-payable; emits AuthorizationRecorded
 ```
 
-- **Decision:** The authorized amount is carried as a **policy value**, not a transfer. Representing a 10,000 USDC authorization does not require moving 10,000 USDC. Every demonstration transaction carries zero value.
+- **Decision:** The authorized amount is carried as a **policy value**, not a transfer. Representing a 10,000 GBP authorization does not require moving any money at all. Every demonstration transaction carries zero value.
 - **Decision:** `decisionId = keccak256(decision_version_id)`. The contract enforces `require(!recorded[decisionId])`, giving onchain duplicate-execution protection for `NEG-08` in addition to the application-level idempotency check.
 - **Decision, ADDED 2026-09-05 (independent review, seam (d) round 3):** `recordAuthorization` is restricted to the contract's own `authorizedSigner` (set once, at deployment, to the deploying wallet's address). Without this, `decisionId` being a deterministic hash of a fixed, public string (`decision_version_id` values like `"DV-001-V1"` appear in this repository's own source) meant any third party could permanently record a predictable `decisionId` with arbitrary data first — preempting a real authorization before this project's own session scripts ever run, or creating misleading "evidence." `finne.base.adapter.get_receipt()` additionally verifies the stored receipt's `submittedBy` against the connected wallet's own address before trusting it, as defense in depth against a differently-configured or older contract deployment.
 - **Decision:** `factsHash` binds the receipt to the exact facts and precedents relied upon, so the onchain record is verifiable evidence rather than a bare log line.
