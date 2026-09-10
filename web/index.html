@@ -23,6 +23,33 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* ---- slide layout: one beat per screen, scroll-snapped ---- */
+html { scroll-snap-type: y proximity; scroll-behavior: smooth; }
+.page { padding: 0; }
+.wrap { max-width: 1240px; gap: 0; }
+.slide {
+  min-height: 100vh;
+  scroll-snap-align: center;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 72px 0 96px;
+}
+.slidehead {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 18px 28px;
+  background: linear-gradient(var(--ink-deep) 62%, transparent);
+  pointer-events: none;
+}
+.slidehead .name { font-family: var(--font-serif); font-size: 19px; font-weight: 500; }
+.slidehead .kicker { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-4); letter-spacing: .1em; }
+.slidehead .note { margin-left: auto; font-size: 11.5px; color: var(--fg-4); }
+.cue {
+  position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-4);
+  letter-spacing: .16em; text-transform: uppercase;
+}
+@media (max-width: 760px) { .slide { min-height: auto; padding: 56px 0; } .cue { display: none; } }
+
 body {
   margin: 0;
   background: var(--ink-deep);
@@ -43,7 +70,7 @@ a:hover { color: var(--accent); }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .serif { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.01em; }
 .eyebrow {
-  font-size: 11px; font-weight: 600; letter-spacing: .12em;
+  font-size: 13px; font-weight: 600; letter-spacing: .12em;
   text-transform: uppercase; color: var(--fg-3);
 }
 .accent { color: var(--accent-bright); }
@@ -64,16 +91,16 @@ a:hover { color: var(--accent); }
 .card { border: 1px solid var(--line); border-radius: 12px; background: var(--ink); overflow: hidden; }
 .card-lift { box-shadow: var(--shadow-md); }
 .card-head { padding: 18px 20px; border-bottom: 1px solid var(--line); }
-.card-title { font-family: var(--font-serif); font-size: 19px; font-weight: 500; }
+.card-title { font-family: var(--font-serif); font-size: clamp(22px,2.4vw,32px); font-weight: 500; }
 .card-sub { font-size: 13px; color: var(--fg-3); margin-top: 4px; max-width: 70ch; }
 
 /* ---- the recall moment ---- */
 .hero {
   border: 1px solid var(--line); border-radius: 16px; background: var(--ink);
-  padding: 32px 28px; box-shadow: var(--shadow-md);
+  padding: 56px 48px; box-shadow: var(--shadow-md);
 }
 .hero-eyebrow {
-  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  font-size: 14px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
   color: var(--accent-bright); margin-bottom: 22px;
 }
 .hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px 40px; }
@@ -81,7 +108,7 @@ a:hover { color: var(--accent); }
 .hero-label.is-accent { color: var(--accent-bright); }
 .hero-struck { position: relative; display: inline-block; }
 .hero-proposed {
-  font-family: var(--font-mono); font-size: clamp(30px, 6.4vw, 52px); font-weight: 500;
+  font-family: var(--font-mono); font-size: clamp(34px, 7vw, 68px); font-weight: 500;
   letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--fg-2);
 }
 .hero-strike {
@@ -91,7 +118,7 @@ a:hover { color: var(--accent); }
 .hero-unit { font-family: var(--font-mono); font-size: 12px; color: var(--fg-4); margin-top: 8px; }
 .hero-arrow { font-family: var(--font-mono); font-size: 22px; color: var(--fg-4); padding-bottom: 26px; }
 .hero-authorized {
-  font-family: var(--font-mono); font-size: clamp(38px, 9vw, 76px); font-weight: 600;
+  font-family: var(--font-mono); font-size: clamp(44px, 11vw, 108px); font-weight: 600;
   letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--accent-bright); line-height: 1;
 }
 .hero-cite { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); margin-top: 10px; }
@@ -175,20 +202,20 @@ a:hover { color: var(--accent); }
 
 /* ---- candidates table ---- */
 .tablewrap { overflow-x: auto; }
-table { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 13.5px; }
+table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: clamp(14px,1.35vw,18px); }
 th {
-  text-align: left; padding: 11px 16px; font-size: 10.5px; font-weight: 600;
+  text-align: left; padding: 14px 18px; font-size: 11.5px; font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase; color: var(--fg-3);
   border-bottom: 1px solid rgba(245,240,232,.14);
 }
 th.num { text-align: right; }
 tbody { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-td { padding: 12px 16px; border-bottom: 1px solid var(--hairline); color: var(--fg-3); border-left: 3px solid transparent; }
+td { padding: 16px 18px; border-bottom: 1px solid var(--hairline); color: var(--fg-3); border-left: 3px solid transparent; }
 td + td { border-left: 0; }
 td.num { text-align: right; }
 tbody tr:last-child td { border-bottom: 0; }
 tr.eligible { background: rgba(28,140,125,.10); }
-tr.eligible td { padding: 13px 16px; color: var(--fg); }
+tr.eligible td { padding: 18px 18px; color: var(--fg); }
 tr.eligible td:first-child { border-left: 3px solid var(--accent); font-weight: 600; }
 tr.eligible td.num { color: var(--accent-bright); font-weight: 600; font-size: 15px; }
 td.id { color: var(--fg-2); }
@@ -201,8 +228,8 @@ td.id { color: var(--fg-2); }
   background: rgba(28,140,125,.18); color: var(--accent-bright); border: 1px solid rgba(28,140,125,.40);
 }
 .legend {
-  padding: 12px 16px; border-top: 1px solid var(--line);
-  display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; color: var(--fg-3);
+  padding: 20px 18px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: clamp(14px,1.4vw,18px); line-height:1.55; color: var(--fg-3);
 }
 
 /* ---- derivation rule ---- */
@@ -248,8 +275,8 @@ td.id { color: var(--fg-2); }
 .chain-fail-msg { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg-2); word-break: break-word; }
 .chain-fail-note { font-size: 13px; color: var(--fg-3); }
 .chain-row { display: flex; flex-wrap: wrap; gap: 20px 44px; align-items: flex-end; }
-.chain-v { font-family: var(--font-mono); font-size: 22px; color: var(--fg); }
-.chain-amount { font-family: var(--font-mono); font-size: 30px; font-weight: 600; color: var(--accent-bright); line-height: 1; }
+.chain-v { font-family: var(--font-mono); font-size: clamp(20px,2.2vw,28px); color: var(--fg); }
+.chain-amount { font-family: var(--font-mono); font-size: clamp(32px,3.6vw,48px); font-weight: 600; color: var(--accent-bright); line-height: 1; }
 .chain-amount span { font-size: 14px; font-weight: 500; color: var(--fg-3); }
 .chain-raw { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-4); margin-top: 6px; }
 .chain-grid {
@@ -265,13 +292,13 @@ td.id { color: var(--fg-2); }
 }
 .chain-foot span { max-width: 60ch; }
 
-.claimgrid { display:flex; flex-wrap:wrap; gap:24px 64px; align-items:flex-start;
-  border:1px solid var(--line); border-radius:12px; background:var(--ink); padding:24px 26px; }
+.claimgrid { display:flex; flex-wrap:wrap; gap:32px 80px; align-items:flex-start;
+  border:1px solid var(--line); border-radius:12px; background:var(--ink); padding:44px 46px; }
 .claimgrid > div { flex:1 1 300px; min-width:0; }
-.claimline { font-size:19px; line-height:1.5; color:var(--fg); margin-top:8px; }
-.claimline.dim { color:var(--fg-3); font-size:16px; margin-top:14px; }
+.claimline { font-size:clamp(22px,2.6vw,34px); line-height:1.5; color:var(--fg); margin-top:8px; }
+.claimline.dim { color:var(--fg-3); font-size:clamp(17px,1.7vw,22px); margin-top:22px; }
 .claimline strong { color:var(--fg); font-weight:600; }
-.bignum { font-size:30px; letter-spacing:-0.02em; margin-top:8px; }
+.bignum { font-size:clamp(30px,3.4vw,44px); letter-spacing:-0.02em; margin-top:8px; }
 .bignum.dim { color:var(--fg-2); }
 .bignum span { font-size:14px; color:var(--fg-4); }
 tr.spotlight { background:rgba(201,154,63,.07); }
@@ -286,19 +313,14 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
 <body>
 <div class="page"><div class="wrap">
 
-  <header class="head">
-    <div class="head-brand">
-      <span class="name">Finné Memory</span>
-      <span class="kicker">PRECEDENT&nbsp;·&nbsp;CONSISTENCY</span>
-    </div>
-    <div class="head-note">
-      <span class="dot"></span>
-      <span>Recorded run. This page renders fixed output; it computes nothing.</span>
-    </div>
-  </header>
+  <div class="slidehead">
+    <span class="name">Finné Memory</span>
+    <span class="kicker">PRECEDENT&nbsp;·&nbsp;CONSISTENCY</span>
+    <span class="note">Recorded run · renders fixed output, computes nothing</span>
+  </div>
 
   <!-- ============ 1. the claim ============ -->
-  <section class="claimgrid">
+  <section class="slide"><div class="claimgrid">
     <div>
       <div class="eyebrow">The claim</div>
       <div class="claimline">Burst pipe, overnight.</div>
@@ -311,10 +333,12 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
       <div class="eyebrow" style="margin-top:18px">Handler may settle up to</div>
       <div class="bignum dim mono">25,000.00 <span>GBP</span></div>
     </div>
+    </div>
+    <div class="cue">scroll ↓</div>
   </section>
 
   <!-- ============ 2. the result ============ -->
-  <section class="hero">
+  <section class="slide"><div class="hero">
     <div class="hero-eyebrow">What this insurer has consistently settled</div>
     <div class="hero-row">
       <div class="anim-proposed">
@@ -331,10 +355,12 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
         <div class="hero-cite">GBP&nbsp;&nbsp;·&nbsp;&nbsp;precedent <span class="accent">DV-001-V1</span></div>
       </div>
     </div>
+    </div>
+    <div class="cue">scroll ↓</div>
   </section>
 
   <!-- ============ 3. the evidence ============ -->
-  <section class="card">
+  <section class="slide"><div class="card">
     <div class="card-head">
       <div class="card-title">Seven prior decisions. One can be relied on.</div>
     </div>
@@ -392,10 +418,12 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
     <div class="legend">
       <span><strong style="color:var(--fg)">DV-005-V1</strong> is active, upheld, and settled the same 10,000. Five of six fields match. It still can't be used — that water escaped gradually. Ours burst.</span>
     </div>
+    </div>
+    <div class="cue">scroll ↓</div>
   </section>
 
   <!-- ============ 4. the proof ============ -->
-  <section class="card" style="border-color:var(--line-strong)">
+  <section class="slide"><div class="card" style="border-color:var(--line-strong)">
     <div class="chain-head">
       <div class="card-title">Anchored on Base</div>
       <div class="chain-meta">chain 84532 · read live · no wallet</div>
@@ -429,6 +457,7 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
     <div class="chain-foot">
       <span>No claim data onchain. Zero value moved. This proves the record wasn't rewritten.</span>
       <a href="https://sepolia.basescan.org/address/0x8a97b293566003CAd4bc32A701725db41348e331" target="_blank" rel="noopener" class="mono" style="font-size:12px">BaseScan &#8599;</a>
+    </div>
     </div>
   </section>
 
