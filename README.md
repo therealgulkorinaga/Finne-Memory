@@ -35,7 +35,7 @@ Implemented and merged. The two-session demonstration runs end to end against Ba
 | --- | --- |
 | Build | All five `SPEC-001` seams merged (PRs #7–#11), plus the assessing agent (`SPEC-002`) |
 | Tests | **229 passed, 4 skipped** — the 4 are live-Base tests, opt-in via `FINNE_LIVE_BASE_TEST=1` |
-| Contract | [`0x8a97b293566003CAd4bc32A701725db41348e331`](https://sepolia.basescan.org/address/0x8a97b293566003CAd4bc32A701725db41348e331) on Base Sepolia (chain `84532`). Carries the real `DV-001-V1` and `DV-002-V1` receipts from the recorded run — verifiable on BaseScan, both `10,000.00`, both zero value. Because `recorded[decisionId]` is permanent, re-running the demonstration needs `deploy_contract.py --force` first — see [Run the full demonstration](#run-the-full-demonstration) |
+| Contract | [`0xc25b2654Bb78f9E770B68B89297Bb14C693952AF`](https://sepolia.basescan.org/address/0xc25b2654Bb78f9E770B68B89297Bb14C693952AF) on Base Sepolia (chain `84532`). Carries the real `DV-001-V1` and `DV-002-V1` receipts from the recorded run — verifiable on BaseScan, both `10,000.00`, both zero value. Because `recorded[decisionId]` is permanent, re-running the demonstration needs `deploy_contract.py --force` first — see [Run the full demonstration](#run-the-full-demonstration) |
 | Deletion gate | Automated — `tests/test_fresh_session.py::test_no_memory_control_escalates_and_cannot_execute` |
 | Domain | Insurance claims (`DECISION-028`). The engine is domain-agnostic and has now carried two instantiations |
 | Open | `ORG-Q1` (Sepolia vs mainnet for the partner multiplier); four test-catalogue questions in `docs/testing/TEST-CATALOGUE.md` |
@@ -200,7 +200,7 @@ Add `--agent=model` to either session to have the settlement proposed by a real 
 | Stack | Use | Evidence |
 | --- | --- | --- |
 | **Sibyl Memory** (`sibyl-memory-client` 0.8.0) | Mandatory persistent substrate. Entity, reference, journal and state tiers. Local SQLite with FTS5 under `~/.sibyl-memory/` | `finne/memory/client.py`, `finne/memory/schema.py` |
-| **Base** (Sepolia, chain `84532`) | Tamper-evident attestation. `AuthorizationReceipt` deployed and called with a real onchain transaction per confirmed decision, anchoring the authorised amount and a hash of the facts and precedents relied on | `finne/base/adapter.py`, `finne/base/contracts/AuthorizationReceipt.sol`, contract [`0x8a97…e331`](https://sepolia.basescan.org/address/0x8a97b293566003CAd4bc32A701725db41348e331) |
+| **Base** (Sepolia, chain `84532`) | Tamper-evident attestation. `AuthorizationReceipt` deployed and called with a real onchain transaction per confirmed decision, anchoring the authorised amount and a hash of the facts and precedents relied on | `finne/base/adapter.py`, `finne/base/contracts/AuthorizationReceipt.sol`, contract [`0xc25b…52AF`](https://sepolia.basescan.org/address/0xc25b2654Bb78f9E770B68B89297Bb14C693952AF) |
 
 Virtuals Protocol is not used.
 
