@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-mode="dark">
+<html lang="en" data-mode="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,6 +22,17 @@
    ------------------------------------------------------------------ */
 
 *, *::before, *::after { box-sizing: border-box; }
+
+.titlegrid { display:flex; flex-wrap:wrap; gap:48px 72px; align-items:center; }
+.titlegrid > div { flex:1 1 420px; min-width:0; }
+.titlename { font-family:var(--font-serif); font-size:clamp(44px,6vw,84px); font-weight:500;
+  letter-spacing:-0.025em; line-height:1.02; margin:14px 0 0; color:var(--fg); }
+.tagline { font-family:var(--font-serif); font-size:clamp(22px,2.7vw,38px); font-weight:400;
+  line-height:1.25; color:var(--accent); margin:22px 0 0; }
+.subtag { font-size:clamp(15px,1.5vw,18px); line-height:1.6; color:var(--fg-3);
+  max-width:46ch; margin:22px 0 0; }
+.heroart { flex:1 1 340px; width:100%; max-width:460px; height:auto; color:var(--fg); }
+@media (max-width:760px){ .heroart{ max-width:100%; } }
 
 /* ---- slide layout: one beat per screen, scroll-snapped ---- */
 html { scroll-snap-type: y proximity; scroll-behavior: smooth; }
@@ -176,7 +187,7 @@ a:hover { color: var(--accent); }
 .exited-note { font-size: 12.5px; color: var(--fg-3); }
 
 .fresh {
-  background: var(--ink-deep); border: 1px solid rgba(245,240,232,.14); border-radius: 8px;
+  background: var(--ink-deep); border: 1px solid var(--line-strong); border-radius: 8px;
   padding: 12px 14px; font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); letter-spacing: .02em;
 }
 
@@ -187,7 +198,7 @@ a:hover { color: var(--accent); }
 }
 .boundary-line {
   flex: 1; width: 1px; min-height: 24px;
-  background: linear-gradient(var(--ink-deep), rgba(245,240,232,.22), var(--ink-deep));
+  background: linear-gradient(var(--ink-deep), var(--line-strong), var(--ink-deep));
 }
 .boundary-label {
   font-family: var(--font-mono); font-size: 9.5px; color: var(--fg-4); letter-spacing: .14em;
@@ -196,7 +207,7 @@ a:hover { color: var(--accent); }
 @media (max-width: 860px) {
   .boundary { flex-direction: row; width: 100%; min-height: 34px; padding: 0; }
   .boundary-line { width: auto; height: 1px; min-height: 0; flex: 1;
-    background: linear-gradient(90deg, var(--ink-deep), rgba(245,240,232,.22), var(--ink-deep)); }
+    background: linear-gradient(90deg, var(--ink-deep), var(--line-strong), var(--ink-deep)); }
   .boundary-label { writing-mode: horizontal-tb; }
 }
 
@@ -206,7 +217,7 @@ table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: cla
 th {
   text-align: left; padding: 14px 18px; font-size: 11.5px; font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase; color: var(--fg-3);
-  border-bottom: 1px solid rgba(245,240,232,.14);
+  border-bottom: 1px solid var(--line-strong);
 }
 th.num { text-align: right; }
 tbody { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
@@ -220,7 +231,7 @@ tr.eligible td:first-child { border-left: 3px solid var(--accent); font-weight: 
 tr.eligible td.num { color: var(--accent-bright); font-weight: 600; font-size: 15px; }
 td.id { color: var(--fg-2); }
 /* the field that disqualified the row */
-.disq { color: var(--fg); text-decoration: underline; text-decoration-color: rgba(245,240,232,.35); text-underline-offset: 3px; }
+.disq { color: var(--fg); text-decoration: underline; text-decoration-color: var(--fg-4); text-underline-offset: 3px; }
 .why { font-size: 12px; }
 .why span { color: var(--fg-4); }
 .badge-eligible {
@@ -318,6 +329,54 @@ tr.spotlight td { border-top:1px solid rgba(201,154,63,.28); border-bottom:1px s
     <span class="kicker">PRECEDENT&nbsp;·&nbsp;CONSISTENCY</span>
     <span class="note">Recorded run · renders fixed output, computes nothing</span>
   </div>
+
+  <!-- ============ 0. title ============ -->
+  <section class="slide titleslide">
+    <div class="titlegrid">
+      <div>
+        <div class="eyebrow">Pre-dispute decision control</div>
+        <h1 class="titlename">Finné Memory</h1>
+        <p class="tagline">Catch inconsistent decisions<br>before customers do.</p>
+        <p class="subtag">Policy defines the rule. Precedent captures how the institution has actually
+        interpreted it. Finné checks both — before the decision leaves the building.</p>
+      </div>
+
+      <!-- The product in one picture: what you're permitted, what you've
+           actually done, and the single prior decision that still counts. -->
+      <svg class="heroart" viewBox="0 0 420 300" role="img"
+           aria-label="Seven prior decisions; six cannot be relied on, one can. The earned limit sits well below the permitted ceiling.">
+        <defs>
+          <linearGradient id="fade" x1="0" x2="1">
+            <stop offset="0" stop-color="currentColor" stop-opacity=".22"/>
+            <stop offset="1" stop-color="currentColor" stop-opacity=".05"/>
+          </linearGradient>
+        </defs>
+
+        <!-- permitted ceiling -->
+        <line x1="392" y1="16" x2="392" y2="284" stroke="currentColor" stroke-opacity=".28"
+              stroke-width="1.5" stroke-dasharray="4 5"/>
+        <text x="386" y="28" text-anchor="end" font-size="11" fill="currentColor"
+              fill-opacity=".45" font-family="'IBM Plex Mono',monospace">permitted 25,000</text>
+
+        <!-- six prior decisions that cannot be relied on -->
+        <g>
+          <rect x="0" y="58"  width="318" height="14" rx="7" fill="url(#fade)"/>
+          <rect x="0" y="88"  width="246" height="14" rx="7" fill="url(#fade)"/>
+          <rect x="0" y="118" width="286" height="14" rx="7" fill="url(#fade)"/>
+          <rect x="0" y="148" width="198" height="14" rx="7" fill="url(#fade)"/>
+          <rect x="0" y="208" width="86"  height="14" rx="7" fill="url(#fade)"/>
+          <rect x="0" y="238" width="166" height="14" rx="7" fill="url(#fade)"/>
+        </g>
+
+        <!-- the one that still counts -->
+        <rect x="0" y="176" width="166" height="18" rx="9" fill="var(--accent)"/>
+        <circle cx="180" cy="185" r="3.5" fill="var(--accent)"/>
+        <text x="194" y="189" font-size="12.5" fill="var(--accent)"
+              font-family="'IBM Plex Mono',monospace">earned 10,000</text>
+      </svg>
+    </div>
+    <div class="cue">scroll ↓</div>
+  </section>
 
   <!-- ============ 1. the claim ============ -->
   <section class="slide"><div class="claimgrid">

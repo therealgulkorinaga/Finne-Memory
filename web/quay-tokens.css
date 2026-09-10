@@ -57,3 +57,37 @@
   /* Elevation */
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
+
+
+/* ============================================================
+   LIGHT MODE — set data-mode="light" on <html>.
+   Redefines the raw tokens rather than introducing a second set,
+   so every rule written against --ink / --fg / --line just works.
+   Accent moves to the deeper verdigris, which is the shade the
+   design system specifies for contrast on a pale ground.
+   ============================================================ */
+:root[data-mode="light"] {
+  --ink:           #FFFFFF;   /* cards */
+  --ink-deep:      #E6ECE6;   /* page ground — sage, not warm cream */
+  --surface:       #FFFFFF;
+
+  --accent:        #11665A;
+  --accent-bright: #14776A;
+  --accent-tint:   rgba(17, 102, 90, 0.10);
+
+  --fg:            #1A1320;
+  --fg-2:          #4A424A;
+  --fg-3:          #6E6670;
+  --fg-4:          #948C98;
+
+  --line:          rgba(26, 19, 32, 0.10);
+  --line-strong:   rgba(26, 19, 32, 0.20);
+  --hairline:      rgba(26, 19, 32, 0.07);
+
+  --negative:      #96331F;
+  --info:          #5C6A78;
+  --warning:       #8A6520;
+  --warning-tint:  rgba(201, 154, 63, 0.20);
+
+  --shadow-md:     0 8px 24px rgba(26, 19, 32, 0.10);
+}
