@@ -380,3 +380,65 @@ def test_a_hostile_reasoning_field_is_never_executed_or_trusted():
     assert decision.authorized_amount == 0
     # the reasoning text reaches nothing that decides anything
     assert not hasattr(proposal, "reasoning")
+
+
+# --- the session scripts' own wiring to the agent ------------------------
+#
+# Added after a real defect: the `--agent=model` path in both session
+# scripts imported a name that a rename had removed, and NOTHING caught
+# it. The suite was green, because every automated session test runs
+# `--agent=fixed`, and the model path is only exercised by a live run.
+#
+# These tests import and call the scripts' own wiring with a faked
+# provider, so the model path is covered without a key or a network.
+
+
+def _script_module(name):
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parent.parent / "scripts" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"_script_{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize("script", ["session1", "session2"])
+def test_session_scripts_can_actually_reach_the_agent(script):
+    """Regression: both scripts imported `Opportunity` after it had been
+    renamed to `CaseUnderAssessment`. The suite stayed green because no
+    automated test ran --agent=model."""
+    from decimal import Decimal
+
+    module = _script_module(script)
+    with _fake_post(_envelope(VALID_PAYLOAD)):
+        proposal = module.obtain_proposal("model", Decimal("25000.00"))
+    assert proposal.amount == Decimal("25000.00")
+    assert proposal.target_class == "escape_of_water_sudden"
+
+
+@pytest.mark.parametrize("script", ["session1", "session2"])
+def test_session_scripts_default_path_needs_no_provider(script):
+    """--agent=fixed must not touch the agent at all: no key, no network.
+    The deletion gate depends on this."""
+    from decimal import Decimal
+
+    module = _script_module(script)
+    with mock.patch("finne.agent.requests.post", side_effect=AssertionError("must not call a provider")):
+        proposal = module.obtain_proposal("fixed", Decimal("25000.00"))
+    assert proposal.amount == Decimal("25000.00")
+
+
+@pytest.mark.parametrize("script", ["session1", "session2"])
+def test_session_scripts_pass_the_assessed_value_not_the_ceiling(script):
+    """Invariant 11 at the call site: what reaches the agent is the loss
+    adjuster's figure from demo_config, never owner_policy.max_amount."""
+    from decimal import Decimal
+
+    module = _script_module(script)
+    with _fake_post(_envelope(VALID_PAYLOAD)) as post:
+        module.obtain_proposal("model", Decimal("13750.00"))
+    sent = json.dumps(post.call_args.kwargs["json"])
+    assert "13750.00" in sent, "the assessed value should reach the agent"
+    assert "25000.00" not in sent, "the delegated ceiling must never reach the agent"

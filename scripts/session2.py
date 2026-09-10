@@ -92,10 +92,10 @@ def obtain_proposal(agent_mode: str, assessed_value: Decimal) -> Proposal:
     """
     if agent_mode == "fixed":
         return build_proposal(assessed_value)
-    from finne.agent import Opportunity, propose
+    from finne.agent import CaseUnderAssessment, propose
 
     return propose(
-        Opportunity(
+        CaseUnderAssessment(
             summary=DEMO_CASE_SUMMARY,
             assessed_value=assessed_value,
             network=DEMO_NETWORK,

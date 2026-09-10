@@ -175,8 +175,9 @@ def _proposal_schema(case: CaseUnderAssessment) -> dict[str, Any]:
             "amount": {
                 "type": "string",
                 "description": (
-                    "Settlement amount to propose, as a decimal string with exactly two "
-                    "decimal places, e.g. \"25000.00\". Not a number."
+                    "Settlement amount to propose, as a decimal string with exactly "
+                    "two decimal places — format example only, carries no "
+                    "suggestion about size: \"1234.56\". Not a JSON number."
                 ),
             },
             "reasoning": {
