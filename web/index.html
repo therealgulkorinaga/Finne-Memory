@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finné Memory — the recall moment</title>
+<meta name="description" content="An autonomous agent is permitted 25,000 USDC. Finné Memory holds that it has earned 10,000, and names the prior decision the figure comes from.">
+<link rel="stylesheet" href="quay-tokens.css">
+<style>
+/* ------------------------------------------------------------------
+   Finné Memory — demonstration viewer.
+
+   Renders a RECORDED run. Nothing on this page computes authority: the
+   deterministic engine lives in finne/authority/ and is not reimplemented
+   here, deliberately. The only live thing on the page is the onchain
+   verification panel, which reads the deployed AuthorizationReceipt
+   contract directly from a public Base Sepolia RPC.
+
+   Implemented from the Claude Design artboard "Finne Memory Demo.dc.html"
+   (project 51086be5-d2b8-412c-ac5a-9eaf4a11b298). Tokens vendored into
+   quay-tokens.css.
+   ------------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ink-deep);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--accent-bright); text-decoration: none; transition: color var(--dur) var(--ease); }
+a:hover { color: var(--accent); }
+
+.page { padding: 28px 20px 64px; }
+.wrap { max-width: 1140px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.serif { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.01em; }
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--fg-3);
+}
+.accent { color: var(--accent-bright); }
+
+/* ---- header ---- */
+.head {
+  display: flex; flex-wrap: wrap; gap: 14px 24px;
+  align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--line); padding-bottom: 18px;
+}
+.head-brand { display: flex; align-items: baseline; gap: 12px; }
+.head-brand .name { font-family: var(--font-serif); font-size: 24px; font-weight: 500; letter-spacing: -0.01em; }
+.head-brand .kicker { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); letter-spacing: .06em; }
+.head-note { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--fg-3); }
+.dot { width: 6px; height: 6px; border-radius: 999px; background: var(--info); flex: none; }
+
+/* ---- cards ---- */
+.card { border: 1px solid var(--line); border-radius: 12px; background: var(--ink); overflow: hidden; }
+.card-lift { box-shadow: var(--shadow-md); }
+.card-head { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.card-title { font-family: var(--font-serif); font-size: 19px; font-weight: 500; }
+.card-sub { font-size: 13px; color: var(--fg-3); margin-top: 4px; max-width: 70ch; }
+
+/* ---- the recall moment ---- */
+.hero {
+  border: 1px solid var(--line); border-radius: 16px; background: var(--ink);
+  padding: 32px 28px; box-shadow: var(--shadow-md);
+}
+.hero-eyebrow {
+  font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent-bright); margin-bottom: 22px;
+}
+.hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px 40px; }
+.hero-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 10px; }
+.hero-label.is-accent { color: var(--accent-bright); }
+.hero-struck { position: relative; display: inline-block; }
+.hero-proposed {
+  font-family: var(--font-mono); font-size: clamp(30px, 6.4vw, 52px); font-weight: 500;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--fg-2);
+}
+.hero-strike {
+  position: absolute; left: -2%; right: -2%; top: 52%; height: 2px;
+  background: var(--fg-3); transform-origin: left center;
+}
+.hero-unit { font-family: var(--font-mono); font-size: 12px; color: var(--fg-4); margin-top: 8px; }
+.hero-arrow { font-family: var(--font-mono); font-size: 22px; color: var(--fg-4); padding-bottom: 26px; }
+.hero-authorized {
+  font-family: var(--font-mono); font-size: clamp(38px, 9vw, 76px); font-weight: 600;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--accent-bright); line-height: 1;
+}
+.hero-cite { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); margin-top: 10px; }
+.hero-copy { margin: 26px 0 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: var(--fg-2); }
+
+@keyframes fmProposed { 0%,55% { opacity: 1 } 100% { opacity: .42 } }
+@keyframes fmStrike   { 0%,52% { transform: scaleX(0) } 100% { transform: scaleX(1) } }
+@keyframes fmArrow    { 0%,60% { opacity: 0 } 100% { opacity: 1 } }
+@keyframes fmAuth     { 0%,66% { opacity: 0; transform: translateY(10px) } 100% { opacity: 1; transform: none } }
+.anim-proposed { animation: fmProposed 1.6s var(--ease) both; }
+.anim-strike   { animation: fmStrike   1.6s var(--ease) both; }
+.anim-arrow    { animation: fmArrow    1.6s var(--ease) both; }
+.anim-auth     { animation: fmAuth     1.6s var(--ease) both; }
+
+/* ---- owner ceiling ---- */
+.ceiling { border: 1px solid var(--line); border-radius: 10px; background: var(--ink); padding: 18px 20px; }
+.ceiling-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px 24px; font-family: var(--font-mono);
+}
+.ceiling-k { font-size: 10.5px; color: var(--fg-4); letter-spacing: .06em; margin-bottom: 5px; }
+.ceiling-v { font-size: 15px; color: var(--fg); }
+
+/* ---- the two processes ---- */
+.sessions { display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch; }
+.session { flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; }
+.session-head {
+  padding: 18px 20px; border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; justify-content: space-between;
+}
+.session-tag { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-4); letter-spacing: .08em; }
+.session-body { padding: 6px 20px 16px; display: flex; flex-direction: column; flex: 1; }
+.step { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--hairline); }
+.step:last-of-type { border-bottom: 0; }
+.step-n { font-family: var(--font-mono); font-size: 11px; color: var(--fg-4); flex: none; padding-top: 2px; }
+.step-main { font-size: 14.5px; }
+.step-sub { font-size: 13px; color: var(--fg-3); margin-top: 3px; }
+.step-mono { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); margin-top: 4px; }
+.step-inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.spacer { flex: 1; }
+
+.pill {
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; letter-spacing: .08em;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+}
+.pill-escalate { background: var(--warning-tint); color: var(--warning); border: 1px solid rgba(201,154,63,.30); }
+.pill-constrain { background: var(--accent-tint); color: var(--accent-bright); border: 1px solid rgba(28,140,125,.34); }
+
+.exited {
+  margin-top: 14px; background: var(--ink-deep); border: 1px dashed var(--line-strong);
+  border-radius: 8px; padding: 14px 16px;
+  display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline;
+}
+.exited-strong { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--fg); letter-spacing: .04em; }
+.exited-note { font-size: 12.5px; color: var(--fg-3); }
+
+.fresh {
+  background: var(--ink-deep); border: 1px solid rgba(245,240,232,.14); border-radius: 8px;
+  padding: 12px 14px; font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); letter-spacing: .02em;
+}
+
+/* the load-bearing visual: two processes, not one flow */
+.boundary {
+  flex: 0 0 auto; align-self: stretch; display: flex; flex-direction: column;
+  align-items: center; gap: 10px; padding: 8px 0; min-width: 34px;
+}
+.boundary-line {
+  flex: 1; width: 1px; min-height: 24px;
+  background: linear-gradient(var(--ink-deep), rgba(245,240,232,.22), var(--ink-deep));
+}
+.boundary-label {
+  font-family: var(--font-mono); font-size: 9.5px; color: var(--fg-4); letter-spacing: .14em;
+  writing-mode: vertical-rl; text-orientation: mixed;
+}
+@media (max-width: 860px) {
+  .boundary { flex-direction: row; width: 100%; min-height: 34px; padding: 0; }
+  .boundary-line { width: auto; height: 1px; min-height: 0; flex: 1;
+    background: linear-gradient(90deg, var(--ink-deep), rgba(245,240,232,.22), var(--ink-deep)); }
+  .boundary-label { writing-mode: horizontal-tb; }
+}
+
+/* ---- candidates table ---- */
+.tablewrap { overflow-x: auto; }
+table { width: 100%; min-width: 660px; border-collapse: collapse; font-size: 13.5px; }
+th {
+  text-align: left; padding: 11px 16px; font-size: 10.5px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--fg-3);
+  border-bottom: 1px solid rgba(245,240,232,.14);
+}
+th.num { text-align: right; }
+tbody { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+td { padding: 12px 16px; border-bottom: 1px solid var(--hairline); color: var(--fg-3); border-left: 3px solid transparent; }
+td + td { border-left: 0; }
+td.num { text-align: right; }
+tbody tr:last-child td { border-bottom: 0; }
+tr.eligible { background: rgba(28,140,125,.10); }
+tr.eligible td { padding: 13px 16px; color: var(--fg); }
+tr.eligible td:first-child { border-left: 3px solid var(--accent); font-weight: 600; }
+tr.eligible td.num { color: var(--accent-bright); font-weight: 600; font-size: 15px; }
+td.id { color: var(--fg-2); }
+/* the field that disqualified the row */
+.disq { color: var(--fg); text-decoration: underline; text-decoration-color: rgba(245,240,232,.35); text-underline-offset: 3px; }
+.why { font-size: 12px; }
+.why span { color: var(--fg-4); }
+.badge-eligible {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; padding: 3px 9px; border-radius: 999px;
+  background: rgba(28,140,125,.18); color: var(--accent-bright); border: 1px solid rgba(28,140,125,.40);
+}
+.legend {
+  padding: 12px 16px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 12px; color: var(--fg-3);
+}
+
+/* ---- derivation rule ---- */
+.rule { border: 1px solid var(--line); border-radius: 12px; background: var(--ink-deep); padding: 20px 22px; }
+.rule pre {
+  margin: 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.85;
+  color: var(--fg); white-space: pre; overflow-x: auto;
+}
+
+/* ---- control ---- */
+.control-head {
+  padding: 18px 20px; border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+}
+.toggle { display: flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; flex: none; }
+.toggle button {
+  font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; padding: 9px 14px;
+  border: 0; cursor: pointer; background: transparent; color: var(--fg-3);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.toggle button[aria-pressed="true"] { background: var(--line); color: var(--fg); }
+.toggle button:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: -2px; }
+.run { padding: 24px 20px; display: flex; flex-wrap: wrap; gap: 20px 44px; align-items: center; }
+.run.is-deleted { background: var(--ink-deep); }
+.run-k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 8px; }
+.run-v { font-family: var(--font-mono); font-size: 26px; color: var(--fg); }
+.run-v.is-accent { color: var(--accent-bright); font-weight: 600; }
+.run-v.is-zero { color: var(--fg-2); font-weight: 600; }
+.run-copy { flex: 1 1 220px; min-width: 0; font-size: 14px; color: var(--fg-2); }
+.run-copy.is-strong { color: var(--fg); }
+[hidden] { display: none !important; }
+
+/* ---- onchain ---- */
+.chain-head {
+  padding: 18px 20px; border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: baseline; justify-content: space-between;
+}
+.chain-meta { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-4); letter-spacing: .08em; }
+.chain-state { padding: 22px 20px; }
+.chain-pending { font-family: var(--font-mono); font-size: 13px; color: var(--fg-3); }
+.chain-fail { background: var(--ink-deep); display: flex; flex-direction: column; gap: 8px; }
+.chain-fail-tag { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--negative); }
+.chain-fail-msg { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg-2); word-break: break-word; }
+.chain-fail-note { font-size: 13px; color: var(--fg-3); }
+.chain-row { display: flex; flex-wrap: wrap; gap: 20px 44px; align-items: flex-end; }
+.chain-v { font-family: var(--font-mono); font-size: 22px; color: var(--fg); }
+.chain-amount { font-family: var(--font-mono); font-size: 30px; font-weight: 600; color: var(--accent-bright); line-height: 1; }
+.chain-amount span { font-size: 14px; font-weight: 500; color: var(--fg-3); }
+.chain-raw { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-4); margin-top: 6px; }
+.chain-grid {
+  padding: 0 20px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 28px; font-family: var(--font-mono); font-size: 11.5px;
+}
+.chain-grid .k { color: var(--fg-4); margin-bottom: 4px; }
+.chain-grid .v { color: var(--fg-2); word-break: break-all; }
+.chain-foot {
+  padding: 14px 20px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  font-size: 12.5px; color: var(--fg-3);
+}
+.chain-foot span { max-width: 60ch; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="page"><div class="wrap">
+
+  <header class="head">
+    <div class="head-brand">
+      <span class="name">Finné Memory</span>
+      <span class="kicker">AUTHORITY&nbsp;·&nbsp;RECALL</span>
+    </div>
+    <div class="head-note">
+      <span class="dot"></span>
+      <span>Recorded run. Not a live console — this page renders fixed output, it does not compute it.</span>
+    </div>
+  </header>
+
+  <!-- ============ the recall moment ============ -->
+  <section class="hero">
+    <div class="hero-eyebrow">The recall moment</div>
+    <div class="hero-row">
+      <div class="anim-proposed">
+        <div class="hero-label">Agent proposed</div>
+        <div class="hero-struck">
+          <span class="hero-proposed">25,000.00</span>
+          <span class="hero-strike anim-strike"></span>
+        </div>
+        <div class="hero-unit">USDC</div>
+      </div>
+
+      <div class="hero-arrow anim-arrow" aria-hidden="true">&#8594;</div>
+
+      <div class="anim-auth">
+        <div class="hero-label is-accent">Authorized by memory</div>
+        <div class="hero-authorized">10,000.00</div>
+        <div class="hero-cite">USDC&nbsp;&nbsp;·&nbsp;&nbsp;precedent <span class="accent">DV-001-V1</span></div>
+      </div>
+    </div>
+    <p class="hero-copy">The agent is permitted 25,000.00. Finné Memory holds that it has earned 10,000.00, and names the prior decision the figure comes from.</p>
+  </section>
+
+  <!-- ============ owner ceiling ============ -->
+  <section class="ceiling">
+    <div class="eyebrow" style="margin-bottom:14px">Owner ceiling — what the agent is allowed to do</div>
+    <div class="ceiling-grid">
+      <div><div class="ceiling-k">max_amount</div><div class="ceiling-v">25,000.00 USDC</div></div>
+      <div><div class="ceiling-k">network</div><div class="ceiling-v">base</div></div>
+      <div><div class="ceiling-k">asset</div><div class="ceiling-v">USDC</div></div>
+      <div><div class="ceiling-k">action_class</div><div class="ceiling-v">capital_deployment</div></div>
+      <div><div class="ceiling-k">cold_start_autonomous_amount</div><div class="ceiling-v">0.00 USDC</div></div>
+    </div>
+  </section>
+
+  <!-- ============ two processes ============ -->
+  <div class="sessions">
+
+    <section class="card session">
+      <div class="session-head">
+        <span class="card-title">Session 1 — establish experience</span>
+        <span class="session-tag">PROCESS A</span>
+      </div>
+      <div class="session-body">
+        <div class="step"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div></div></div>
+        <div class="step"><span class="step-n">02</span><div><div class="step-main">Memory searched</div><div class="step-sub">0 comparable active precedents</div></div></div>
+        <div class="step"><span class="step-n">03</span><div><div class="step-main">learned_max_amount falls back to cold_start</div><div class="step-mono">0.00 USDC</div></div></div>
+        <div class="step"><span class="step-n">04</span><div class="step-inline"><span class="pill pill-escalate">RESULT: ESCALATE</span><span class="step-sub" style="margin:0">no silent approval of 25,000.00</span></div></div>
+        <div class="step"><span class="step-n">05</span><div><div class="step-main">Owner approves a constrained <span class="mono">10,000.00</span></div></div></div>
+        <div class="step"><span class="step-n">06</span><div><div class="step-main">Written to memory as <span class="mono accent">DV-001-V1</span></div><div class="step-mono" style="font-size:12.5px;color:var(--fg-3)">draft &#8594; active</div></div></div>
+        <div class="step"><span class="step-n">07</span><div><div class="step-main">Zero-value Base transaction recorded</div></div></div>
+        <div class="spacer"></div>
+        <div class="exited">
+          <span class="exited-strong">Process exited.</span>
+          <span class="exited-note">In-memory state discarded. Nothing carries forward except what was written.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="boundary" aria-hidden="true">
+      <div class="boundary-line"></div>
+      <div class="boundary-label">PROCESS BOUNDARY</div>
+      <div class="boundary-line"></div>
+    </div>
+
+    <section class="card card-lift session" style="border-color:var(--line-strong);background:var(--surface)">
+      <div class="session-head">
+        <span class="card-title">Session 2 — memory changes behaviour</span>
+        <span class="session-tag">PROCESS B</span>
+      </div>
+      <div class="session-body" style="padding:16px 20px 18px">
+        <div class="fresh">Fresh process. No carried-over state.</div>
+        <div class="step" style="padding-top:16px"><span class="step-n">01</span><div><div class="step-main">Agent proposes <span class="mono">25,000.00</span></div><div class="step-sub">Identical request to Session 1</div></div></div>
+        <div class="step"><span class="step-n">02</span><div><div class="step-main">Memory retrieval returns 7 candidates</div><div class="step-sub">Filtered below — one survives</div></div></div>
+        <div class="step"><span class="step-n">03</span><div class="step-inline"><span class="pill pill-constrain">RESULT: CONSTRAIN</span><span style="font-size:13px;color:var(--fg-2)">to <span class="mono accent">10,000.00</span>, citing <span class="mono accent">DV-001-V1</span></span></div></div>
+        <div class="spacer"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ retrieved candidates ============ -->
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title">Retrieved candidates</div>
+      <div class="card-sub">Four excluded rows carry amounts above 10,000.00. If authority filtering broke, the authorized figure would rise.</div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <caption class="visually-hidden" hidden>Candidates retrieved from Sibyl Memory and why each was included or excluded</caption>
+        <thead>
+          <tr>
+            <th scope="col">Decision version</th>
+            <th scope="col" class="num">Authorized</th>
+            <th scope="col">Authority state</th>
+            <th scope="col">Outcome</th>
+            <th scope="col">Comparable</th>
+            <th scope="col">Eligible</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="eligible">
+            <td>DV-001-V1</td><td class="num">10,000.00</td>
+            <td>active</td><td>success</td><td>yes</td>
+            <td><span class="badge-eligible">ELIGIBLE</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-003-V1</td><td class="num">20,000.00</td>
+            <td class="disq">withdrawn</td><td>success</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>state</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-004-V1</td><td class="num">5,000.00</td>
+            <td>active</td><td>success</td><td class="disq">no</td>
+            <td class="why">excluded &nbsp;<span>comparability</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-005-V1</td><td class="num">10,000.00</td>
+            <td>active</td><td>success</td><td class="disq">no</td>
+            <td class="why">excluded &nbsp;<span>comparability</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-006-V1</td><td class="num">15,000.00</td>
+            <td class="disq">superseded</td><td>success</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>state</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-007-V1</td><td class="num">12,000.00</td>
+            <td class="disq">questioned</td><td class="disq">failure</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>state + outcome</span></td>
+          </tr>
+          <tr>
+            <td class="id">DV-008-V1</td><td class="num">18,000.00</td>
+            <td class="disq">draft</td><td>success</td><td>yes</td>
+            <td class="why">excluded &nbsp;<span>state</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span>Underlined cell = the field that disqualified the row.</span>
+      <span>Three separate reasons: authority state, outcome, comparability.</span>
+    </div>
+  </section>
+
+  <!-- ============ derivation rule ============ -->
+  <section class="rule">
+    <div class="eyebrow" style="margin-bottom:14px">Derivation rule</div>
+<pre>eligible    = comparable AND active AND success
+learned_max = max(authorized of eligible)  if any
+            = cold_start (0.00)            if none</pre>
+  </section>
+
+  <!-- ============ the control ============ -->
+  <section class="card" style="border-color:var(--line-strong)">
+    <div class="control-head">
+      <div>
+        <div class="card-title">The control — is memory load-bearing?</div>
+        <div class="card-sub">Two recorded runs of the same Session 2 request. Switch between them.</div>
+      </div>
+      <div class="toggle" role="group" aria-label="Which recorded run to show">
+        <button type="button" id="btn-intact" aria-pressed="true" aria-controls="run-intact">Memory intact</button>
+        <button type="button" id="btn-deleted" aria-pressed="false" aria-controls="run-deleted">Memory deleted</button>
+      </div>
+    </div>
+
+    <div class="run" id="run-intact">
+      <div><div class="run-k">Retrieved</div><div class="run-v">7 candidates</div></div>
+      <div><div class="run-k">learned_max</div><div class="run-v is-accent">10,000.00</div></div>
+      <div><div class="run-k">Result</div><span class="pill pill-constrain" style="font-size:12px;padding:5px 11px">CONSTRAIN</span></div>
+      <div class="run-copy">The agent proceeds, at the amount it earned.</div>
+    </div>
+
+    <div class="run is-deleted" id="run-deleted" hidden>
+      <div><div class="run-k">Retrieved</div><div class="run-v">0 candidates</div></div>
+      <div><div class="run-k">learned_max</div><div class="run-v is-zero">0.00</div></div>
+      <div><div class="run-k">Result</div><span class="pill pill-escalate" style="font-size:12px;padding:5px 11px">ESCALATE</span></div>
+      <div class="run-copy is-strong">The agent cannot proceed.</div>
+    </div>
+  </section>
+
+  <!-- ============ onchain verification (the only live thing here) ============ -->
+  <section class="card" style="border-color:var(--line-strong)">
+    <div class="chain-head">
+      <div>
+        <div class="card-title">Onchain verification</div>
+        <div class="card-sub">Read live from a public Base Sepolia RPC. No wallet connection, no signing — the contract's immutable signer rejects any other sender.</div>
+      </div>
+      <div class="chain-meta">chain 84532 · sepolia.base.org</div>
+    </div>
+
+    <div class="chain-state chain-pending" id="chain-pending">Reading contract…</div>
+
+    <div class="chain-state chain-fail" id="chain-failed" hidden>
+      <span class="chain-fail-tag">RPC READ FAILED</span>
+      <span class="chain-fail-msg" id="chain-error"></span>
+      <span class="chain-fail-note">No values are shown. This panel never falls back to cached figures.</span>
+    </div>
+
+    <div id="chain-ok" hidden>
+      <div class="chain-state chain-row">
+        <div>
+          <div class="run-k">Decision</div>
+          <div class="chain-v">DV-001-V1</div>
+        </div>
+        <div>
+          <div class="run-k">recorded()</div>
+          <div class="chain-v" id="chain-recorded"></div>
+        </div>
+        <div>
+          <div class="run-k" style="color:var(--accent-bright)">Authorized amount</div>
+          <div class="chain-amount"><span id="chain-amount-value"></span> <span>USDC</span></div>
+          <div class="chain-raw">raw <span id="chain-raw"></span> · 6-decimal USDC units</div>
+        </div>
+      </div>
+      <div class="chain-grid">
+        <div><div class="k">key = keccak256("DV-001-V1")</div><div class="v" id="chain-key"></div></div>
+        <div><div class="k">factsHash</div><div class="v" id="chain-facts"></div></div>
+        <div><div class="k">submittedBy</div><div class="v" id="chain-addr"></div></div>
+        <div><div class="k">recordedAt</div><div class="v" id="chain-ts"></div></div>
+      </div>
+    </div>
+
+    <div class="chain-foot">
+      <span>Verified onchain. Zero value transferred — the receipt records an authorization, it does not move funds.</span>
+      <a href="https://sepolia.basescan.org/address/0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46" target="_blank" rel="noopener" class="mono" style="font-size:12px">Verify on BaseScan &#8599;</a>
+    </div>
+  </section>
+
+</div></div>
+
+<script>
+"use strict";
+
+/* -------------------------------------------------------------------
+   The control toggle. Two RECORDED runs — nothing is recomputed.
+   ------------------------------------------------------------------- */
+(function () {
+  var btnIntact  = document.getElementById("btn-intact");
+  var btnDeleted = document.getElementById("btn-deleted");
+  var runIntact  = document.getElementById("run-intact");
+  var runDeleted = document.getElementById("run-deleted");
+
+  function show(intact) {
+    runIntact.hidden  = !intact;
+    runDeleted.hidden = intact;
+    btnIntact.setAttribute("aria-pressed", String(intact));
+    btnDeleted.setAttribute("aria-pressed", String(!intact));
+  }
+  btnIntact.addEventListener("click", function () { show(true); });
+  btnDeleted.addEventListener("click", function () { show(false); });
+})();
+
+/* -------------------------------------------------------------------
+   Onchain verification — the only live read on this page.
+
+   No wallet, no signing, no library. The design this was implemented
+   from pulled in ethers purely to compute keccak256("DV-001-V1") and
+   two 4-byte selectors. All three are fixed constants, so they are
+   embedded below with the command that reproduces them. That removes a
+   ~250KB CDN dependency and the "keccak library failed to load" failure
+   path along with it.
+
+   Reproduce:
+     python -c "from web3 import Web3; \
+       print(Web3.keccak(text='DV-001-V1').hex()); \
+       print(Web3.keccak(text='recorded(bytes32)')[:4].hex()); \
+       print(Web3.keccak(text='getReceipt(bytes32)')[:4].hex())"
+   ------------------------------------------------------------------- */
+(function () {
+  var RPC      = "https://sepolia.base.org";
+  var CONTRACT = "0xcC012ce78162bDA47B630C205B5f4Fa675Be9f46";
+  var KEY      = "0x114c0736ece817b7c2ea0a1f326fc12760ea8e8400447436e35a5a40db5f2bf7";
+  var SEL_RECORDED    = "0xd6399790"; // recorded(bytes32)
+  var SEL_GET_RECEIPT = "0xfcecbb61"; // getReceipt(bytes32)
+  var TIMEOUT_MS = 15000;
+
+  var elPending  = document.getElementById("chain-pending");
+  var elFailed   = document.getElementById("chain-failed");
+  var elOk       = document.getElementById("chain-ok");
+  var elError    = document.getElementById("chain-error");
+
+  function fail(message) {
+    elError.textContent = message;
+    elPending.hidden = true;
+    elOk.hidden = true;
+    elFailed.hidden = false;
+  }
+
+  function ethCall(data) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, TIMEOUT_MS);
+    return fetch(RPC, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0", id: 1, method: "eth_call",
+        params: [{ to: CONTRACT, data: data }, "latest"]
+      }),
+      signal: controller.signal
+    }).then(function (res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("RPC HTTP " + res.status);
+      return res.json();
+    }).then(function (body) {
+      if (body.error) throw new Error(body.error.message || "RPC error");
+      if (!body.result || body.result === "0x") throw new Error("empty response from contract");
+      return body.result;
+    }).catch(function (e) {
+      clearTimeout(timer);
+      if (e && e.name === "AbortError") throw new Error("RPC timed out after " + (TIMEOUT_MS / 1000) + "s");
+      throw e;
+    });
+  }
+
+  /* getReceipt returns four 32-byte words in a FIXED order, per the
+     deployed ABI: authorizedAmount (uint256), factsHash (bytes32),
+     submittedBy (address), recordedAt (uint256). Decoded positionally.
+     The source design guessed field roles from value ranges, which can
+     mis-assign — a small authorizedAmount falling in the timestamp
+     range would be read as recordedAt. */
+  function decodeReceipt(hex) {
+    var body = hex.indexOf("0x") === 0 ? hex.slice(2) : hex;
+    var words = [];
+    for (var i = 0; i + 64 <= body.length; i += 64) words.push(body.slice(i, i + 64));
+    if (words.length < 4) throw new Error("unexpected returndata: " + words.length + " words, expected 4");
+    return {
+      amount: BigInt("0x" + words[0]),
+      facts:  "0x" + words[1],
+      addr:   "0x" + words[2].slice(24),
+      ts:     BigInt("0x" + words[3])
+    };
+  }
+
+  function formatUsdc(units) {
+    var whole = units / 1000000n;
+    var frac  = (units % 1000000n).toString().padStart(6, "0").slice(0, 2);
+    return whole.toLocaleString("en-US") + "." + frac;
+  }
+
+  function formatTs(seconds) {
+    if (seconds === 0n) return "not recorded";
+    return new Date(Number(seconds) * 1000).toISOString().replace("T", " ").slice(0, 19) + " UTC";
+  }
+
+  function text(id, value) { document.getElementById(id).textContent = value; }
+
+  ethCall(SEL_RECORDED + KEY.slice(2))
+    .then(function (recordedHex) {
+      var recorded = BigInt(recordedHex) === 1n;
+      return ethCall(SEL_GET_RECEIPT + KEY.slice(2)).then(function (receiptHex) {
+        var r = decodeReceipt(receiptHex);
+        text("chain-recorded", recorded ? "true" : "false");
+        text("chain-amount-value", formatUsdc(r.amount));
+        text("chain-raw", r.amount.toString());
+        text("chain-key", KEY);
+        text("chain-facts", r.facts);
+        text("chain-addr", r.addr);
+        text("chain-ts", formatTs(r.ts));
+        elPending.hidden = true;
+        elFailed.hidden = true;
+        elOk.hidden = false;
+      });
+    })
+    .catch(function (e) {
+      fail(String(e && e.message ? e.message : e));
+    });
+})();
+</script>
+</body>
+</html>
