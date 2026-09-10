@@ -24,7 +24,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 _SIBYL_MEMORY_ALLOWED = {"finne/memory/client.py"}
 _KEY_MATERIAL_ALLOWED_PREFIX = "finne/base/"
 _KEY_MATERIAL_MODULES = {"eth_account", "web3"}
-_MODEL_SDK_ALLOWED = "finne/explain.py"
+# PREREQ-003 section 17 as amended by DECISION-027: the model-call
+# permission moved from finne/explain.py — which never exercised it and
+# remains deterministic — to finne/agent.py, the proposing agent.
+_MODEL_SDK_ALLOWED = "finne/agent.py"
 _MODEL_SDK_MODULES = {"anthropic", "openai"}
 
 
@@ -153,22 +156,10 @@ def test_only_explain_imports_a_model_sdk():
     assert not violations, f"an AI SDK is imported outside {_MODEL_SDK_ALLOWED}: {violations}"
 
 
-def test_explain_has_no_import_path_to_finne_base():
-    """PREREQ-003 section 10: `finne/explain.py` has no import path to
-    `finne/base/` — a model may never sign, submit, or construct a
-    transaction. Checks the transitive closure, not just the direct
-    imports, since an indirect path would breach the boundary just as
-    effectively.
-
-    Static by construction, so it sees imports inside function bodies
-    and behind `if` branches (any `ast.Import` node counts, wherever it
-    sits) and terminates via the visited set. What static analysis
-    CANNOT see is a name assembled at runtime — which is why
-    `test_application_code_uses_no_dynamic_imports` below forbids that
-    escape hatch outright rather than leaving the closure quietly
-    incomplete."""
+def _reachable_finne_files(entry: str) -> set[str]:
+    """Transitive closure of finne/* files reachable from `entry`."""
     reachable: set[str] = set()
-    frontier = ["finne/explain.py"]
+    frontier = [entry]
     while frontier:
         rel = frontier.pop()
         if rel in reachable:
@@ -179,8 +170,77 @@ def test_explain_has_no_import_path_to_finne_base():
             continue
         for module in _imported_finne_submodules(path):
             frontier.extend(_module_files(module))
+    return reachable
 
-    breaches = sorted(rel for rel in reachable if rel.startswith("finne/base/"))
+
+def test_agent_has_no_import_path_to_finne_base():
+    """SPEC-002 section 6: a model may never sign, submit, or construct
+    a transaction. `finne/agent.py` is the only module that calls a
+    model, so it is the one that must not be able to reach the signing
+    key. Transitive, for the same reason as the explain check below."""
+    breaches = sorted(
+        rel for rel in _reachable_finne_files("finne/agent.py")
+        if rel.startswith("finne/base/")
+    )
+    assert not breaches, f"finne/agent.py can reach finne/base/ via: {breaches}"
+
+
+def test_agent_cannot_reach_authority_memory_or_policy():
+    """SPEC-002 invariant 11: the agent is never given the owner
+    ceiling, any precedent, or any authority value. The `Opportunity`
+    type carries no such field, but a type alone would not stop the
+    module importing `finne.policy` and reading the ceiling directly —
+    so the reachability is forbidden outright.
+
+    This is the invariant that makes the demonstration honest: the
+    bound comes from Finné Memory, not from the agent's restraint."""
+    forbidden = ("finne/authority/", "finne/memory/", "finne/policy.py")
+    reachable = _reachable_finne_files("finne/agent.py")
+    breaches = sorted(
+        rel for rel in reachable if any(rel.startswith(f) for f in forbidden)
+    )
+    assert not breaches, (
+        f"finne/agent.py can reach authority/memory/policy via: {breaches} — "
+        "the agent must not be able to see what it is permitted to do"
+    )
+
+
+def test_opportunity_carries_no_authority_field():
+    """SPEC-002 invariant 11, at the type level: whatever else changes,
+    the agent's input must not grow a ceiling, a precedent, or an
+    authority value."""
+    import dataclasses
+
+    from finne.agent import Opportunity
+
+    fields = {f.name for f in dataclasses.fields(Opportunity)}
+    forbidden = {
+        "max_amount", "ceiling", "owner_policy", "policy", "precedent",
+        "precedents", "authority", "authorized_amount", "learned_max_amount",
+        "cold_start_autonomous_amount", "candidates",
+    }
+    leaked = fields & forbidden
+    assert not leaked, f"Opportunity exposes authority information to the agent: {leaked}"
+
+
+def test_explain_has_no_import_path_to_finne_base():
+    """PREREQ-003 section 10: `finne/explain.py` has no import path to
+    `finne/base/` — it retains no model-call permission but is still
+    presentation adjacent to a decision, and the boundary is kept.
+    Checks the transitive closure, not just the direct imports, since
+    an indirect path would breach the boundary just as effectively.
+
+    Static by construction, so it sees imports inside function bodies
+    and behind `if` branches (any `ast.Import` node counts, wherever it
+    sits) and terminates via the visited set. What static analysis
+    CANNOT see is a name assembled at runtime — which is why
+    `test_application_code_uses_no_dynamic_imports` below forbids that
+    escape hatch outright rather than leaving the closure quietly
+    incomplete."""
+    breaches = sorted(
+        rel for rel in _reachable_finne_files("finne/explain.py")
+        if rel.startswith("finne/base/")
+    )
     assert not breaches, f"finne/explain.py can reach finne/base/ via: {breaches}"
 
 

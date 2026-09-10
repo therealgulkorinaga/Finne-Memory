@@ -261,7 +261,7 @@ The demo must make the following legible to judges within 2 to 5 minutes:
 
 - Risk: The product reads as generic agent memory. Mitigation: state plainly that Sibyl Memory provides memory and Finné Memory provides bounded authority; show the authority computation, not the storage.
 - Risk: The memory integration reads as decorative. Mitigation: the memory-deleted control is part of the demo and part of the test suite.
-- Risk: Judges believe a model is deciding authorization. Mitigation: run the demo with no model API key present.
+- Risk: Judges believe a model is deciding authorization. **Mitigation updated 2026-09-10 (`DECISION-027`):** a model now produces the PROPOSAL, so "no key present" is no longer the mitigation for the demo itself. What shows authorization is deterministic is that `finne/agent.py` cannot reach `finne/authority/`, `finne/memory/`, `finne/policy.py`, or `finne/base/` — enforced over the transitive closure by `tests/test_import_boundaries.py` — plus `--agent=fixed`, the test suite, and the memory-deletion gate all running with no key at all. State the split on camera: the agent asks, the engine decides.
 - Risk: Base appears bolted on. Mitigation: the authorized amount is carried in the onchain authorization receipt and the transaction result is the outcome evidence written back to memory.
 - Risk: Scope drifts toward Finné/x402. Mitigation: enforce the non-overlap rule in the PRD, agent instructions, tasks, and reviews.
 - Risk: `ORG-Q1` resolves against Base Sepolia. Mitigation: keep the network a single configuration value.

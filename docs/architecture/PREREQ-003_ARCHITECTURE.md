@@ -219,8 +219,9 @@ pytest                                  # run with no model API key set
 | `finne/memory/` | Sibyl Memory adapter, serialisation, immutability guard | **Only** module importing `sibyl_memory_client` |
 | `finne/authority/` | Comparability, derivation, intersection engine | Pure; may not import `finne.memory` or `finne.base` |
 | `finne/retrieval.py` | Deterministic candidate generation | May not rank by model output |
-| `finne/base/` | Contract interaction and signing | **Only** module holding key material or reaching the network |
-| `finne/explain.py` | Readable explanation | **Only** module permitted to call a model; no import path to `finne.base` |
+| `finne/base/` | Contract interaction and signing | **Only** module holding **signing** key material or reaching **Base** (**NARROWED 2026-09-10, `DECISION-027`** — `finne/agent.py` holds an API credential and reaches the model provider. The property that matters is unchanged and still enforced: a model can never reach the signing key or the chain) |
+| `finne/agent.py` | Proposal generation | **Only** module permitted to call a model (**AMENDED 2026-09-10, `DECISION-027`** — moved here from `finne/explain.py`). No import path to `finne.base`, `finne.authority`, `finne.memory`, or `finne.policy`: the agent must not be able to see what it is permitted to do |
+| `finne/explain.py` | Readable explanation | Deterministic. Retains no model-call permission — it never exercised the one it had, and `DECISION-027` moved it to `finne/agent.py`. No import path to `finne.base` |
 | `finne/cli.py` | Terminal interface | Presentation only; no authority logic |
 
 - **Decision:** These constraints are enforced by an import-boundary test, not only by convention.
@@ -290,7 +291,7 @@ Every failure resolves to a narrower authority. None widens.
 | Only non-`active` precedents match | Displayed, excluded from derivation, result `escalate` |
 | Material difference on every candidate | Cannot follow; result `escalate` with the difference named |
 | Requested amount above owner ceiling | `block`, regardless of precedent |
-| Model unavailable | Not a failure mode any more: no module calls a model at runtime (section 13). The explanation is deterministic in every case |
+| Model unavailable | **AMENDED 2026-09-10 (`DECISION-027`).** A failure mode again, but only for `--agent=model`: `finne/agent.py` raises `AgentUnavailableError`, the session states it on screen and stops, and nothing is proposed or authorized. There is deliberately no fallback to a fixed proposal. The authorization path itself still calls no model, and the explanation is still deterministic in every case (section 13). |
 | Base revert, or gas failure/rejection before broadcast | Outcome recorded as `failure`; no transaction reference fabricated; no success path |
 | Base broadcast accepted but receipt wait times out or errors (`NEG-09`) | No outcome recorded — the transaction may still be mined and succeed, and `Outcome` is write-once; resolved later via `reconcile_pending()` against the original transaction's own receipt |
 | Duplicate execution | Application idempotency key, the deployed contract's own `require`, and its `authorizedSigner` restriction (no third party can ever record a competing entry) all reject it |
