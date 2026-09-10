@@ -81,6 +81,15 @@ def build_proposal(amount: Decimal) -> Proposal:
         proposed_at="2026-09-01T00:00:00Z",
     )
 
+def proposal_source(agent_mode: str) -> str:
+    """What to show on screen about where the proposal came from."""
+    if agent_mode != "model":
+        return "fixed demo value — no model called (use --agent=model for the live agent)"
+    from finne.agent import LAST_MODEL_USED
+
+    return f"claims agent — {LAST_MODEL_USED or 'model'} via OpenRouter (live)"
+
+
 def obtain_proposal(agent_mode: str, assessed_value: Decimal) -> Proposal:
     """Where the proposal comes from.
 
@@ -129,7 +138,7 @@ def run(db_path: Path, owner_approved_amount: Decimal, agent_mode: str = "fixed"
         return 1
 
     cli.session_header("Session 1", "a first-of-its-kind claim — no comparable precedent yet")
-    cli.proposal_panel(proposal, owner_policy.max_amount)
+    cli.proposal_panel(proposal, owner_policy.max_amount, source=proposal_source(agent_mode))
 
     # NEG-01 / PREREQ-003 section 19: memory unavailable, uninitialised,
     # or unauthenticated resolves to a visible `escalate` on screen,

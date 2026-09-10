@@ -155,14 +155,27 @@ def session_header(session_label: str, subtitle: str) -> None:
     _emit(out, Panel(_text(subtitle, "bold"), title=_clean(session_label), border_style="cyan"), plain)
 
 
-def proposal_panel(proposal: Proposal, owner_ceiling) -> None:
+def proposal_panel(proposal: Proposal, owner_ceiling, source: str | None = None) -> None:
+    """`source` names where the proposal came from.
+
+    Without it, a run with a live model looks identical on screen to one
+    using a fixed value — the agent does real work (it decides the
+    amount and the risk rating) and gets no credit for it. Naming the
+    source also makes the honest thing visible: on the default path
+    nothing is called, and the screen says so rather than implying an
+    agent that isn't there.
+    """
     out = console()
-    body = (
+    lines = []
+    if source:
+        lines.append(f"Assessed by: {source}")
+    lines.append(
         f"Proposed: {proposal.amount} {proposal.asset} "
-        f"({proposal.action_class} / {proposal.target_class} / {proposal.function})\n"
-        f"Delegated authority: {owner_ceiling} {proposal.asset}\n"
-        f"Channel: {proposal.network}   Claim risk: {proposal.counterparty_risk_tier.value}"
+        f"({proposal.action_class} / {proposal.target_class} / {proposal.function})"
     )
+    lines.append(f"Delegated authority: {owner_ceiling} {proposal.asset}")
+    lines.append(f"Channel: {proposal.network}   Claim risk: {proposal.counterparty_risk_tier.value}   (the agent's own assessment)")
+    body = "\n".join(lines)
     if _plain():
         _emit(out, _text(body), body)
         return

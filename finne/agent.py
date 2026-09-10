@@ -57,6 +57,9 @@ from finne.models import Proposal, RiskTier, ValidationError
 _ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_MODEL = "anthropic/claude-opus-5"
 _TIMEOUT_SECONDS = 60
+
+#: Which model answered the most recent propose() call. Display only.
+LAST_MODEL_USED: str | None = None
 _ENV_FILE = Path(__file__).resolve().parent.parent / ".env"
 
 
@@ -326,4 +329,10 @@ def propose(case: CaseUnderAssessment, *, model: str | None = None) -> Proposal:
             f"model returned {type(payload).__name__}, expected a JSON object"
         )
 
-    return _to_proposal(payload)
+    proposal = _to_proposal(payload)
+    # Record which model answered, so the caller can name it on screen.
+    # Module-level and last-write-wins: this is display provenance for a
+    # single-call demo path, not state the authority layer may read.
+    global LAST_MODEL_USED
+    LAST_MODEL_USED = chosen_model
+    return proposal
